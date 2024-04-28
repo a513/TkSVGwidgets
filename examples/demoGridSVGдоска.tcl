@@ -317,7 +317,7 @@ update
 
 
 wm minsize . 450 450
-wm iconphoto . checkerWhite
+#wm iconphoto . checkerWhite
 wm title . "Шашки с svg-фигурами"
 wm geometry . +200+100
 setcyan
