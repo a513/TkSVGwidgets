@@ -9,12 +9,12 @@ destroy $t
 toplevel $t
 wm state $t withdraw
 wm state $t normal
-wm protocol $t WM_DELETE_WINDOW {exitarm $t {Вы действительно\nхотите выйти?}}
+wm protocol $t WM_DELETE_WINDOW {exitarm $t "Вы действительно\nхотите выйти?"}
 set ::bgold [. cget -bg]
 set ::geo [wm geometry .]
 set ::min [wm minsize .]
 #Меню создаются в окнах (toplevel) ::tmenu=1 в отдельных окнах, tmenu=0 - в главном окне
-set ::tmenu 1
+set ::tmenu 0
 
 proc exitarm {t mestok} {
 	if {$t == "."} {
@@ -380,7 +380,7 @@ pack [$went canvas] -in $t.frame -side top -fill x -expand 0 -padx 3c -pady 5m -
 
 pack [$ch canvas] -in $t.frame -side left -padx "1c 0" -pady "0 0" -anchor nw
 #raise [$ch canvas]
-pack [$mn canvas] -in $t.frame -side right -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
+pack [$mn canvas] -in $t.frame -side left -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
 #raise [$mn canvas]
 
 
@@ -393,6 +393,7 @@ set typefb $dir
 eval "bind $t.frame  <ButtonPress-3> {update;after 200;puts XAXA;showContextMenu %W %x %y %X %Y $w $typefb}"
 #createConfigMenu $mn ffff up 1
 createConfigMenu $mn ffff up $::tmenu
+
 set foldersfirst 1
 set details	 0
 set sepfolders	 1
@@ -401,3 +402,9 @@ update
 trace variable rad w displaymenu
 #set rad enter
 set rad release
+if {$::tmenu == 0} {
+    $::osnmenu config -command "bind $t <Configure> {catch {lower $t._Busy $t.ffff}}"
+}
+
+
+

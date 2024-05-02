@@ -2734,6 +2734,11 @@ set methodman {
     if {$fr == 0} {
 	return
     }
+    if {$wclass == "mbutton" || $wclass == "cmenu"} {
+	foreach {x0 y0 x1 y1} [$wcan bbox 0] {break}
+#	$wcan configure -width [expr {$x1 + $x0}] -height [expr {$y1 + $y0}]
+	$wcan configure -width $x1  -height $y1
+    }
 
     if {[winfo manager $wcan] == ""} {
 	    eval $type $wcan [lindex $args 0]
@@ -3215,7 +3220,8 @@ oo::class create mbutton {
 	    }
 	up {
 		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
-		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] + 30}]
+#		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] + 30}]
+		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] + 0}]
 		set rx [winfo fpixels $wcan $Options(-rx)]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
