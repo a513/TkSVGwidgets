@@ -4444,7 +4444,11 @@ oo::class create cframe {
 	    set idt [$wcan create ptext 0 0 -textanchor nw -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) ]
 	    foreach {xy0 yt0 xt1 yt1} [$wcan bbox $idt] {break}
 	    $wcan delete $idt
-	    set ycoords [expr {($yt1 - $yt0) / 2.0 + $strwidth}]	
+	    if {[info exist yt1]} {
+		set ycoords [expr {($yt1 - $yt0) / 2.0 + $strwidth}]
+	    } else {
+		set ycoords $strwidth
+	    }
 	}
 	centry {
 	    set fonte "Helvetica [winfo pixels $wcan $Options(-fontsize)]"
@@ -4585,8 +4589,10 @@ oo::class create cframe {
     }
 
     foreach {xt0 yt0 xt1 yt1} [$wcan bbox $idt] {break}
-    set bidt [$wcan create prect $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags $btag -stroke ""] 
-    $wcan lower $bidt $idt
+    if {[info exist yt1]} {
+	set bidt [$wcan create prect $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags $btag -stroke ""] 
+	$wcan lower $bidt $idt
+    }
   }
 
   method type {} {
