@@ -4421,8 +4421,12 @@ oo::class create cframe {
 	centry {
 	    set Options(-rx)	1.5m
 	    set Options(-text) ""
-	    set  Options(-fontsize) 3m
 	    set  Options(-values) ""
+	    if {[string range $::tcl_platform(machine) 0 2] != "arm"} {
+		set  Options(-fontsize) 3m
+	    } else {
+		set  Options(-fontsize) 1m
+	    }
 	}
 	default {
 	    set Options(-text) ""
