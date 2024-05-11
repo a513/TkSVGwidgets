@@ -65,7 +65,7 @@ set went [cframe new $t.cent -type centry -rx 2m -height 7m -bg yellow]
 puts "Поле ввода: $went"
 $t.cent configure -height 28
 
-pack $t.cent -in $t.c -side top -fill x -expand 1 -padx 3c -pady "1c 2m" -anchor nw
+pack $t.cent -in $t.c -side top -fill x -expand 0 -padx 3c -pady "1c 2m" -anchor nw
 
 #SVG-фрейм
 set b1 [cbutton new $t.frame -type frame -rx 5m ]
@@ -83,7 +83,7 @@ set img [foldercolor [$xa4 canvas] "blue" ]
 $xa4 config -image "[$xa4 canvas] $img" -ipad "2m 10m  2m 12m"
 [$xa4 canvas] delete $img
 
-pack [$b1 canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw -ipady 300
+pack [$b1 canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw 
 
 pack [$xa1 canvas] -in $t.frame -padx 1c -pady "1c 0" -fill both -expand 1
 pack [$xa2 canvas] [$xa3 canvas] -in $t.frame -padx 1c -pady "5m 0" -fill both -expand 1
@@ -118,7 +118,7 @@ $rc4 pack -in [$clfrv canvas] -padx 1c -pady "2m" -fill both -expand 1
 $rc5 pack -in [$clfrv canvas] -padx 1c -pady "2m 0"
 $rc7 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill x
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "2m 5m" -fill both -expand 1
-pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne -ipady 300
+pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 

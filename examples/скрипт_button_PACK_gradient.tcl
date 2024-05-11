@@ -42,7 +42,7 @@ update
 pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
 update
 set went [cframe new $t.cent -type centry -rx 2m ]
-$went pack -in $t.c -side top -fill x -expand 1 -padx 3c -pady "1c 2m" -anchor nw
+$went pack -in $t.c -side top -fill x -expand 0 -padx 3c -pady "1c 2m" -anchor nw
 #SVG-фрейм
 set b1 [cbutton new $t.frame -type frame -rx 5m ]
 update
@@ -55,7 +55,7 @@ set xa3 [cbutton new $t.frame.but3 -type ellipse  -text Эллипс -fontweight
 set xa4 [cbutton new $t.frame.but4 -type rect  -text {ВЫХОД (Закругленный)} -rx 2m -command "exitarm $t" -filltext red -fontweight bold -fontsize 4m]
 [$xa4 canvas] configure -bg [$b1 config -fillnormal]
 $xa4 config  -textstroke black -textstrokewidth 0.7
-$b1 pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw -ipady 300
+$b1 pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw
 update
 pack [$xa1 canvas] -in $t.frame -padx 1c -pady "1c 0" -fill both -expand 1
 pack [$xa2 canvas] -in $t.frame -padx 1c -pady "5m 0" -fill both -expand 1
