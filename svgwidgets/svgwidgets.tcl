@@ -4463,7 +4463,7 @@ oo::class create cframe {
 	    } else {
 		set cent [entry $wcan.entry -background snow -bd 0 -highlightthickness 0 -font "$fonte" -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow ]
 	    }
-	    pack $wcan.entry -in $wcan -fill x -expand 1 -padx 1.0m  -pady 1.0m
+	    pack $wcan.entry -in $wcan -fill x -expand 1 -padx $Options(-rx)  -pady 1.0m
 	    raise $wcan.entry
 	}
 	ccombo {
@@ -4485,7 +4485,7 @@ oo::class create cframe {
 	    } else {
 		set cent [ttk::combobox $wcan.entry -style My.TCombobox -values "$Options(-values)" -font "$fonte"]
 	    }
-	    pack $wcan.entry -in $wcan -fill x -expand 1 -padx 1.0m  -pady 1.0m
+	    pack $wcan.entry -in $wcan -fill x -expand 1 -padx $Options(-rx)  -pady 1.0m
 	    raise $wcan.entry
 	}
 	default {

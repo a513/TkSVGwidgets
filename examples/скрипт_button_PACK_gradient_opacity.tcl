@@ -43,6 +43,11 @@ proc opacity {frame1 frame2} {
     $::b1 config -fillnormal {}
     set ::winop 1
     set op 1
+    foreach w1 "$::bb $::uu $::ww" {
+	$w1 fon
+    }
+
+
     foreach w1 "$::xa1 $::xa2 $::xa3 $::xa4" {
 	$w1 fon
     }
@@ -78,6 +83,7 @@ pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
 update
 set went [cframe new $t.cent -type centry -rx 2m ]
 $went pack -in $t.c -side top -fill x -expand 0 -padx 3c -pady "1c 2m" -anchor nw
+set ::ww $went
 #raise [$went canvas ]  $t.c
 #SVG-фрейм
 set ::b1 [cbutton new $t.frame -type frame -rx 5m ]
@@ -91,19 +97,19 @@ set ::xa3 [cbutton new $t.but3 -type ellipse  -text Эллипс -fontweight bol
 set ::xa4 [cbutton new $t.but4 -type rect  -text {ВЫХОД (Закругленный)} -rx 2m -command "exitarm $t" -filltext red -fontweight bold -fontsize 4m]
 [$::xa4 canvas] configure -bg [$::b1 config -fillnormal]
 $::xa4 config  -textstroke black -textstrokewidth 0.7
-$::b1 pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw
+$::b1 pack -in $t.c -fill both -expand 1 -padx 5m -pady 5m -side left -anchor nw
 update
-pack [$::xa1 canvas] -in $t.frame -padx 1c -pady "1c 0" -fill both -expand 1
-pack [$::xa2 canvas] -in $t.frame -padx 1c -pady "5m 0" -fill both -expand 1
-pack [$::xa3 canvas] -in $t.frame -padx 1c -pady "5m 0" -fill both -expand 1
+pack [$::xa1 canvas] -in $t.frame -padx 5m -pady "1c 0" -fill both -expand 1
+pack [$::xa2 canvas] -in $t.frame -padx 5m -pady "5m 0" -fill both -expand 1
+pack [$::xa3 canvas] -in $t.frame -padx 5m -pady "5m 0" -fill both -expand 1
 #$::xa3 pack -in $t.frame -padx 1c -pady "5m 0" -fill both -expand 1
-pack [$::xa4 canvas] -in $t.frame -padx 1c -pady "5m" -fill both -expand 1
+pack [$::xa4 canvas] -in $t.frame -padx 5m -pady "5m" -fill both -expand 1
 #SVG-фрейм с заголовком
     set ::clfrv [cframe new $t.rgch -type clframe -text "radio/check кнопки" -rx 5m -strokewidth 1 -stroke red -fillnormal snow -fillopacity 0.3]
     $::clfrv boxtext
     $::clfrv config -fontsize 3.5m -fillbox cyan -fillopacity 0.5
 
-$::clfrv pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw
+$::clfrv pack -in $t.c -fill both -expand 1 -padx "0 5m" -pady 5m -side left -anchor nw
 set ::rc1 [cbutton new $t.rbut1 -type radio  -text Radio1 -variable vrc1 -value 1]
 [$::rc1 canvas] configure -bg [$::clfrv config -fillnormal]
 set ::rc2 [cbutton new $t.rbut2 -type radio  -text Radio2 -variable vrc1 -value 0 ]
@@ -124,12 +130,12 @@ $::rc4 pack -in [$::clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
 $::rc5 pack -in [$::clfrv canvas] -padx 1c -pady "5m 0"
 $::rc6 pack -in [$::clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
 }
-pack [$::rc1 canvas] -in [$::clfrv canvas] -padx 1c -pady "1c 0"
-pack [$::rc2 canvas] -in [$::clfrv canvas] -padx 1c -pady "5m 0"
-pack [$::rc3 canvas] -in [$::clfrv canvas] -padx 1c -pady "5m 0"
-pack [$::rc4 canvas] -in [$::clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
-pack [$::rc5 canvas] -in [$::clfrv canvas] -padx 1c -pady "5m 0"
-pack [$::rc6 canvas] -in [$::clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
+pack [$::rc1 canvas] -in [$::clfrv canvas] -padx 5m -pady "1c 0"
+pack [$::rc2 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m 0"
+pack [$::rc3 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m 0"
+pack [$::rc4 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m" -fill both -expand 1
+pack [$::rc5 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m 0"
+pack [$::rc6 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m" -fill both -expand 1
 #$::clfrv pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw
 lower [$::clfrv canvas] [$::rc1 canvas]
 #Кнопка обновления фона фреймов
@@ -142,6 +148,9 @@ set bel [cbutton new $t.butbel -type round  -text {Прозрачность} -co
 #$::xa2 config -command "$::b1 fon;$::clfrv fon;$went fon;$::xa2 fon"
 #[$::xa2 canvas] configure -bg [$::b1 config -fillnormal]
 $bel place -in $t.c -x 10c -y 2m
+
+set ::bb $bel
+set ::uu $upwin
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 #Обновить окно
