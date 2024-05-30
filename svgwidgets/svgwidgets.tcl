@@ -568,20 +568,16 @@ oo::class create cbutton {
     }
     switch $stat {
 	normal -
-	disabled {
-	    $wcan itemconfigure $idr -state $stat
-	    $wcan itemconfigure $idt -state $stat
-	    $wcan itemconfigure $idor -state $stat
-	}
+	disabled -
 	hidden {
-	    $wcan itemconfigure $idr -state $stat
-	    $wcan itemconfigure $idt -state $stat
+	    $wcan itemconfigure $btab -state $stat
 	}
 	default {
 	    error "Bad state=$stat"
 	}
     }
   }
+
   
   method move {dx dy} {
 	if {$fr == 1} {
@@ -1098,11 +1094,13 @@ if {1} {
 			    switch $Options(-compound)  {
 				left {
 				    set x [expr {$xi2 + $pxl}]
-				    set y [expr { ($y1 + $y2) / 2.0}]
+#				    set y [expr { ($y1 + $y2) / 2.0}]
+				    set y [expr { $y2 / 2.0}]
 				    set tanchor  "w"
 				}
 				right {
-				    set y [expr { ($y1 + $y2) / 2.0}]
+#				    set y [expr { ($y1 + $y2) / 2.0}]
+				    set y [expr { $y2 / 2.0}]
 				    set tanchor  "w"
 #				    puts "right"
 				
@@ -1232,8 +1230,10 @@ if {1} {
     		    set ry2 [expr {$ry1 + $ry2}]
     		} else {
     		    foreach {rx1 ry1 rx2 ry2} [$wcan bbox "$btag rect"] {break}
+if {$fr == 1} {
     		    set rx2 [expr {$rx1 + $rx2}]
     		    set ry2 [expr {$ry1 + $ry2}]    		    
+}
     		}
     		
 		foreach {pxl pxr pyl pyr} [my config -ipad] {break}
@@ -1247,8 +1247,8 @@ if {1} {
     		    set scalex [expr {$pwidth  / ($sx2 - $sx1 )}]
     		    set scaley [expr {$pheight / ($sy2 - $sy1 )}]
 		} else {
-    		    set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl)) / ($sx2 - $sx1 )}]
-    		    set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl)) / ($sy2 - $sy1 )}]
+    			set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl)) / ($sx2 - $sx1 )}]
+    			set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl)) / ($sy2 - $sy1 )}]
 		}
 #puts "scalex=$scalex scaley=$scaley"
     		$wcan scale $isvg 0 0 $scalex $scaley
@@ -1338,10 +1338,9 @@ if {1} {
 		    hidden {
 			set  Options($option) $value
 			if {[info exists idr]} {
-#	   		 $wcan itemconfigure $idg -state $stat
-			    $wcan itemconfigure $idor -state $value
-			    $wcan itemconfigure $idr -state $value
-			    $wcan itemconfigure $idt -state $value
+			    $wcan itemconfigure $btag -state $value
+#			    $wcan itemconfigure $idr -state $value
+#			    $wcan itemconfigure $idt -state $value
 			}
 		    }
 		    default {
@@ -1752,6 +1751,8 @@ if {1} {
 	    $wcan bind $isvg <ButtonRelease-1> {}
 	    $wcan delete $isvg
 	}
+	catch {$wcan delete $idi}
+	
 	if {$fr} {
     	    bind $wcan  <Configure> {}
 	    destroy $wcan
@@ -2293,19 +2294,7 @@ oo::class create ibutton {
 		    hidden {
 			set  Options($option) $value
 			if {[info exists idr]} {
-			    if {$value ==  "normal"} {
-				$wcan itemconfigure $idor -state $value
-				$wcan itemconfigure $idr -state $value
-				$wcan itemconfigure $idt -state $value
-				$wcan itemconfigure $idi -state $value
-				$wcan itemconfigure $idi -tintamount 0 -tintcolor $Options(-tintcolor)
-			    } elseif {$value ==  "disabled"} {
-				[my canvas] itemconfigure $idi -tintamount 1.0 
-				$wcan itemconfigure $idor -state $value
-				$wcan itemconfigure $idr -state $value
-				$wcan itemconfigure $idt -state $value
-				$wcan itemconfigure $idi -state $value
-			    }
+				$wcan itemconfigure $btag -state $value
 			}
 		    }
 		    default {
@@ -2342,8 +2331,8 @@ oo::class create ibutton {
     		    error "for svg image ($value): -image \"<canvas> <tagORidItem>\""
 		}
 		if {![info exists idr]} {
-    		    puts "-isvg IDR NOT Options(-isvg) $value"
-    		    set Options($option) $value
+    		    puts "Not idr: -isvg Options(-isvg)=\"$value\""
+    		    set Options($option) "$value"
 		    continue
 		}
 		foreach {canv item} $value {break}
@@ -2414,25 +2403,28 @@ oo::class create ibutton {
     			set isvg $Options(-isvg)
 #puts "ibutton: -isvg ok isvg=$isvg idr=$idr"
     			foreach {sx1 sy1 sx2 sy2} [$wcan bbox $isvg] {break}
-    			foreach {rx1 ry1 rx2 ry2} [$wcan bbox $idr] {break}
-    			set rx2 [expr {$rx1 + $rx2}]
-    			set ry2 [expr {$ry1 + $ry2}]
-
+#    			foreach {rx1 ry1 rx2 ry2} [$wcan bbox $idr] {break}
+    			foreach {rx1 ry1 rx2 ry2} [$wcan bbox "$btag rect"] {break}
+if {1} {
+    			foreach {rx1 ry1 rx2 ry2} [$wcan coords $idr] {break}
+}
 			foreach {pxl pxr pyl pyr} $Options(-pad) {break}
 			set pxl [winfo fpixels $wcan $pxl]
 			set pxr [winfo fpixels $wcan $pxr]
 			set pyl [winfo fpixels $wcan $pyl]
     			set pyr [winfo fpixels $wcan $pyr]
 
-    			set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl) - $strwidth * 0 ) / ($sx2 - $sx1 + $strwidth * 1)}]
-    			set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl) - $strwidth * 0 ) / ($sy2 - $sy1 + $strwidth * 0)}]
+    			set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl) - $strwidth * 1.0 ) / ($sx2 - $sx1 - $strwidth * 1.0 )}]
+    			set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl) - $strwidth * 1.0 ) / ($sy2 - $sy1 - $strwidth * 1.0 )}]
 
+#set xx [$wcan bbox "$btag rect"]
+#puts "-pad: scalex=$scalex scaley=$scaley isvg=$isvg bbox_isvg=[$wcan bbox $isvg] bbox_rect=$xx rect=$idr btag=$btag"
     			$wcan scale $isvg 0 0 $scalex $scaley
-
     			foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 
-    			$wcan move $isvg [expr {$rx1 - $snx1 + $pxl + $strwidth * 1 * 0 }] [expr {$ry1 - $sny1 + $pyl + $strwidth * 1 * 0 }]
-#puts "-pad: Options(-isvg)=$Options(-isvg) pad=Options(-pad) idr=$idr END"
+    			$wcan move $isvg [expr {$rx1 - $snx1 + $pxl + $strwidth * 1 * 0.5 }] [expr {$ry1 - $sny1 + $pyl + $strwidth * 1 * 0.5 }]
+#set xx [$wcan bbox "$btag rect"]
+#puts "-pad: scalex=$scalex scaley=$scaley isvg=$isvg bbox_isvg=[$wcan bbox $isvg] bbox_rect=$xx rect=$idr btag=$btag"
 
 		    } else {
 #Старое pad
@@ -3521,8 +3513,9 @@ oo::class create mbutton {
 	normal -
 	disabled -
 	hidden {
-	    $wcan itemconfigure $idr -state $stat
-	    $wcan itemconfigure $idt -state $stat
+	    $wcan itemconfigure $btag -state $stat
+#	    $wcan itemconfigure $idr -state $stat
+#	    $wcan itemconfigure $idt -state $stat
 	}
 	default {
 	    error "Bad state=$stat"
@@ -3738,9 +3731,7 @@ oo::class create mbutton {
 		    hidden {
 			set  Options($option) $value
 			if {[info exists idr]} {
-#	   		 $wcan itemconfigure $idg -state $stat
-			    $wcan itemconfigure $idr -state $value
-			    $wcan itemconfigure $idt -state $value
+	   		    $wcan itemconfigure $btag -state $stat
 			}
 		    }
 		    default {
@@ -3871,23 +3862,15 @@ oo::class create mbutton {
 	    -fontweight {
     		set Options($option) $value
 		if {[info exists idt]} {
-if {1} {
 		    if {$option == "-fontsize"} {
 		    	$wcan itemconfigure $idt $option [winfo pixels $wcan $Options(-fontsize)]
 		    } else {
 		    	$wcan itemconfigure $idt $option $value
 		    }
-}
 		    if {$fr == 1} {
 			foreach {x1 y1 x2 y2} [$wcan bbox $canvasb] {break}
 			$wcan configure -width $x2 -height $y2
 		    }
-		} 
-	    }
-	    -fontsizeOLD {
-    		set Options($option) $value
-		if {[info exists idt]} {
-		    $wcan itemconfigure $idt $option [winfo fpixels $wcan $value]
 		} 
 	    }
 	    -stroke {
@@ -4331,6 +4314,7 @@ puts "cmenu finish: uuncnown direction=$direction"
 
 oo::class create cframe {
   variable wcan
+  variable wentry
   variable Options
   variable listmenu
   variable xc
@@ -4344,6 +4328,7 @@ oo::class create cframe {
   variable idtb
   variable geotop 
   variable wclass
+  variable onemm2px
 #fr = 0 кнопки создаются на внешнем холсте
 #fr - 1 кнопки создаются на внутреннем холсте для внешнего фрейма
   variable fr
@@ -4380,10 +4365,9 @@ oo::class create cframe {
 	set xc0 [winfo fpixels $wcan $xc0]
 	set yc0 [winfo fpixels $wcan $yc0]
     }
+    set onemm2px [winfo fpixels $w 1m]
 #Запоминаем геометрию главного окна
     set topw [winfo toplevel $wcan]
-#    set geotop [lindex [split [wm geometry $topw] +] 0]
-#    set geotop [wm geometry $topw]
     set geotop ""
 #Вставить проверку wcan на canvas!!
 
@@ -4398,6 +4382,8 @@ oo::class create cframe {
 #    set Options(-height)	7c
     set Options(-width)		10m
     set Options(-height)	7m
+    set Options(-state) "normal"
+    set Options(press) 0
     switch -- $::tcl_platform(platform) {
 	"windows"        {
 		set svgFont "Arial Narrow"
@@ -4442,6 +4428,8 @@ oo::class create cframe {
 	set entwidth [winfo fpixels $wcan $Options(-width)]
 	$wcan configure -width [expr {$strwidth + $entwidth}]
     }
+    set obje [string range [self] [string first Obj [self]] end]
+    set wentry "$wcan.entry$obje"
     switch $type {
 	clframe {
 	    set fontsize [winfo fpixels $wcan $Options(-fontsize)]
@@ -4459,12 +4447,18 @@ oo::class create cframe {
 #puts "CENTRY font=$fonte="
 	    set ycoords $strwidth
 	    if {[info exists Options(-textvariable)]} {
-		set cent [entry $wcan.entry -background snow -bd 0 -highlightthickness 0 -font "$fonte" -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow -textvariable $Options(-textvariable)]
+		set cent [entry $wentry -background snow -bd 0 -highlightthickness 0 -font "$fonte" -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow -textvariable $Options(-textvariable)]
 	    } else {
-		set cent [entry $wcan.entry -background snow -bd 0 -highlightthickness 0 -font "$fonte" -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow ]
+		set cent [entry $wentry -background snow -bd 0 -highlightthickness 0 -font "$fonte" -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow ]
 	    }
-	    pack $wcan.entry -in $wcan -fill x -expand 1 -padx $Options(-rx)  -pady 1.0m
-	    raise $wcan.entry
+	    if {$fr == 1 } {
+		pack $wentry -in $wcan -fill x -expand 1 -padx $Options(-rx)  -pady 1.0m
+	    } else {
+		set entwidth [winfo fpixels $wcan $Options(-width)]
+		set entheight [winfo fpixels $wcan $Options(-height)]
+		place $wentry -in $wcan -x [expr {$xc0 + $onemm2px }] -y [expr {$yc0 + $ycoords}] -width [expr {$entwidth - $onemm2px * 2}] -height [expr {$entheight - $ycoords * 2}]
+	    }
+	    raise $wentry
 	}
 	ccombo {
 	    set fonte "Helvetica [winfo pixels $wcan $Options(-fontsize)]"
@@ -4481,12 +4475,18 @@ oo::class create cframe {
 	    ttk::style map My.TCombobox -focusfill [list "readonly focus" "white"]
 
 	    if {[info exists Options(-textvariable)]} {
-		set cent [ttk::combobox $wcan.entry -style My.TCombobox -values "$Options(-values)" -font "$fonte" -textvariable $Options(-textvariable)]
+		set cent [ttk::combobox $wentry -style My.TCombobox -values "$Options(-values)" -font "$fonte" -textvariable $Options(-textvariable)]
 	    } else {
-		set cent [ttk::combobox $wcan.entry -style My.TCombobox -values "$Options(-values)" -font "$fonte"]
+		set cent [ttk::combobox $wentry -style My.TCombobox -values "$Options(-values)" -font "$fonte"]
 	    }
-	    pack $wcan.entry -in $wcan -fill x -expand 1 -padx $Options(-rx)  -pady 1.0m
-	    raise $wcan.entry
+	    if {$fr == 1 } {
+		pack $wentry -in $wcan -fill x -expand 1 -padx $Options(-rx)  -pady 1.0m
+	    } else {
+		set entwidth [winfo fpixels $wcan $Options(-width)]
+		set entheight [winfo fpixels $wcan $Options(-height)]
+		place $wentry -in $wcan -x [expr {$xc0 + $onemm2px }] -y [expr {$yc0 + $ycoords}] -width [expr {$entwidth - $onemm2px * 2}] -height [expr {$entheight - $ycoords}]
+	    }
+	    raise $wentry
 	}
 	default {
 	    set ycoords $strwidth
@@ -4503,19 +4503,26 @@ oo::class create cframe {
 	set cw [winfo fpixels $wcan $Options(-width)]
     }
 #puts "ch=$ch cw=$cw ycoords=$ycoords xc0=$xc0 yc0=$yc0 strwidth=$strwidth"
+if {$fr == 1 || $tbut == "clframe" } {
     set idr [$wcan create prect [expr {$xc0 + $strwidth * 0}] [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch - $ycoords}]] 
+} else {
+    set idr [$wcan create prect [expr {$xc0 + $strwidth * 0}] [expr {$yc0 - $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch + $ycoords}]] 
+}
 
     set btag "canvasb[string range [self] [string first Obj [self]] end]"
-    $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -rx $crx -tags [list Rectangle obj $canvasb $btag [linsert $btag end frame] utag$idr]
+    $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -rx $crx -tags [list Rectangle obj $canvasb $btag $tbut [linsert $btag end $tbut] utag$idr]
     my changestrwidth $strwidth
     if {$tbut == "centry" || $tbut == "ccombo"} {
-	set bg [$wcan.entry cget -background]
+	set bg [$wentry cget -background]
+	if {$bg == ""} {
+	    set bg "white"
+	}
 	$wcan itemconfigure $idr -fill $bg
     }
     set idr "utag$idr"
 #Заголовок
     if {$tbut == "clframe"} {
-	set idt [$wcan create ptext [expr {$xc0 + ($cw - $strwidth * 2) / 2.0}] [expr {$yc0 + 1}] -textanchor n -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) -tags "$btag"]
+	set idt [$wcan create ptext [expr {$xc0 + ($cw - $strwidth * 2) / 2.0}] [expr {$yc0 + 1}] -textanchor n -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) -tags [list Text obj $canvasb "$btag"]]
     }
     if {$fr == 1} {
 	eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
@@ -4529,7 +4536,7 @@ oo::class create cframe {
 	if {$tbut != "centry" && $tbut != "ccombo"} {
 	    return ""
 	}
-	return "$wcan.entry"
+	return "$wentry"
   }
 
   method resize {wx hy {from 1}} {
@@ -4556,17 +4563,23 @@ oo::class create cframe {
 	set y1 [expr {$hy - $swidth}]
 #puts "NEW x0=$x0 y0=$y0 x1=$x1 y1=$y1"
     } else {
-	set x1 [expr {$x0 + $wx - $swidth}]
-	set y1 [expr {$y0 + $hy - $swidth}]
+	set x1 [expr {$x0 + $wx - $swidth * 0}]
+	set y1 [expr {$y0 + $hy - $swidth * 0}]
     }
 
     $wcan coords $idr $x0 $y0 $x1 $y1
+    if {$fr == 0 && ($tbut == "centry" || $tbut == "ccombo")} {
+puts "RESIZE CFRAME tbut=$tbut"    
+	place configure $wentry -width [expr {$wx - $onemm2px * 2}] -height [expr {$hy - $onemm2px * 2 }]
+	return
+    }
+    
     if {[info exists idr] && $tbut == "clframe"} {
 	foreach {xc yc } [$wcan coords $idt] {break}
 	if {$fr == 1} {
 	    $wcan coords $idt [expr {($wx - $swidth * 2) / 2.0 }]   $yc
 	} else {
-	    $wcan coords $idt [expr {($x0 + $wx - $swidth * 2) / 2.0 }]   $yc
+	    $wcan coords $idt [expr {($x0 + $wx - $swidth * 2 * 0) / 2.0 }]   $yc
 	}
     }
     if {[info exists bidt]} {
@@ -4594,7 +4607,7 @@ oo::class create cframe {
 
     foreach {xt0 yt0 xt1 yt1} [$wcan bbox $idt] {break}
     if {[info exist yt1]} {
-	set bidt [$wcan create prect $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags $btag -stroke ""] 
+	set bidt [$wcan create prect $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags [list Rectangle boxtext $canvasb $btag] -stroke ""] 
 	$wcan lower $bidt $idt
     }
   }
@@ -4712,7 +4725,7 @@ oo::class create cframe {
 		if {[info exists idr]} {
 		    $wcan itemconfigure $idr -fill $value
 #????
-		    if {$tbut != "clframe"} {
+		    if {$tbut != "clframe" && $fr == 1} {
 			[my canvas] configure -background $value
 		    }
 		}
@@ -4745,6 +4758,55 @@ oo::class create cframe {
 			$wcan itemconfigure $idr $option [winfo fpixels $wcan $value]
 		    }
 	    }
+	    -state {
+    		if {$tbut == "clframe"} {
+		    switch $value {
+			normal -
+			disabled -
+			hidden {
+			    set  Options($option) $value
+			    if {[info exists idr]} {
+	   			$wcan itemconfigure $btag -state $value
+			    }
+			}
+			default {
+			    error "Bad state=$value"
+			}
+		    }
+		} else {
+		    switch $value {
+			normal {
+			    if {[info exists idr]} {
+	   			$wcan itemconfigure $btag -state $value
+	   			$wentry configure -state $value
+				if {$Options($option) == "hidden"} {
+				    foreach {rx0 ry0 rx1 ry1} [$wcan coords $idr] {
+					place configure $wentry -width [expr {$rx1 - $rx0 - $onemm2px * 4}] -height [expr {$ry1 - $ry0 - $onemm2px * 2 }] -y [expr {$ry0 + $onemm2px  }] -x [expr {$rx0 + $onemm2px * 2 }]
+				    }
+				}
+			    }
+			    set  Options($option) $value
+			}
+			disabled {
+			    set  Options($option) $value
+			    if {[info exists idr]} {
+	   			$wcan itemconfigure $btag -state $value
+	   			$wentry configure -state $value
+			    }			
+			}
+			hidden {
+			    set  Options($option) $value
+			    if {[info exists idr]} {
+	   			$wcan itemconfigure $btag -state $value
+	   			place forget $wentry 
+			    }
+			}
+			default {
+			    error "cframe: Bad state=$value"
+			}
+		    }
+		}
+	    }
     	    default {
     		puts "cframe: Bad option $option"
     	    }
@@ -4765,6 +4827,10 @@ oo::class create cframe {
 	if {$fr == 1} {
 	    bind $wcan  <Configure> {}
 	    destroy $wcan
+	} else {
+	    if {$fr == 0 && ($tbut == "centry" || $tbut == "ccombo")} {
+		destroy $wentry
+	    }
 	}
     }
   }
