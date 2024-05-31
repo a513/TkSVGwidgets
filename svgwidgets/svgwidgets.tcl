@@ -3258,7 +3258,9 @@ oo::class create mbutton {
 	set fontsize [winfo fpixels $wcan 3.5m]
 	foreach {xr1 yr1 xr2 yr2} [$wcan bbox $idr] {break}
 #puts "xr1=$xr1 yr1=$yr1 xr2=$xr2 yr2=$yr2 idr=$idr height=[my config -height]"
-	set yr2 [winfo pixels $wcan [my config -height]]
+	if {$fr == 1} {
+	    set yr2 [winfo pixels $wcan [my config -height]]
+	}
 
 	set idtyn [$w create ptext $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	set boxyn [$wcan bbox $idtyn]
@@ -3267,8 +3269,8 @@ oo::class create mbutton {
 #	puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 2) / 3.0}]
 	if {$fr == 0} {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 +  $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 + $hyesno }] -text " Нет"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 -  $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno }] -text " Нет"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	} else {
 	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno / 2 }] -text " Нет"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
@@ -3286,7 +3288,9 @@ oo::class create mbutton {
 	set fontsize [winfo fpixels $wcan 3.5m]
 	foreach {xr1 yr1 xr2 yr2} [$wcan bbox $idr] {break}
 #puts "xr1=$xr1 yr1=$yr1 xr2=$xr2 yr2=$yr2 idr=$idr height=[my config -height]"
-	set yr2 [winfo pixels $wcan [my config -height]]
+	if {$fr == 1} {
+	    set yr2 [winfo pixels $wcan [my config -height]]
+	}
 
 	set idtyn [$w create ptext $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	set boxyn [$wcan bbox $idtyn]
@@ -3295,7 +3299,7 @@ oo::class create mbutton {
 #	puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 1) / 2.0}]
 	if {$fr == 0} {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 + $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	} else {
 	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	}
@@ -3656,7 +3660,7 @@ oo::class create mbutton {
     set ltext [split "$text" "\n"]
     set ystr $yt
     set grt [$can create group]
-    $can delete boxText
+    $can delete "boxText $btag" 
     set i 0
     foreach {txt}  "$ltext" {
 	set tekb [$can create ptext $xt $ystr -text "$txt" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
@@ -3682,7 +3686,7 @@ oo::class create mbutton {
 	    foreach {xttek yt} [$can coords $id] {
 		$can coords $id $xt $yt
 		$can itemconfigure $id  -textanchor $textanchor
-		$can itemconfigure $id  -tag "boxText"
+		$can itemconfigure $id  -tag [list "boxText" "boxText $btag"]
 #		$can itemconfigure $id  -tag [list $btag boxText]
 	    }
 	}
@@ -3946,7 +3950,7 @@ oo::class create mbutton {
 	$wcan bind $idr <ButtonRelease-1> {}
 	$wcan bind $idt <ButtonPress-1> {}
         $wcan bind $idt <ButtonRelease-1> {}
-        $wcan delete $idt $idr IDOR boxText $btag
+        $wcan delete $idt $idr IDOR "boxText $btag" $btag
 	set par [winfo parent $wcan]
 
 	if {$fr == 1} {
