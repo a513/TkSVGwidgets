@@ -3160,6 +3160,7 @@ oo::class create mbutton {
     } 
 
     set Options(-command) {}
+    set btag "canvasb[string range [self] [string first Obj [self]] end]"
 
     my config $args
     set x1 [winfo fpixels $wcan $Options(-x)]
@@ -3220,7 +3221,7 @@ oo::class create mbutton {
 		foreach {p1x p2x p3x theight } $Options(-tongue) {break}
 		set htongue [winfo fpixels $wcan $theight]
 		set xt [expr { $x1 + $rx }]
-		set yt [expr { $y1 + $rx +$htongue}]
+		set yt [expr { $y1 + $rx + $htongue}]
 	    }
 	default {
     	    error "mbutton 1: Unknown type=$type..." 
@@ -3231,11 +3232,10 @@ oo::class create mbutton {
 #puts "TYPE=$type path=$d"
     set idr [$wcan create path  "$d" -stroke {} -strokewidth 0] 
 #$wcan lower $idr
-    set btag "canvasb[string range [self] [string first Obj [self]] end]"
     set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
     $wcan itemconfigure $idr -fill white -stroke black -strokewidth $strwidth  -tags [list Rectangle obj $canvasb $btag [linsert $btag end frame] utag$idr]
     set idr "utag$idr"
-     
+#puts "MBUTTON: btag=$btag"
     set tbox [my placetext $wcan "$Options(-text)" $xt $yt $anc]
     set idt $tbox
     set tbox [$wcan bbox $idt]
@@ -3266,10 +3266,18 @@ oo::class create mbutton {
 	$wcan delete $idtyn
 #	puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 2) / 3.0}]
-	set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - ( $hyesno / 2) + 0 * $onemm2px}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - ( $hyesno / 2) + 0 * $onemm2px}] -text " Нет"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	if {$fr == 0} {
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 +  $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 + $hyesno }] -text " Нет"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	} else {
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno / 2 }] -text " Нет"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	}
+
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) yes"
 	$cbut1 config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) no"
+
+
 #puts "hyesno=$hyesno self=[self] Yes=$cbut No=$cbut1"
 	[self] config -state disabled
     } elseif {$type == "msg"} {
@@ -3286,9 +3294,14 @@ oo::class create mbutton {
 	$wcan delete $idtyn
 #	puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 1) / 2.0}]
-	set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - ( $hyesno / 1) + 2 * $onemm2px}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-#	set cbut [cbutton new "$wcan" rect [expr {$xr1 + $dx}] [expr {$yr2 - ( $hyesno / 1) + 1.5 * $onemm2px}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	if {$fr == 0} {
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 + $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	} else {
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	}
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4
+
+
 #Переменная erm для ожидания ответа от пользователя (нажатия кнрпки Ок)
 #	$cbut config -command "global erm; [self] destroy; [set cbut] destroy; set erm 1"
 	$cbut config  -command "variable $Options(-variable); [set cbut] destroy;[self] destroy;set $Options(-variable) yes"
@@ -3332,7 +3345,12 @@ oo::class create mbutton {
 	return -1
     }
     switch $type {
+	down {
+	    set y2 [expr {$y2 + $p1y}]
+	    ;
+	}
 	up {
+	    set y2 [expr {$y2 + 2 * $p1y}]
 		set y1_1 $y1
 		set y1 [expr {$y2 - $p1y}]
 		set y2 $y1_1
@@ -3524,11 +3542,16 @@ oo::class create mbutton {
   }
   
   method move {dx dy} {
-    $wcan move $idr  $dx $dy
-    $wcan move $idt  $dx $dy
+#    $wcan move $idr  $dx $dy
+#    $wcan move $idt  $dx $dy
+    $wcan move $btag  $dx $dy
+#    $wcan move "boxText"  $dx $dy
+
     if {$tbut == "yesno"} {
 	$cbut move $dx $dy
 	$cbut1 move $dx $dy
+    } elseif {$tbut == "msg"} {
+	$cbut move $dx $dy
     }
     return $btag
   }
@@ -3659,7 +3682,8 @@ oo::class create mbutton {
 	    foreach {xttek yt} [$can coords $id] {
 		$can coords $id $xt $yt
 		$can itemconfigure $id  -textanchor $textanchor
-		$can itemconfigure $id  -tag boxText
+		$can itemconfigure $id  -tag "boxText"
+#		$can itemconfigure $id  -tag [list $btag boxText]
 	    }
 	}
     return "$grt"
@@ -3731,7 +3755,7 @@ oo::class create mbutton {
 		    hidden {
 			set  Options($option) $value
 			if {[info exists idr]} {
-	   		    $wcan itemconfigure $btag -state $stat
+	   		    $wcan itemconfigure $btag -state $value
 			}
 		    }
 		    default {
@@ -3922,7 +3946,7 @@ oo::class create mbutton {
 	$wcan bind $idr <ButtonRelease-1> {}
 	$wcan bind $idt <ButtonPress-1> {}
         $wcan bind $idt <ButtonRelease-1> {}
-        $wcan delete $idt $idr
+        $wcan delete $idt $idr IDOR boxText $btag
 	set par [winfo parent $wcan]
 
 	if {$fr == 1} {
