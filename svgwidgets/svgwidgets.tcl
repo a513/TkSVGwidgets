@@ -3266,7 +3266,7 @@ oo::class create mbutton {
 	set boxyn [$wcan bbox $idtyn]
 	foreach {tx1 ty1 tx2 ty2} $boxyn {break}
 	$wcan delete $idtyn
-#	puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn"
+#puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn btag=$btag"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 2) / 3.0}]
 	if {$fr == 0} {
 	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 -  $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
@@ -3279,9 +3279,10 @@ oo::class create mbutton {
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) yes"
 	$cbut1 config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) no"
 
-
-#puts "hyesno=$hyesno self=[self] Yes=$cbut No=$cbut1"
-	[self] config -state disabled
+	my config -state disabled
+	$cbut config -state normal
+	$cbut1 config -state normal
+#puts "hyesno=$hyesno self=[self] Yes=$cbut No=$cbut1 btag=$btag"
     } elseif {$type == "msg"} {
 	set wyesno [expr {$x2 - $x1}]
 #puts "hyesno=$hyesno wyesno=$wyesno y2=$y2 yt=$yt self=[self]"
@@ -3309,9 +3310,12 @@ oo::class create mbutton {
 #Переменная erm для ожидания ответа от пользователя (нажатия кнрпки Ок)
 #	$cbut config -command "global erm; [self] destroy; [set cbut] destroy; set erm 1"
 	$cbut config  -command "variable $Options(-variable); [set cbut] destroy;[self] destroy;set $Options(-variable) yes"
-	[self] config -state disabled
+	my config -state disabled
+	$cbut config -state normal
 #puts "hyesno=$hyesno self=[self] Yes=$cbut"
     }
+#puts "hyesno=$hyesno self=[self] Yes=$cbut No=$cbut1 OK"
+
     if {$type != "msg" && $type != "yesno"} {
 	[self] config  -command "variable $Options(-variable);[self] destroy;set $Options(-variable) yes"
     } else {
@@ -3535,9 +3539,7 @@ oo::class create mbutton {
 	normal -
 	disabled -
 	hidden {
-	    $wcan itemconfigure $btag -state $stat
-#	    $wcan itemconfigure $idr -state $stat
-#	    $wcan itemconfigure $idt -state $stat
+	    my config -state $stat
 	}
 	default {
 	    error "Bad state=$stat"
@@ -3760,6 +3762,17 @@ oo::class create mbutton {
 			set  Options($option) $value
 			if {[info exists idr]} {
 	   		    $wcan itemconfigure $btag -state $value
+			    $wcan itemconfigure "boxText $btag" -state $value
+			    if {$tbut ==  "yesno" || $tbut == "msg"} {
+				if {[info class instances cbutton $cbut] != ""} {
+				    $cbut config -state $value
+				} 
+			    }
+			    if {$tbut ==  "yesno" } {
+				if {[info class instances cbutton $cbut1] != ""} {
+				    $cbut1 config -state $value
+				}
+			    }
 			}
 		    }
 		    default {
