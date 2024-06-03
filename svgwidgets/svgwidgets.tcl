@@ -3550,8 +3550,8 @@ oo::class create mbutton {
   method move {dx dy} {
 #    $wcan move $idr  $dx $dy
 #    $wcan move $idt  $dx $dy
-    $wcan move $btag  $dx $dy
 #    $wcan move "boxText"  $dx $dy
+    $wcan move $btag  $dx $dy
 
     if {$tbut == "yesno"} {
 	$cbut move $dx $dy
@@ -3992,18 +3992,20 @@ oo::class create cmenu {
 
   constructor {w {args ""}} {
     if {[winfo exists $w]} {
+	if {[winfo class $w] != "PathCanvas"} {
 #	error "cmenu cmenu $w already exist"
-	puts "class create cmenu: cmenu $w already exist"
-	destroy $w
+	    puts "class create cmenu: cmenu $w already exist"
+	    destroy $w
+	}
     }
     set erlib ""
     set wcan $w
     set fr 0
     if {![winfo exists $wcan]} {
 	set fr 1
+	tkp::canvas $wcan -bd 0 -highlightt 0
     }
     set wclass "cmenu"
-    tkp::canvas $wcan -bd 0 -highlightt 0
     catch {unset Options}
     set  Options(-height) 5m
     set  Options(-fillnormal) white
@@ -4012,6 +4014,7 @@ oo::class create cmenu {
     set Options(-stroke) ""
     set Options(-command) ""
     set Options(-pad) 1m
+    set Options(-ipad) [list 1m 5m 1m 5m]
     set Options(-direction) "up"
 #Блокирукмое окно при отображении меню
     set Options(-lockwindow) ""
@@ -4020,6 +4023,10 @@ oo::class create cmenu {
     set m3 [winfo fpixels $wcan 3m]
     set yc $m3
     set listmenu [list]
+    if {$fr == 0} {
+	set Options(-x) 0
+	set Options(-y) 0
+    }
     my config $args
 #puts "cmenu constructor: Options(-strokewidth)=$Options(-strokewidth)"
     set xc [expr {$xc + [winfo fpixels $wcan $Options(-strokewidth)] / 2.0}]
@@ -4114,7 +4121,7 @@ oo::class create cmenu {
 	}
 	command {
 #puts "command=$type"	
-    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -pad \"$Options(-pad)\" -stroke \"$Options(-stroke)\" $args"  -fontsize $Options(-fontsize)]
+    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" $args"  -fontsize $Options(-fontsize)]
 	    if {[$cbut config -image] == ""} {
     		$cbut config -image "$wcan $srect"
 	    }
@@ -4142,6 +4149,7 @@ oo::class create cmenu {
 # 0 - группа, которая включает в себя все объекты холста
 #    foreach {x0 y0 x1 y1} [$wcan bbox 0] {}
 #    foreach {x0 y0 x1 y1} [$wcan bbox canvasb] {}
+#puts "FINISH: listtag=$listtag"
 
 #Учесть толщину строки
 	    set  strw [winfo pixels $wcan $Options(-strokewidth)]
@@ -4156,18 +4164,26 @@ oo::class create cmenu {
 	    foreach {p1x p2x p3x theight } $Options(-tongue) {break}
 	    set htongue [expr {int ([winfo fpixels $wcan $theight])}]
 #Возврат в начальную точку
-	    foreach {bx0 by0 bx1 by1} [$wcan bbox all] { 
-#puts "Смещение bx0=$bx0 by0=$by0 bx1=$bx1 by1=$by1 old=$old"
-		break 
+	    if {$fr == 1} {
+		foreach {bx0 by0 bx1 by1} [$wcan bbox all] { 
+		    break 
+		}
+	    } else {
+		foreach {bx0 by0 bx1 by1} [eval $wcan bbox $listtag] {break }
 	    }
+#puts "Смещение bx0=$bx0 by0=$by0 bx1=$bx1 by1=$by1 old=$old"
 	    set direction $Options(-direction)
 	    switch $direction {
 		down {
-		    set hy [expr {$hy + $htongue + 20}]
+;
+#		    set hy [expr {$hy + $htongue + 20}]
 		}
 		up {
-		    set hy [expr {$hy + $htongue +20}]
-		    $wcan move 0 0 $htongue
+#		    set hy [expr {$hy + $htongue +20}]
+#		    $wcan move 0 0 $htongue
+    foreach objmenu $listtag {
+		    $wcan move $objmenu 0 $htongue
+    }
 #puts "place up htongue=$htongue"
 		}
 		right {
@@ -4177,8 +4193,14 @@ oo::class create cmenu {
 		    set wx [expr {$wx + $htongue}]
 		    if {$old == 1} {
 			$wcan move 0 [expr {$htongue * -1}] 0
+    foreach objmenu $listtag {
+		    $wcan move $objmenu [expr {$htongue * -1}] 0
+    }
 		    } else {
-			$wcan move 0 $htongue 0
+#			$wcan move 0 $htongue 0
+    foreach objmenu $listmenu {
+		    $wcan move $objmenu $htongue 0
+    }
 		    }
 		}
 
@@ -4189,9 +4211,8 @@ puts "cmenu finish: uuncnown direction=$direction"
 	    set  strw2 [expr {$strw / 2.0}]
 #  -fillnormal $Options(-fillnormal)
 	    set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
-		-command "$Options(-command)" -tongue "$Options(-tongue)" -text "" -width [expr {$wx + $bx0 }] -height [expr {$hy + $by0 + $m3}]]
+		-command "$Options(-command)" -tongue "$Options(-tongue)" -text "" -width [expr {$wx + $bx0 + 2}] -height [expr {$hy + $by0 + $m3}]]
 #puts "cmenu finish: wcan=$wcan cbut=$cbut IDOR=[$wcan find withtag IDOR]"
-
 	    set wmax [expr {$wx + $bx0 }]
 #puts "Place wx=$wx bx0=$bx0 m2=$m2 wmax=$wmax tongue=\"$Options(-tongue)\""
 #Длина разделителя - separator
@@ -4234,6 +4255,7 @@ puts "cmenu finish: uuncnown direction=$direction"
 #puts "CMENU place wcan=$wcan listmenu=$listmenu"
 
 #Устанавливаем размеры холста
+if {$fr == 1}  {
 	    set wx [expr {[$cbut config -width] + $strw}]
 #puts "PLACE wx=$wx hy=$hy canvas=[$erlib canvas] htongue=$htongue direction=$direction"
 	    if {$direction == "right" || $direction == "left"} {
@@ -4246,6 +4268,10 @@ puts "cmenu finish: uuncnown direction=$direction"
 	    set hy [expr {[$cbut config -height] + $strw}]
 #puts "PLACE wx=$wx hy=$hy canvas=[$erlib canvas]"
 	    $wcan configure -width $wx -height $hy
+} else {
+#puts "MOVE self=[self]  -x=$Options(-x) -y=$Options(-y)"
+		my move $Options(-x) $Options(-y)
+}
 	    set erlib $cbut
 	}
 	default {
@@ -4284,6 +4310,22 @@ puts "cmenu finish: uuncnown direction=$direction"
     }
   }
 
+  method move {dx dy} {
+    if {$fr == 1} {
+	return
+    }
+    set i 0
+    foreach objmenu $listmenu {
+#puts "CMENU move: objmenu=$objmenu"
+	if {$i == 0} {
+	    set i 1
+	    continue
+	}
+	$objmenu move $dx $dy
+    }
+    return
+  }
+
   method config args {
     variable Options
 #    set svgtype [list circle ellipse group path  pline polyline ppolygon prect ptext]
@@ -4314,6 +4356,7 @@ puts "cmenu finish: uuncnown direction=$direction"
     		set Options($option) $value
     	    }
 	    -pad -
+	    -ipad -
 	    -strokewidth {
     		set Options($option) $value
     	    }
@@ -4337,6 +4380,14 @@ puts "cmenu finish: uuncnown direction=$direction"
 		    $erlib config $option "$value"
 		}
     	    }
+	    -x -
+	    -y {
+    		if {$fr == 1} {
+    		    continue
+    		}
+		set  Options($option) [winfo fpixels $wcan $value]
+	    }
+
     	    default {
     		puts "cmenu: Bad option $option args=$args"
     	    }
@@ -4349,7 +4400,9 @@ puts "cmenu finish: uuncnown direction=$direction"
 	catch {$objmenu destroy}
     }
     [self] destroy
-    destroy $wcan
+    if {$fr == 1} {
+	destroy $wcan
+    }
   }
 }
 
