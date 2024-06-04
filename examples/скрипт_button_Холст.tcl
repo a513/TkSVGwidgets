@@ -1,6 +1,6 @@
 package require svgwidgets
 #source "../SVGWIDGETS/svgwidgets.tcl"
-package require canvas::gradient
+#package require canvas::gradient
 
 proc folderbrown {canv} {
     set grfolder [$canv create group]
@@ -57,14 +57,14 @@ wm geometry $t 800x600+150+150
 wm title $t "tcl/tk svg widgets canvas demo with resize"
 
 #tkp::canvas $t.c -bg yellow
-tkp::canvas $t.c -bg yellow
+set tkpfr [cframe new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow]
 
-canvas::gradient $t.c -direction x -color1 cyan -color2 yellow
+#canvas::gradient $t.c -direction x -color1 cyan -color2 yellow
 #Обязательно выполнить update !!!!
 update
 pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
 set bb [bind $t.c <Configure> ]
-bind $t.c <Configure> "[set bb];scaleGroup %W %w %h %x %y"
+#bind $t.c <Configure> "scaleGroup %W %w %h %x %y;[set bb]"
 
 set went [cframe new $t.c -type centry -rx 2m -height 7m  -x 110 -y 40 -width 410]
 
@@ -109,4 +109,14 @@ puts "Квадрат=$rc6"
 [$rc6 canvas] delete $img
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
+update
+$tkpfr config -fillnormal gradient5
+#Меню
+set menu [cmenu new $t.c -x 290 -y 440 -direction up ]
+$menu add check -text check1 -variable z2
+$menu add command -text Команда -command {puts "Нажали кнопку Команда"}
+$menu add radio -text radio1 -variable z1 -value 0
+$menu add radio -text radio2 -variable z1 -value 1
+set mbut [$menu add finish]
+$mbut config -stroke chocolate
 
