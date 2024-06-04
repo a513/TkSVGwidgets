@@ -612,11 +612,21 @@ oo::class create cbutton {
 		return
 	    }
 	} elseif {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	    if {$Options(-displaymenu) != "enter"} {
+	    if {$Options(-displaymenu) != "enter" && $Options(-displaymenu) != "enterhidden"} {
 		return
 	    }
-	    foreach {xm ym } [my showmenu] {break}
-	    puts "Method enter -> showmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+	    if {$Options(-displaymenu) == "enter"} {
+		foreach {xm ym } [my showmenu] {break}
+	    } else {
+		set objm [my config -menu]
+		set teks [$objm config -state]
+		if {$teks == "normal"} {
+		    $objm config -state hidden
+		} elseif {$teks == "hidden"} {
+		    $objm config -state normal
+		}
+	    }
+#	    puts "Method enter -> showmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
 	} 
 	if {$Options(-fillenter) == "##"} {
 	    return
@@ -680,16 +690,26 @@ oo::class create cbutton {
 	}
     }
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	if {$Options(-displaymenu) != "release"} {
+	if {$Options(-displaymenu) != "release" && $Options(-displaymenu) != "releasehidden"} {
 	    return
 	}
-	foreach {xm ym } [my showmenu] {break}
-	if {$xm == -1 && $ym == -1} {
-	    puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
-	    catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
-	    return
-	}
-	puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+	if {$Options(-displaymenu) == "enter"} {
+	    foreach {xm ym } [my showmenu] {break}
+	    if {$xm == -1 && $ym == -1} {
+		puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+		catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
+		return
+	    }
+	} else {
+		set objm [my config -menu]
+		set teks [$objm config -state]
+		if {$teks == "normal"} {
+		    $objm config -state hidden
+		} elseif {$teks == "hidden"} {
+		    $objm config -state normal
+		}
+	    }
+#	puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
     }
     
     if {!($Options(press) && $tfr)} {
@@ -901,8 +921,8 @@ if {0} {
 		}
     	    }
     	    -displaymenu {
-    		if {[lsearch [list "release" "enter" ] $value] == -1} {
-    		    error "Error for displaymenu ($value): -displaymenu \[ release | enter \]"
+    		if {[lsearch [list "release" "enter" "releasehidden" "enterhidden"] $value] == -1} {
+    		    error "Error for displaymenu ($value): -displaymenu \[ release | enter | releasehidden | enterhidden\]"
 		    continue
     		}
 		set  Options($option) $value
@@ -2206,8 +2226,8 @@ oo::class create ibutton {
 		    set  Options($option) $value
     	    }
     	    -displaymenu {
-    		if {[lsearch [list "release" "enter" ] $value] == -1} {
-    		    error "Error for ibutton displaymenu ($value): -displaymenu \[ release | enter \]"
+    		if {[lsearch [list "release" "enter" "releasehidden" "enterhidden"] $value] == -1} {
+    		    error "Error for ibutton displaymenu ($value): -displaymenu \[ release | enter | releasehidden | enterhidden\]"
 		    continue
     		}
 		set  Options($option) $value
@@ -4013,6 +4033,7 @@ oo::class create cmenu {
     set Options(-strokewidth) 1
     set Options(-stroke) ""
     set Options(-command) ""
+    set Options(-state) "normal"
     set Options(-pad) 1m
     set Options(-ipad) [list 1m 5m 1m 5m]
     set Options(-direction) "up"
@@ -4332,6 +4353,24 @@ if {$fr == 1}  {
     }
     return
   }
+  method move {dx dy} {
+    if {$fr == 1} {
+	return
+    }
+    set i 0
+    foreach objmenu $listmenu {
+#puts "CMENU move: objmenu=$objmenu"
+	if {$i == 0} {
+	    set i 1
+	    continue
+	}
+	$objmenu move $dx $dy
+    }
+    return
+  }
+  method state {stat} {
+    my config -state $stat
+  }
 
   method config args {
     variable Options
@@ -4376,14 +4415,14 @@ if {$fr == 1}  {
     	    }
     	    -command {
     		set Options($option) $value
-		if {[winfo manager $wcan] != ""} {
+		if {$fr == 1 && [winfo manager $wcan] != ""} {
 		    $erlib config $option $value
 		}
     	    }
 	    -stroke -
     	    -fillnormal {
     		set Options($option) $value
-		if {[winfo manager $wcan] != ""} {
+		if {$fr == 1 && [winfo manager $wcan] != ""} {
 		    $erlib config $option "$value"
 		}
     	    }
@@ -4393,6 +4432,33 @@ if {$fr == 1}  {
     		    continue
     		}
 		set  Options($option) [winfo fpixels $wcan $value]
+	    }
+	    -state {
+		if {$fr == 1} {
+		    return
+		}
+		switch $value {
+		    normal -
+		    disabled -
+		    hidden {
+			set  Options($option) $value
+#puts "CMENU STAT listmenu=$listmenu erlib=$erlib"
+			if {$erlib != ""} {
+			    set i 0
+			    foreach objmenu $listmenu {
+#puts "CMENU state: objmenu=$objmenu"
+				if {$i == 0} {
+				    set i 1
+				    continue
+				}
+				$objmenu config -state $value
+			    }
+			}
+		    }
+		    default {
+			error "Bad state=$value"
+		    }
+		}
 	    }
 
     	    default {
