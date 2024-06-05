@@ -2048,11 +2048,25 @@ oo::class create ibutton {
 	return
     }
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	if {$Options(-displaymenu) != "enter"} {
-	    return
-	}
-	foreach {xm ym } [my showmenu] {break}
-	puts "Method ibutton enter-> showmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+	    if {$Options(-displaymenu) != "enter" && $Options(-displaymenu) != "enterhidden"} {
+		return
+	    }
+	    if {$Options(-displaymenu) == "enter"} {
+		foreach {xm ym } [my showmenu] {break}
+		if {$xm == -1 && $ym == -1} {
+		    puts "Method ibutton enter -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+		    catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
+		    return
+		}
+	    } else {
+		set objm [my config -menu]
+		set teks [$objm config -state]
+		if {$teks == "normal"} {
+		    $objm config -state hidden
+		} elseif {$teks == "hidden"} {
+		    $objm config -state normal
+		}
+	    }
     }
     if {$Options(-fillenter) == "##"} {
 	    return
@@ -2146,11 +2160,25 @@ oo::class create ibutton {
 	return
     }
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	if {$Options(-displaymenu) != "release"} {
+	if {$Options(-displaymenu) != "release" && $Options(-displaymenu) != "releasehidden"} {
 	    return
 	}
-	foreach {xm ym } [my showmenu] {break}
-	puts "Method ibutton release-> showmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+	if {$Options(-displaymenu) == "release"} {
+	    foreach {xm ym } [my showmenu] {break}
+	    if {$xm == -1 && $ym == -1} {
+		puts "Method ibutton release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+		catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
+		return
+	    }
+	} else {
+		set objm [my config -menu]
+		set teks [$objm config -state]
+		if {$teks == "normal"} {
+		    $objm config -state hidden
+		} elseif {$teks == "hidden"} {
+		    $objm config -state normal
+		}
+	}
     }
 
 #puts "RELEASE ibutton wcan=$wcan  X=$x Y=$y"
