@@ -693,7 +693,7 @@ oo::class create cbutton {
 	if {$Options(-displaymenu) != "release" && $Options(-displaymenu) != "releasehidden"} {
 	    return
 	}
-	if {$Options(-displaymenu) == "enter"} {
+	if {$Options(-displaymenu) == "release"} {
 	    foreach {xm ym } [my showmenu] {break}
 	    if {$xm == -1 && $ym == -1} {
 		puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
