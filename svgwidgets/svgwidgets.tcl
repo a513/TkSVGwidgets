@@ -4260,7 +4260,8 @@ puts "cmenu finish: uuncnown direction=$direction"
 		    foreach {x0 y0 x1 y1} [$wcan bbox "canvasb[string range $obj 6 end]"] {break}
 			$wcan raise $otag
 		    if {[$obj config -fillenter] != "##"} {
-			set brect [[$obj canvas] create prect 0 [expr {$y0 + 2}] $wmax [expr {$y1 - 2}] -fill {} -fillopacity 0.2 -strokeopacity 0.2 -stroke {} -strokewidth 0]
+			set btago "canvasb[string range [set obj] [string first Obj [set obj]] end]"
+			set brect [[$obj canvas] create prect 0 [expr {$y0 + 2}] $wmax [expr {$y1 - 2}] -fill {} -fillopacity 0.2 -strokeopacity 0.2 -stroke {} -strokewidth 0 -tags $btago]
 #Курсор на строке, вне ее, щелчек по кнопке
 			if {$tp != "check" && $tp != "radio"} {
 			    eval "[$obj canvas] bind [set brect] <Enter> {[$obj canvas] itemconfigure [set brect] -fill [set bcol] -stroke [set bcol];[set obj] enter}"
