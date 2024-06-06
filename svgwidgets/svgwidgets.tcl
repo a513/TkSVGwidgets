@@ -635,7 +635,7 @@ oo::class create cbutton {
 	set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 	my changestrwidth [expr {$strwidth + $strwidth / 2.0}]
 
-	$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)
+	catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
   }
   method leave {} {
     variable Options
