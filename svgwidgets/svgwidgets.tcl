@@ -1241,7 +1241,8 @@ if {1} {
 		    }
 #puts "cbutton: -isvg ok"
     		    set isvg $Options(-isvg)
-		    $wcan itemconfigure $isvg -tags [list isvg obj $canvasb $btag [linsert $btag end isvg] utag$idt]
+#		    $wcan itemconfigure $isvg -tags [list isvg obj $canvasb $btag [linsert $btag end isvg] utag$idt]
+		    $wcan itemconfigure $isvg -tags [list isvg obj $canvasb [set btag]Group [linsert $btag end isvg] utag$idt]
 		}
     		foreach {sx1 sy1 sx2 sy2} [$wcan bbox $isvg] {break}
     		if {$tbut == "rect" } {
@@ -2398,8 +2399,9 @@ oo::class create ibutton {
     		}
 		set  Options(-isvg) $value
     		set isvg $Options(-isvg)
-		$wcan itemconfigure $isvg -tags [list isvg obj $canvasb $btag [linsert $btag end isvg]]
-		
+#		$wcan itemconfigure $isvg -tags [list isvg obj $canvasb $btag [linsert $btag end isvg]]
+		$wcan itemconfigure $isvg -tags [list isvg obj $canvasb [set btag]Group [linsert $btag end isvg]]
+
 		my config -pad "$Options(-pad)"
 		if {$idor > 0} {
 		    $wcan delete $idor
