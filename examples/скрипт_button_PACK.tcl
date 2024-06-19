@@ -69,16 +69,22 @@ pack $t.cent -in $t.c -side top -fill x -expand 0 -padx 3c -pady "1c 2m" -anchor
 
 #SVG-фрейм
 set b1 [cbutton new $t.frame -type frame -rx 5m ]
+#Создаем градиент
+set grforb1 [[$b1 canvas] gradient create radial -method pad -units bbox -stops { { 0.00 "#ffff00" 0.50} { 1.00 "#d42b11" 0.80}} -radialtransition {0.50 0.46 0.50 0.25 0.25} ]
+#Устанавливаем градиентную заливку
+#$b1 config -fillnormal $grforb1
+
 #[$b1 canvas ] configure -bg [$t.c cget -bg]
 #Или
 $t.frame configure -bg [$t.c cget -bg]
 
 set bg [$b1 config -fillnormal]
 set xa1 [cbutton create Прямоугольник $t.frame.but1 -type rect  -text Прямоугольник -fontweight bold]
-set xa2 [cbutton new $t.frame.but2 -type round  -text Полукруглый -fontsize 3m -bg $bg]
+set xa2 [cbutton new $t.but2 -type round  -text Полукруглый -fontsize 3m -bg $bg]
 #[$xa2 canvas] configure -bg [$b1 config -fillnormal]
-set xa3 [cbutton new $t.frame.but3 -type ellipse  -text Эллипс -fontsize 5m -fontslant italic -bg $bg]
-set xa4 [cbutton new $t.frame.but4 -type rect  -text Закругленный -fontsize 4m -rx 2m -bg $bg -compound none]
+#set xa3 [cbutton new $t.frame.but3 -type ellipse  -text Эллипс -fontsize 5m -fontslant italic -bg $bg]
+set xa3 [cbutton new $t.but3 -type ellipse  -text Эллипс -fontsize 5m -fontslant italic -bg $bg]
+set xa4 [cbutton new $t.but4 -type rect  -text Закругленный -fontsize 4m -rx 2m -bg $bg -compound none]
 set img [foldercolor [$xa4 canvas] "blue" ]
 $xa4 config -image "[$xa4 canvas] $img" -ipad "2m 10m  2m 12m"
 [$xa4 canvas] delete $img
@@ -91,19 +97,22 @@ pack [$xa4 canvas] -in $t.frame -padx 1c -pady "5m" -fill both -expand 1
 
 #SVG-фрейм с заголовком
 set clfrv [cframe new $t.rdch -type clframe -text "radio/check кнопки" -rx 1m -strokewidth 1 -stroke red -fillnormal snow ]
+set gradCloud [[$clfrv canvas] gradient create linear -method pad -units bbox \
+    -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00} ]
+
 [$clfrv canvas] configure -background [$t.c cget -background]
 $clfrv boxtext
 $clfrv config -fontsize 3.5m -fillbox cyan
 
 set bg [$clfrv config -fillnormal]
-set rc1 [cbutton new $t.rdch.but1 -type radio  -text Radio1 -variable vrc1 -value 1 -bg $bg]
+set rc1 [cbutton new $t.rbut1 -type radio  -text Radio1 -variable vrc1 -value 1 -bg $bg]
 #[$rc1 canvas] configure -bg [$clfrv config -fillnormal]
-set rc2 [cbutton new $t.rdch.but2 -type radio  -text Radio2 -variable vrc1 -value 0 -bg $bg ]
-set rc3 [cbutton new $t.rdch.but3 -type check  -text Check1 -variable vrc3 -bg $bg]
-set rc4 [cbutton new $t.rdch.but4 -type check  -text Check2 -variable vrc4 -bg $bg]
-set rc5 [cbutton new $t.rdch.but5 -type circle  -text Круг -bg $bg]
-set rc6 [cbutton new $t.rdch.but6 -type square  -text Квадрат -ipad "1m 1m 1m 1m" -bg $bg]
-set rc7 [ibutton create Картинка $t.rdch.but7 -width 1c -height 1c -text Картинка -pad "1m 1m 1m 1m" -bg $bg -image "::tk::icons::error"]
+set rc2 [cbutton new $t.rbut2 -type radio  -text Radio2 -variable vrc1 -value 0 -bg $bg ]
+set rc3 [cbutton new $t.rbut3 -type check  -text Check1 -variable vrc3 -bg $bg]
+set rc4 [cbutton new $t.rbut4 -type check  -text Check2 -variable vrc4 -bg $bg]
+set rc5 [cbutton new $t.rbut5 -type circle  -text Круг -bg $bg]
+set rc6 [cbutton new $t.rbut6 -type square  -text Квадрат -ipad "1m 1m 1m 1m" -bg $bg]
+set rc7 [ibutton create Картинка $t.rbut7 -width 1c -height 1c -text Картинка -pad "1m 1m 1m 1m" -bg $bg -image "::tk::icons::error"]
 set img [folderbrown [$rc6 canvas]]
 $rc6 config -image "[$rc6 canvas] $img"
 $rc6 config -fillnormal cyan
