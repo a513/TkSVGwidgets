@@ -82,26 +82,27 @@ set img [foldercolor [$xa4 canvas] "blue" ]
 $xa4 config -image "[$xa4 canvas] $img"
 [$xa4 canvas] delete $img
 
-set clfrv [cframe new $t.c -type clframe -text "radio/check кнопки" -rx 1m -strokewidth 1 -stroke red -fillnormal snow -x 380 -width 220 -y 90 -height 340]
+set clfrv [cframe new $t.c -type clframe -text "radio/check кнопки" -rx 1m -strokewidth 1 -stroke red -fillnormal snow -width 220 -height 340]
+$clfrv move 430 90
 $clfrv boxtext
 $clfrv config -fontsize 3.5m -fillbox cyan
 
 set hrect 130
 set dy 8
-set rc1 [cbutton new $t.c -type radio  -text Radio1 -variable vrc1 -value 1 -x 450 -y $hrect]
+set rc1 [cbutton new $t.c -type radio  -text Radio1 -variable vrc1 -value 1 -x 500 -y $hrect]
 set hrect [expr {$hrect + 28 + $dy}]
-set rc2 [cbutton new $t.c -type radio  -text Radio2 -variable vrc1 -value 0 -x 450 -y $hrect]
+set rc2 [cbutton new $t.c -type radio  -text Radio2 -variable vrc1 -value 0 -x 500 -y $hrect]
 set hrect [expr {$hrect + 28 + $dy}]
-set rc3 [cbutton new $t.c -type check  -text Check1 -variable vrc3 -x 450 -y $hrect]
+set rc3 [cbutton new $t.c -type check  -text Check1 -variable vrc3 -x 500 -y $hrect]
 set hrect [expr {$hrect + 28 + $dy}]
-set rc4 [cbutton new $t.c -type check  -text Check2 -variable vrc4 -x 420 -y $hrect]
+set rc4 [cbutton new $t.c -type check  -text Check2 -variable vrc4 -x 470 -y $hrect]
 set hrect [expr {$hrect + 28 + $dy}]
-set rc5 [cbutton new $t.c -type circle  -text Круг -x 450 -y $hrect]
+set rc5 [cbutton new $t.c -type circle  -text Круг -x 500 -y $hrect]
 set hrect [expr {$hrect + 28 + $dy}]
-set rc7 [ibutton create Картинка $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 420 -y $hrect -image "::tk::icons::error"]
+set rc7 [ibutton create Картинка $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 470 -y $hrect -image "::tk::icons::error"]
 #set rc7 [ibutton new $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 420 -y $hrect -image "::tk::icons::error"]
 set hrect [expr {$hrect + 28 + $dy + 15}]
-set rc6 [cbutton new $t.c -type square  -text Квадрат -ipad "1m 1m 1m 1m" -x 420 -y $hrect]
+set rc6 [cbutton new $t.c -type square  -text Квадрат -ipad "1m 1m 1m 1m" -x 470 -y $hrect]
 set img [folderbrown [$rc6 canvas]]
 $rc6 config -image "[$rc6 canvas] $img"
 $rc6 config -fillnormal cyan
@@ -112,7 +113,7 @@ bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 update
 $tkpfr config -fillnormal gradient5
 #Меню
-set menu [cmenu new $t.c -x 290 -y 440 -direction up ]
+set menu [cmenu new $t.c -x 310 -y 440 -direction up ]
 $menu add check -text check1 -variable z2
 $menu add command -text Команда -command {puts "Нажали кнопку Команда"}
 $menu add radio -text radio1 -variable z1 -value 0
@@ -120,3 +121,7 @@ $menu add radio -text radio2 -variable z1 -value 1
 set mbut [$menu add finish]
 $mbut config -stroke chocolate
 
+#.test.c gradient names
+$clfrv config -fillnormal gradient29
+set gradCloud [[$b1 canvas] gradient create linear -method pad -units bbox -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00} ]
+$b1 config -fillnormal gradient45

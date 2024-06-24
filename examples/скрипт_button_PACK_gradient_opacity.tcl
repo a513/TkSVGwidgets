@@ -105,7 +105,7 @@ set ::xa2 [cbutton new $t.but2 -type round  -text Полукруглый]
 set ::xa3 [cbutton new $t.but3 -type ellipse  -text Эллипс -fontweight bold -fontslant italic -fontfamily helvetica -fontsize 4m ]
 #raise [$::xa3 canvas]
 [$::xa3 canvas] configure -bg [$::b1 config -fillnormal]
-set ::xa4 [cbutton new $t.but4 -type rect  -text {ВЫХОД (Закругленный)} -rx 2m -command "exitarm $t" -filltext red -fontweight bold -fontsize 4m]
+set ::xa4 [cbutton new $t.but4 -type rect  -text {ВЫХОД (Закругленный)} -rx 2m -command "exitarm $t" -textfill red -fontweight bold -fontsize 4m]
 [$::xa4 canvas] configure -bg [$::b1 config -fillnormal]
 $::xa4 config  -textstroke black -textstrokewidth 0.7
 $::b1 pack -in $t.c -fill both -expand 0 -padx 5m -pady 5m -side left -anchor nw
@@ -148,8 +148,9 @@ pack [$::rc3 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m 0"
 pack [$::rc4 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m" -fill both -expand 1
 pack [$::rc5 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m 0"
 pack [$::rc6 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m" -fill both -expand 1
+
 #$::clfrv pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw
-lower [$::clfrv canvas] [$::rc1 canvas]
+#lower [$::clfrv canvas] [$::rc1 canvas]
 #Кнопка обновления фона фреймов
 set upwin [cbutton new $t.butup -type round  -text {Обновить окно} -command {updatewin $b1 $::clfrv}]
 #$::xa2 config -command "$::b1 fon;$::clfrv fon;$went fon;$::xa2 fon"

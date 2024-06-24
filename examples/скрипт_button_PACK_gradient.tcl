@@ -87,7 +87,7 @@ $rc5 pack -in [$clfrv canvas] -padx 1c -pady "5m 0"
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
 $clfrv pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw
 #Кнопка обновления фона фреймов
-set xa2 [cbutton new $t.butup -type round  -text {Обновить окно} -command "lower [$b1 canvas];$b1 fon;lower [$clfrv canvas];$clfrv fon;lower [$went canvas];$went fon"]
+set xa2 [cbutton new $t.butup -type round  -text {Обновить окно} -command "$b1 fon;$clfrv fon;$went fon"]
 $xa2 config -command "$b1 fon;$clfrv fon;$went fon;$xa2 fon"
 [$xa2 canvas] configure -bg [$b1 config -fillnormal]
 $xa2 place -in $t.c -x 2m -y 2m
