@@ -525,7 +525,7 @@ oo::class create cbutton {
 #    puts "[self]"
     my config [array get Options]
     if {$tbut == "check"} {
-	if {[info exists $Options(-variable)]} {
+	if {[info exists Options(-variable)] && [info exists $Options(-variable)]} {
 	    set $Options(-variable) [set $Options(-variable)]
 	}
     }
@@ -4802,7 +4802,7 @@ puts "RESIZE CFRAME tbut=$tbut"
   }
 
   method scaleGroup {win w h x y} {
-#    set wcan $win
+#puts "scaleGroup START win=$win w=$w h=$h x=$x y=$y"
     set onemm2px [winfo fpixels $wcan 1m]
     set x [$wcan canvasx $x]
     set y [$wcan canvasx $y]
@@ -4821,22 +4821,15 @@ puts "RESIZE CFRAME tbut=$tbut"
     }
 #Ловим перемещение
     if {$Canv(X) != [winfo rootx $wcan] && $Canv(Y) != [winfo rooty $wcan] && $Canv(X1) != [expr {[winfo rootx $wcan] + [winfo width $wcan]}] && $Canv(Y1) != [expr {[winfo rooty $wcan] + [winfo height $wcan]}]} {
-	set Canv(X) [winfo rootx $wcan]
-	set Canv(Y) [winfo rooty $wcan]
-	set Canv(W) [winfo width $wcan]
-	set Canv(H) [winfo height $wcan]
-	set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
-	set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
-	return
-    }
-
-    set xScaleW [expr {$w * 1.0 / $Canv(W)}]
-    if {$xScaleW == 0} {
-	set xScaleW 0.01
-    }
-    set yScaleW [expr {$h * 1.0 / $Canv(H)}]
-    if {$xScaleW == 0} {
-	set yScaleW 0.01
+	if {$Canv(H) == $h && $Canv(W) == $w} {
+	    set Canv(X) [winfo rootx $wcan]
+	    set Canv(Y) [winfo rooty $wcan]
+	    set Canv(W) [winfo width $wcan]
+	    set Canv(H) [winfo height $wcan]
+	    set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
+	    set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
+	    return
+	}
     }
 
     set bbox [$wcan bbox "canvasb"]
@@ -4849,148 +4842,33 @@ puts "RESIZE CFRAME tbut=$tbut"
     set dw [expr {$w - $Canv(W)}]
     set dh [expr {$h - $Canv(H)}]
     set xScaleW [expr {($BBox(x2) - $BBox(x1) + $dw) * 1.0 / ($BBox(x2) - $BBox(x1))}]
-    if {$xScaleW == 0} {
-	set xScaleW 0.01
-    }
     set yScaleW [expr {($BBox(y2) - $BBox(y1) + $dh) * 1.0 / ($BBox(y2) - $BBox(y1))}]
-    if {$xScaleW == 0} {
-	set yScaleW 0.01
-    }
-############################
 
     set x1 [winfo width $wcan]
     set y1 [winfo height $wcan]
     set x [winfo rootx $wcan]
     set y [winfo rooty $wcan]
 
-    if {$Canv(W) == $w && $Canv(H) == $h} {
-	set Canv(X) $x
-	set Canv(Y) $y
-	set Canv(X) [winfo rootx $wcan]
-	set Canv(Y) [winfo rooty $wcan]
-	set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
-	set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
-	set BBox(action) none
-    } elseif {$Canv(W) == $w} {
-        if {abs($h - $Canv(H)) < 2} {return}
-	set Canv(H) $h
-	if {$y == $Canv(Y)} {
-	    set BBox(action) s
-	} else {
-	    set Canv(Y) $y
-	    set BBox(action) n
-	}
-    } elseif {$Canv(H) == $h} {
-        if {abs($w - $Canv(W)) < 2} {return}
-	set Canv(W) $w
-	if {$x == $Canv(X)} {
-	    set BBox(action) e
-	} else {
-	    set Canv(X) $x
-	    set BBox(action) w
-	}
-    } elseif {$x == $Canv(X) && $y == $Canv(Y)} {
-	    set Canv(H) $h
-	    set Canv(W) $w
-	    set Canv(X1) [expr {$w + $x}]
-	    set Canv(Y1) [expr {$y + $h}]
-	    set BBox(action) se
-    } elseif {[expr {$w + $x}] == $Canv(X1) && [expr {$y + $h}] == $Canv(Y1)} {
-	    set Canv(H) $h
-	    set Canv(W) $w
-	    set Canv(X) $x
-	    set Canv(Y) $y
-	    set BBox(action) nw
-    } elseif {$x == $Canv(X) && [expr {$y + $h}] == $Canv(Y1)} {
-#puts "Action=NE1"
-	    set Canv(H) $h
-	    set Canv(W) $w
-	    set Canv(Y) $y
-	    set Canv(X1) [expr {$w + $x}]
-	    set BBox(action) ne
-    } elseif {[expr {$w + $x}] == $Canv(X1) && $y == $Canv(Y)} {
-	    set Canv(H) $h
-	    set Canv(W) $w
-	    set Canv(X) $x
-	    set Canv(Y1) [expr {$y + $h}]
-	    set BBox(action) sw
-    
-    } else {
-#puts "Разобраться!!!"
-	return
-    }
+    set Canv(H) $h
+    set Canv(W) $w
+    set Canv(X) [winfo rootx $wcan]
+    set Canv(Y) [winfo rooty $wcan]
+    set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
+    set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
+    set BBox(action) se
 
-   set lastX1 $BBox(x1)
-   set lastY1 $BBox(y1)
-   set lastX2 $BBox(x2)
-   set lastY2 $BBox(y2)
-   switch -exact -- $BBox(action) {
-      none  { return }
-      n    { 
-	     set BBox(y1) [expr {$BBox(y1) * $yScaleW}]
-             set xOrigin $BBox(x1)
-             set yOrigin $BBox(y2)
-             set xScale  1.0
-             set yScale $yScaleW
-      }
-      s    { 
-	     set BBox(y2) [expr {$BBox(y1) + ($BBox(y2) - $BBox(y1)) * $yScaleW}]
-             set xOrigin $BBox(x1)
-             set yOrigin $BBox(y1)
-             set xScale  1.0
-             set yScale $yScaleW
-      }
-      w    { 
-	     set BBox(x1) [expr {$BBox(x1) * $xScaleW}]
-             set xOrigin $BBox(x1)
-             set yOrigin $BBox(y1)
-             set xScale $xScaleW
-             set yScale  1.0
-      }
-      e    { 
-	     set BBox(x2) [expr {$BBox(x1) + ($BBox(x2) - $BBox(x1)) * $xScaleW}]
-             set xOrigin $BBox(x1)
-             set yOrigin $BBox(y1)
-             set xScale $xScaleW
-             set yScale  1.0
-      }
-      ne   { 
-	     set BBox(y1) [expr {$BBox(y1) * $yScaleW }]
-             set xOrigin $BBox(x1)
-             set yOrigin $BBox(y2)
+    set lastX1 $BBox(x1)
+    set lastY1 $BBox(y1)
+    set lastX2 $BBox(x2)
+    set lastY2 $BBox(y2)
 
-             set xScale $xScaleW
-             set yScale $yScaleW
-      }
-      nw   {
-	     set BBox(y1) [expr {$BBox(y1) * $yScaleW }]
-             set xOrigin $BBox(x2)
-             set yOrigin $BBox(y2)
-	     set BBox(x1) [expr {$BBox(x1) * $xScaleW }]
-             set xScale $xScaleW
-             set yScale $yScaleW
-      }
-      se   {
-	     set BBox(x2) [expr {$BBox(x1) + ($BBox(x2) - $BBox(x1)) * $xScaleW}]
-	     set BBox(y2) [expr {$BBox(y1) + ($BBox(y2) - $BBox(y1)) * $yScaleW}]
-             set xOrigin $BBox(x1)
-             set yOrigin $BBox(y1)
-             set xScale $xScaleW
-             set yScale $yScaleW
-      }
-      sw   {
-	     set BBox(y2) [expr {$BBox(y1) + ($BBox(y2) - $BBox(y1)) * $yScaleW}]
-	     set BBox(x1) [expr {$BBox(x1) * $xScaleW}]
-             set xOrigin $BBox(x2)
-             set yOrigin $BBox(y1)
-             set xScale $xScaleW
-             set yScale $yScaleW
-      }
-      default {
-	puts "Default: action=$BBox(action)"      
-      }
-   }
- 
+    set BBox(x2) [expr {$BBox(x1) + ($BBox(x2) - $BBox(x1)) * $xScaleW}]
+    set BBox(y2) [expr {$BBox(y1) + ($BBox(y2) - $BBox(y1)) * $yScaleW}]
+    set xOrigin $BBox(x1)
+    set yOrigin $BBox(y1)
+    set xScale $xScaleW
+    set yScale $yScaleW
+
 #   set BBox(xscale) [expr {$xScale * $BBox(xscale)}]
    foreach id "[$wcan find withtag canvasb] [$wcan find withtag canvasi] [$wcan find withtag boxText]" {
       set type [$wcan type $id]
