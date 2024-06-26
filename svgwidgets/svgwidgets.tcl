@@ -4729,7 +4729,7 @@ oo::class create cframe {
     }
     if {$fr == 1} {
 	if {$tbut == "frame"} {
-	    eval "bind $wcan  <Configure> {[self] scaleGroup $wcan %w %h %x %y;[self] resize %w %h 0}"
+	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h %x %y;[self] resize %w %h 0}"
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 	}
@@ -4801,7 +4801,7 @@ puts "RESIZE CFRAME tbut=$tbut"
 
   }
 
-  method scaleGroup {win w h x y} {
+  method scaleGroup {w h x y} {
 #puts "scaleGroup START win=$win w=$w h=$h x=$x y=$y"
     set onemm2px [winfo fpixels $wcan 1m]
     set x [$wcan canvasx $x]
