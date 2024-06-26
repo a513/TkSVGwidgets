@@ -4813,11 +4813,23 @@ puts "RESIZE CFRAME tbut=$tbut"
 	set Canv(Y) [winfo rooty $wcan]
 	set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
 	set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
-#	set BBox(xscale) 1
+	set Canv(xscale) 1
+
 	return
     }
     if {[$wcan bbox "canvasb"] == "" } {
 	return
+    }
+   foreach id "[$wcan find withtag canvasb] [$wcan find withtag canvasi] [$wcan find withtag boxText]" {
+      set type [$wcan type $id]
+#puts "Canvasb id=$id type=$type"
+      if {$type == "group"} {
+	continue
+      }
+      if {[catch {$wcan itemcget $id -fontsize} result]==0} {
+	    set u $id
+            set FontS($u,fontsize) $result
+      }
     }
 #Ловим перемещение
     if {$Canv(X) != [winfo rootx $wcan] && $Canv(Y) != [winfo rooty $wcan] && $Canv(X1) != [expr {[winfo rootx $wcan] + [winfo width $wcan]}] && $Canv(Y1) != [expr {[winfo rooty $wcan] + [winfo height $wcan]}]} {
@@ -4869,7 +4881,8 @@ puts "RESIZE CFRAME tbut=$tbut"
     set xScale $xScaleW
     set yScale $yScaleW
 
-#   set BBox(xscale) [expr {$xScale * $BBox(xscale)}]
+   set Canv(xscale) $xScale
+
    foreach id "[$wcan find withtag canvasb] [$wcan find withtag canvasi] [$wcan find withtag boxText]" {
       set type [$wcan type $id]
 #puts "Canvasb id=$id type=$type  xScale=$xScale yScale=$yScale"
@@ -4949,7 +4962,6 @@ puts "RESIZE CFRAME tbut=$tbut"
 	    }
 	}
 	set iwidth [expr {$width * $xScale * $xScaleLast}]
-#puts "PIMAGE 1 id=$id"
 	set iheight [expr {$height * $yScale * $yScaleLast}]
 #puts "PIMAGE xScale=$xScale yScale=$yScale xScaleLast=$xScaleLast  yScaleLast=$yScaleLast action=$BBox(action) width=$width height=$height iwidth=$iwidth iheight=$iheight"
 
@@ -4980,13 +4992,18 @@ puts "RESIZE CFRAME tbut=$tbut"
 	    foreach {xi yi xi1 yi1} [$wcan bbox "$oid pimage"] {break}
 
 	    $wcan move "$oid pimage" [expr {$xr - $xi * $xScale}] [expr {$yr - $yi * $yScale }]
-#	    $wcan move "$oid pimage" [expr {($xi - $xr) * $xScale}] [expr {$yr - $yi } * $yScale]
 	} 
     }
-
 #Масштабирования шрифта
+    if {[catch {$wcan itemcget $id -fontsize} result]==0} {
+	set u $id
+        set fsize [expr {$FontS($u,fontsize)*$Canv(xscale)}]
+        if {$fsize != $result} {
+            $wcan itemconfig $id -fontsize $fsize
+        }
+      }
    }
-
+    catch {unset FontS}
   }
 
   method canvas {} {
