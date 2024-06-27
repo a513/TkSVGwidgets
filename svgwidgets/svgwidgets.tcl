@@ -139,6 +139,7 @@ if {[info class instances ::oo::class ::cbutton] != ""} {
 }
 
 oo::class create cbutton {
+  variable Canv
 #idt - текст
 #idr - прямоугольник вокруг кнопки
 #idm - маркер radio/check button
@@ -792,8 +793,6 @@ oo::class create cbutton {
   method resize {wx hy {from 1}} {
 #from = 1 resize делает пользователь
 #from = 0 resize вызывается событием Configure
-
-#puts "cbutton resize: fr=$fr wx=$wx hy=$hy"
     if {$tbut == "frame"}  {
 	set wx [winfo fpixels $wcan $wx]
 	set hy [winfo fpixels $wcan $hy]
@@ -816,7 +815,76 @@ oo::class create cbutton {
     if {$fr == 0} {
 	return
     }
+##########################
+    if {![info exist Canv(W)]} {
+	set Canv(W) [winfo width $wcan]
+	set Canv(H) [winfo height $wcan]
+	set Canv(X) [winfo rootx $wcan]
+	set Canv(Y) [winfo rooty $wcan]
+	set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
+	set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
+	set Canv(xscale) 1
 
+	return
+    }
+if {$Options(-text) != ""} {
+      if {[catch {$wcan itemcget $idt -fontsize} result] == 0} {
+	    set u $idt
+            set FontS($u,fontsize) $result
+      }
+}
+
+if {0} {
+   foreach id "[$wcan find withtag canvasb] [$wcan find withtag canvasi] [$wcan find withtag boxText]" {
+      set type [$wcan type $id]
+#puts "Canvasb id=$id type=$type"
+      if {$type == "group"} {
+	continue
+      }
+      if {[catch {$wcan itemcget $id -fontsize} result]==0} {
+	    set u $id
+            set FontS($u,fontsize) $result
+      }
+    }
+}
+#Ловим перемещение
+    if {$Canv(X) != [winfo rootx $wcan] && $Canv(Y) != [winfo rooty $wcan] && $Canv(X1) != [expr {[winfo rootx $wcan] + [winfo width $wcan]}] && $Canv(Y1) != [expr {[winfo rooty $wcan] + [winfo height $wcan]}]} {
+	if {$Canv(H) == $hy && $Canv(W) == $wx} {
+	    set Canv(X) [winfo rootx $wcan]
+	    set Canv(Y) [winfo rooty $wcan]
+	    set Canv(W) [winfo width $wcan]
+	    set Canv(H) [winfo height $wcan]
+	    set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
+	    set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
+	    return
+	}
+    }
+    if {$fr } {
+	set bbox [$wcan bbox "canvasbfr"]
+    } else {
+	set bbox [$wcan bbox "canvasb"]
+    }
+
+    set BBox(x1) [lindex $bbox 0]
+    set BBox(y1) [lindex $bbox 1]
+    set BBox(x2) [lindex $bbox 2]
+    set BBox(y2) [lindex $bbox 3]
+#Scale через canvasb
+    set dw [expr {$wx - $Canv(W)}]
+    set dh [expr {$hy - $Canv(H)}]
+    set xScale [expr {($BBox(x2) - $BBox(x1) + $dw) * 1.0 / ($BBox(x2) - $BBox(x1))}]
+    set yScale [expr {($BBox(y2) - $BBox(y1) + $dh) * 1.0 / ($BBox(y2) - $BBox(y1))}]
+
+    set Canv(H) $hy
+    set Canv(W) $wx
+    set Canv(X) [winfo rootx $wcan]
+    set Canv(Y) [winfo rooty $wcan]
+    set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
+    set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
+
+   set Canv(xscale) $xScale
+
+##########################
     set wx [winfo fpixels $wcan $wx]
     set hy [winfo fpixels $wcan $hy]
     if {$wx < $onemm2px || $hy < $onemm2px} {
@@ -838,18 +906,6 @@ oo::class create cbutton {
     }
     my config -width $wx
     my config -height $hy
-#Пока отложим
-if {0} {
-    if {$Options(-text) != ""} {
-	set fold [$wcan itemcget $idt -fontsize]
-	set forig [winfo fpixels $wcan [my config -fontsize]]
-	set nfont [expr {$fold  * min ($wold, $yold)}]
-	if {$forig > $nfont} {
-	    set nfont $forig
-	}
-	$wcan itemconfigure $idt -fontsize $nfont
-    }
-}
 
     if {$tbut == "frame"} {
 	return
@@ -882,6 +938,22 @@ if {0} {
 	my config -width $cw -height $ch 
 	$wcan configure -width $cw -height $ch
     }
+#Пока отложим масштабирование шрифта
+if {0} {
+    if {$fr} {
+#Масштабирования шрифта
+	if {$Options(-text) != ""} {
+    	    if {[catch {$wcan itemcget $idt -fontsize} result]==0} {
+		set u $idt
+    		set fsize [expr {$result * $Canv(xscale)}]
+    		if {$fsize != $result} {
+        	    $wcan itemconfig $idt -fontsize $fsize
+    		}
+    	    }
+	    catch {unset FontS}
+	}
+    }
+}
   }
 
   
@@ -4729,7 +4801,7 @@ oo::class create cframe {
     }
     if {$fr == 1} {
 	if {$tbut == "frame"} {
-	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h %x %y;[self] resize %w %h 0}"
+	    eval "bind $wcan  <Configure> {[self] scaleGroup $wcan %w %h %x %y;[self] resize %w %h 0}"
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 	}
@@ -4801,7 +4873,7 @@ puts "RESIZE CFRAME tbut=$tbut"
 
   }
 
-  method scaleGroup {w h x y} {
+  method scaleGroup {win w h x y} {
 #puts "scaleGroup START win=$win w=$w h=$h x=$x y=$y"
     set onemm2px [winfo fpixels $wcan 1m]
     set x [$wcan canvasx $x]
@@ -4869,13 +4941,6 @@ puts "RESIZE CFRAME tbut=$tbut"
     set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
     set BBox(action) se
 
-    set lastX1 $BBox(x1)
-    set lastY1 $BBox(y1)
-    set lastX2 $BBox(x2)
-    set lastY2 $BBox(y2)
-
-    set BBox(x2) [expr {$BBox(x1) + ($BBox(x2) - $BBox(x1)) * $xScaleW}]
-    set BBox(y2) [expr {$BBox(y1) + ($BBox(y2) - $BBox(y1)) * $yScaleW}]
     set xOrigin $BBox(x1)
     set yOrigin $BBox(y1)
     set xScale $xScaleW
