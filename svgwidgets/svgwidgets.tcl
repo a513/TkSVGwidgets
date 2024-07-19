@@ -1344,10 +1344,28 @@ if {$fr == 1} {
     			set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl)) / ($sy2 - $sy1 )}]
 		}
 #puts "scalex=$scalex scaley=$scaley"
-    		$wcan scale $isvg 0 0 $scalex $scaley
+#Изменение размеров - ширины и высоты
+		foreach {width height xy} [$wcan itemcget $isvg -matrix] {
+		    foreach {w1 w0} $width {
+			set w1 [expr {$w1 * $scalex}]
+		    }
+		    foreach {h0 h1} $height {
+			set h1 [expr {$h1 * $scaley}]
+		    }
+		    $wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
+		}
+
     		foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 
-    		$wcan move $isvg [expr {$rx1 - $snx1 + $pxl}] [expr {$ry1 - $sny1 + $pyl}]
+#Перемещение по x и y
+		foreach {width height xy} [$wcan itemcget $isvg -matrix] {
+		    foreach {x y} $xy {
+			set x [expr {$x + $rx1 - $snx1 + $pxl }]
+			set y [expr {$y + $ry1 - $sny1 + $pyl}]
+		    }
+		    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
+		}
+
     		if {$isvgold != "" } {
     		    $wcan delete $isvgold
     		}
@@ -1875,9 +1893,11 @@ oo::class create ibutton {
     variable Options
   variable wlast
   variable hlast
+  variable wpad
   
   constructor {w args} {
     catch {unset Options}
+    set wpad 0
     set x0 0
     set y0 0
     set idor -1
@@ -2521,13 +2541,11 @@ oo::class create ibutton {
 		    if {[info exists Options(-isvg)]} {
 #puts "-pad: Options(-isvg)=$Options(-isvg) pad=Options(-pad) idr=$idr"
 			set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
-#НОВОЕ
     			set isvg $Options(-isvg)
 #puts "ibutton: -isvg ok isvg=$isvg idr=$idr"
     			foreach {sx1 sy1 sx2 sy2} [$wcan bbox $isvg] {break}
-#    			foreach {rx1 ry1 rx2 ry2} [$wcan bbox $idr] {break}
     			foreach {rx1 ry1 rx2 ry2} [$wcan bbox "$btag rect"] {break}
-if {1} {
+if {0} {
     			foreach {rx1 ry1 rx2 ry2} [$wcan coords $idr] {break}
 }
 			foreach {pxl pxr pyl pyr} $Options(-pad) {break}
@@ -2536,18 +2554,30 @@ if {1} {
 			set pyl [winfo fpixels $wcan $pyl]
     			set pyr [winfo fpixels $wcan $pyr]
 
-    			set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl) - $strwidth * 1.0 ) / ($sx2 - $sx1 - $strwidth * 1.0 )}]
-    			set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl) - $strwidth * 1.0 ) / ($sy2 - $sy1 - $strwidth * 1.0 )}]
+    			set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl) - $strwidth * 1.0 * 0) / ($sx2 - $sx1 - $strwidth * 1.0 * 0)}]
+    			set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl) - $strwidth * 1.0 * 0) / ($sy2 - $sy1 - $strwidth * 1.0 * 0)}]
 
-#set xx [$wcan bbox "$btag rect"]
-#puts "-pad: scalex=$scalex scaley=$scaley isvg=$isvg bbox_isvg=[$wcan bbox $isvg] bbox_rect=$xx rect=$idr btag=$btag"
-    			$wcan scale $isvg 0 0 $scalex $scaley
+#Изменение размеров - ширины и высоты
+#    			$wcan scale $isvg 0 0 $scalex $scaley
+			foreach {width height xy} [$wcan itemcget $isvg -matrix] {
+			    foreach {w1 w0} $width {
+				set w1 [expr {$w1 * $scalex}]
+			    }
+			    foreach {h0 h1} $height {
+				set h1 [expr {$h1 * $scaley}]
+			    }
+			    $wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
+			}
+
     			foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
-
-    			$wcan move $isvg [expr {$rx1 - $snx1 + $pxl + $strwidth * 1 * 0.5 }] [expr {$ry1 - $sny1 + $pyl + $strwidth * 1 * 0.5 }]
-#set xx [$wcan bbox "$btag rect"]
-#puts "-pad: scalex=$scalex scaley=$scaley isvg=$isvg bbox_isvg=[$wcan bbox $isvg] bbox_rect=$xx rect=$idr btag=$btag"
-
+#Перемещение по x и y
+			foreach {width height xy} [$wcan itemcget $isvg -matrix] {
+			    foreach {x y} $xy {
+				set x [expr {$x + $rx1 - $snx1 + $pxl + $strwidth * 1 * 0.5 * 0}]
+				set y [expr {$y + $ry1 - $sny1 + $pyl + $strwidth * 1 * 0.5 * 0}]
+			    }
+			    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
+			}
 		    } else {
 #Старое pad
 			foreach {opxl opxr opyl opyr} $padold {break}
@@ -2560,7 +2590,6 @@ if {1} {
 			set wim [expr {$wim + $opxl + $opxr}]
 			set him [expr {$him + $opyl + $opyr}]
 
-####################
 			foreach {x1 y1} [$wcan coords $idi] {break}
 			foreach {pxl pxr pyl pyr} $Options(-pad) {break}
 			set pxl [winfo fpixels $wcan $pxl]
@@ -2751,7 +2780,7 @@ set copycanitem {
 #Читаем аттрибуты
 	set options [list]
 	foreach conf [$canv itemconfigure $item] {
-	    if {[lindex $conf 0] == "-matrix"} {continue}
+#	    if {[lindex $conf 0] == "-matrix"} {continue}
 	    if {[lindex $conf 0] == "-tags"} {continue}
 	    if {[lindex $conf 0] == "-parent"} {continue}
 	    set default [lindex $conf 3]
@@ -2763,11 +2792,11 @@ set copycanitem {
     		lappend options [lindex $conf 0] $value
 	    }
 	}
-	append command " $options"
+	append command [subst " $options  -parent $grnew"]
 #Создаем объект
 	set copytag [eval $command]
 	if {$copytag == ""} {return -1}
-	$wcan itemconfigure $copytag -parent $grnew
+#	$wcan itemconfigure $copytag -parent $grnew
 #Добавить tags
 	set btag "canvasb[string range [self] [string first Obj [self]] end]"
 	$wcan itemconfigure $copytag -tags [list $type obj $canvasb $btag [linsert $btag end frame] utag$copytag]
@@ -2777,7 +2806,7 @@ set copycanitem {
     set dx [expr { [winfo fpixels $wcan $x0] - $x1}] 
     set dy [expr { [winfo fpixels $wcan $y0] - $y1}]
 
-    $wcan move $grnew $dx $dy
+#    $wcan move $grnew $dx $dy
 
     foreach {x1 y1 x2 y2} [$wcan bbox $grnew] {break}
     set dx0 [expr {$x0 - $x1 }]
@@ -4949,10 +4978,58 @@ puts "RESIZE CFRAME tbut=$tbut"
    set Canv(xscale) $xScale
 
    foreach id "[$wcan find withtag canvasb] [$wcan find withtag canvasi] [$wcan find withtag boxText]" {
-      set type [$wcan type $id]
+        set type [$wcan type $id]
 #puts "Canvasb id=$id type=$type  xScale=$xScale yScale=$yScale"
+	set idgr [$wcan itemcget $id -parent]
+	if {[lindex [$wcan itemcget $idgr -tag] 0] == "isvg"} {
+		continue
+	}
+
       if {$type == "group"} {
-	continue
+    	    set taggr [$wcan itemcget $id -tag]
+    	    if {[lindex $taggr  0] != "isvg"} {
+    		continue
+    	    }
+    	    set objgr "::oo::[string range [lindex $taggr  3] 7 end-5]"
+    	    if {[$objgr type] == "ibutton"} {
+    		set padgr [$objgr config -pad]
+    	    } else {
+    		set padgr [$objgr config -ipad]
+    	    }
+	    foreach {pxl pxr pyl pyr} $padgr {break}
+	    set pxl [expr {[winfo fpixels $wcan $pxl] * $xScale }]
+	    set pxr [expr {[winfo fpixels $wcan $pxr] * $xScale }]
+	    set pyl [expr {[winfo fpixels $wcan $pyl] * $yScale }]
+	    set pyr [expr {[winfo fpixels $wcan $pyr] * $yScale }]
+	    $objgr config -pad "$pxl $pxr $pyl $pyr"
+
+    	    set gtag [lindex [lindex  [$wcan itemcget $id -tag] 4] 0]
+    	    foreach {rx1 ry1 rx2 ry2} [$wcan bbox "$gtag rect"] {break}
+    	    set scalex $xScale
+    	    set scaley $yScale
+#Изменение размеров - ширины и высоты
+	    foreach {width height xy} [$wcan itemcget $id -matrix] {
+		foreach {w1 w0} $width {
+		    set w1 [expr {$w1 * $scalex}]
+		}
+		foreach {h0 h1} $height {
+		    set h1 [expr {$h1 * $scaley}]
+		}
+		$wcan itemconfigure $id -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
+	    }
+
+    	    foreach {snx1 sny1 snx2 sny2} [$wcan bbox $id] {break}
+
+#Перемещение по x и y
+	    foreach {width height xy} [$wcan itemcget $id -matrix] {
+		foreach {x y} $xy {
+		    set x [expr {$x + $rx1 - $snx1 + $pxl }]
+		    set y [expr {$y + $ry1 - $sny1 + $pyl}]
+		}
+		$wcan itemconfigure $id -matrix [list "$width" "$height" "$x $y"]
+	    }
+
+	    continue
       }
       
       if {[catch {$wcan itemcget $id -strokewidth} result]==0} {
