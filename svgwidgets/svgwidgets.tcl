@@ -5001,7 +5001,12 @@ puts "RESIZE CFRAME tbut=$tbut"
 	    set pxr [expr {[winfo fpixels $wcan $pxr] * $xScale }]
 	    set pyl [expr {[winfo fpixels $wcan $pyl] * $yScale }]
 	    set pyr [expr {[winfo fpixels $wcan $pyr] * $yScale }]
-	    $objgr config -pad "$pxl $pxr $pyl $pyr"
+    	    if {[$objgr type] == "ibutton"} {
+		$objgr config -pad "$pxl $pxr $pyl $pyr"
+    	    } else {
+;
+#		$objgr config -ipad "$pxl $pxr $pyl $pyr"
+    	    }
 
     	    set gtag [lindex [lindex  [$wcan itemcget $id -tag] 4] 0]
     	    foreach {rx1 ry1 rx2 ry2} [$wcan bbox "$gtag rect"] {break}
