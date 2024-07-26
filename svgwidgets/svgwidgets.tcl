@@ -1,3 +1,8 @@
+#  Copyright (c) 2023-2024  Orlov Vladimir
+#  
+#  This file is distributed under BSD style license.
+#
+
 package require tkpath
 package require treectrl
 
