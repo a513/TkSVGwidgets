@@ -388,6 +388,7 @@ oo::class create cbutton {
 		    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
 		}
 
+		foreach {xt1 yt1 xt2 yt2} "0 0 0 0" {break}
 		foreach {xt1 yt1 xt2 yt2} [$wcan bbox $idt] {break} 
 		set wt [expr {$xt2 - $xt1}]
 		set ht [expr {$yt2 - $yt1}]
@@ -1143,7 +1144,7 @@ if {1} {
 			$wcan delete $Options(-isvg)
 			set Options(-isvg) ""
     		    }
-		    foreach {xt1 yt1 xt2 yt2} [$wcan bbox $idt] {break}
+#		    foreach {xt1 yt1 xt2 yt2} [$wcan bbox $idt] {break}
 		    
     		    if {[info exists idr] && ![info exists idi]} {
 #Учесть координаты для compound - left и т.д.
@@ -1238,6 +1239,7 @@ if {1} {
 				    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
 				}
 				foreach {ix iy} [$wcan coords $idi] {break}
+				foreach {tx1 ty1 tx2 ty2} "0 0 0 0" {break}
 				foreach {tx1 ty1 tx2 ty2} [$wcan bbox $idt] {break}
 				if {$Options(-compound) == "bottom"} {
 				    set iy [expr {$ty2 + $pyl}]
@@ -1435,6 +1437,7 @@ if {$fr == 1} {
 				$wcan coords $idt "$x $y "
 				if {$Options(-rotate) != 0} {
 				    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
+				    foreach {xt1 yt1 xt2 yt2} "0 0 0 0" {break}
 				    foreach {xt1 yt1 xt2 yt2} [$wcan bbox $idt] {break}
 				    ::svgwidget::id2angleZero $wcan $idt
 				    set dx 0
@@ -1779,6 +1782,7 @@ if {$fr == 1} {
 		if {$tbut != "frame"} {		
     		    set Options($option) $value
 		    if {[info exists idt]} {
+			foreach {xe0 ye0 xe1 ye1} "0 0 0 0" {break}
 			foreach {xe0 ye0 xe1 ye1} [$wcan bbox $idt] {break}
 			$wcan itemconfigure $idt $option $value
     			$wcan raise $idt $idr
@@ -1786,6 +1790,7 @@ if {$fr == 1} {
 			if {[$wcan bbox $idt] == ""} {
 			    continue
 			}
+			foreach {xt0 yt0 xt1 yt1} "0 0 0 0" {break}
 			foreach {xt0 yt0 xt1 yt1} [$wcan bbox $idt] { break}
 		    
 			if {$fr && $tbut != "round" && $tbut != "rect" && $tbut != "ellipse"} {
@@ -1798,6 +1803,75 @@ if {$fr == 1} {
 				my config -width [expr {$xx + $del}]
 			    }
 			}
+###  COMPOUND ###########
+			if { $tbut == "rect" && $Options(-isvg) == "" &&  $Options(-image) == "" } {
+			    foreach {pxl pxr pyl pyr} $Options(-ipad) {break}
+			    set pxl [winfo fpixels $wcan $pxl]
+			    set pxr [winfo fpixels $wcan $pxr]
+			    set pyl [winfo fpixels $wcan $pyl]
+			    set pyr [winfo fpixels $wcan $pyr]
+    			    foreach {x1 y1 x2 y2} [$wcan bbox $idr] {break}
+    			    set x2 [expr {$x1 + $x2}]
+    			    set y2 [expr {$y1 + $y2}]
+#Посчитать с учётом -ipad
+			    foreach {xi1 yi1 xi2 yi2} "0 0 0 0" {break}
+			    set x [expr {$xi2 + $pxl}]
+			    set y [expr { ($y1 + $y2) / 2.0}]
+			    set tanchor  "w"
+			    switch $Options(-compound)  {
+				left {
+				    set x [expr {$xi2 + $pxl}]
+#				    set y [expr { ($y1 + $y2) / 2.0}]
+				    set y [expr { $y2 / 2.0}]
+				    set tanchor  "w"
+				}
+				right {
+#				    set y [expr { ($y1 + $y2) / 2.0}]
+				    set y [expr { $y2 / 2.0}]
+				    set tanchor  "w"
+#				    puts "right"
+				
+				}
+				top {
+#				    set x [expr {$xi2 + $pxl}]
+				    set x [expr { ($x1 + $x2) / 2.0}]
+				    set y [expr { $yi2 + $pyl * 0 }]
+				    set tanchor  "n"
+				}
+				bottom {
+				    set x [expr { ($x1 + $x2) / 2.0}]
+				    set y [expr { 0 + $pyl * 1.0 }]
+				    set tanchor  "n"
+#				    puts "bottom"
+				}
+				none {
+				    foreach {x1 y1 x2 y2} [$wcan bbox $idr] {break}
+				    set x [expr { ($x1 + $x2) / 2.0}]
+				    set y [expr { ($y1 + $y2) / 2.0}]
+				    $wcan coords $idt "$x $y "
+				    $wcan itemconfigure  $idt -textanchor c
+				    $wcan raise $idt
+				}
+			    }
+#puts "Options(-compound)=$Options(-compound) X=$x Y=$y tanchor=$tanchor"
+			    if {[info exist idt] && $Options(-text) != "" && $Options(-compound) != "none" } {
+				::svgwidget::id2angleZero $wcan $idt
+				$wcan itemconfigure  $idt -textanchor $tanchor
+				$wcan coords $idt "$x $y "
+				if {$Options(-rotate) != 0} {
+				    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
+				    foreach {xt1 yt1 xt2 yt2} [$wcan bbox $idt] {break}
+				    ::svgwidget::id2angleZero $wcan $idt
+				    set dx 0
+				    set dy [expr {$yi2 + $pyl - $yt1}]
+				    $wcan move $idt $dx $dy
+				    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
+				}
+    				$wcan raise $idt $idr
+			    }
+    			    $wcan raise $idor
+			}
+################
 		    } 
 		}
 	    }
