@@ -1016,6 +1016,12 @@ if {0} {
 		    continue
     		}
 		set  Options($option) $value
+		
+    		if {[info exists idr]} {
+		    if { $tbut == "rect" && $Options(-isvg) == "" &&  $Options(-image) == "" && $Options(-text) != ""} {
+    			my config -text $Options(-text)
+    		    }
+    		}
     	    }
 	    -rotate {
 		set  Options($option) $value
@@ -1810,37 +1816,34 @@ if {$fr == 1} {
 			    set pxr [winfo fpixels $wcan $pxr]
 			    set pyl [winfo fpixels $wcan $pyl]
 			    set pyr [winfo fpixels $wcan $pyr]
-    			    foreach {x1 y1 x2 y2} [$wcan bbox $idr] {break}
+    			    foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
     			    set x2 [expr {$x1 + $x2}]
     			    set y2 [expr {$y1 + $y2}]
 #Посчитать с учётом -ipad
-			    foreach {xi1 yi1 xi2 yi2} "0 0 0 0" {break}
+    			    foreach {xi1 yi1 xi2 yi2} [$wcan bbox $idr] {break}
 			    set x [expr {$xi2 + $pxl}]
 			    set y [expr { ($y1 + $y2) / 2.0}]
 			    set tanchor  "w"
 			    switch $Options(-compound)  {
 				left {
-				    set x [expr {$xi2 + $pxl}]
-#				    set y [expr { ($y1 + $y2) / 2.0}]
+				    set x [expr {$xi1 + $pxl}]
 				    set y [expr { $y2 / 2.0}]
 				    set tanchor  "w"
 				}
 				right {
-#				    set y [expr { ($y1 + $y2) / 2.0}]
+				    set x [expr {$xi2 - $pxr - ($xt1 - $xt0)}]
 				    set y [expr { $y2 / 2.0}]
 				    set tanchor  "w"
-#				    puts "right"
 				
 				}
 				top {
-#				    set x [expr {$xi2 + $pxl}]
-				    set x [expr { ($x1 + $x2) / 2.0}]
-				    set y [expr { $yi2 + $pyl * 0 }]
+				    set x [expr { $x2 / 2.0}]
+				    set y [expr { $yi1 + $pyl * 1 }]
 				    set tanchor  "n"
 				}
 				bottom {
-				    set x [expr { ($x1 + $x2) / 2.0}]
-				    set y [expr { 0 + $pyl * 1.0 }]
+				    set x [expr { $x2 / 2.0}]
+				    set y [expr { $yi2 - $pyl - ($yt1 - $yt0)}]
 				    set tanchor  "n"
 #				    puts "bottom"
 				}
@@ -1863,7 +1866,7 @@ if {$fr == 1} {
 				    foreach {xt1 yt1 xt2 yt2} [$wcan bbox $idt] {break}
 				    ::svgwidget::id2angleZero $wcan $idt
 				    set dx 0
-				    set dy [expr {$yi2 + $pyl - $yt1}]
+				    set dy [expr {$yi1 + $pyl - $yt1}]
 				    $wcan move $idt $dx $dy
 				    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
 				}
