@@ -1227,7 +1227,8 @@ if {1} {
 				    set y [expr { ($y1 + $y2) / 2.0}]
 				    $wcan coords $idt "$x $y "
 				    $wcan itemconfigure  $idt -textanchor c
-				    $wcan raise $idt
+				    $wcan raise $idt $idr
+    				    $wcan raise $idor
 				}
 			    }
 #puts "Options(-compound)=$Options(-compound) X=$x Y=$y tanchor=$tanchor"
@@ -1279,7 +1280,8 @@ if {1} {
     		    if {[info exists Options(-isvg)]} {
 			if {$Options(-isvg) != ""} {
     			    $wcan delete $Options(-isvg)
-    			    unset Options(-isvg)
+    			    set Options(-isvg) ""
+#    			    unset Options(-isvg)
 			}
     		    }
     		    continue
@@ -1433,6 +1435,7 @@ if {$fr == 1} {
 				    $wcan coords $idt "$x $y "
 				    $wcan itemconfigure  $idt -textanchor c
 				    $wcan raise $idt
+				    $wcan raise $idor
 #    				    $wcan raise $idt $idr
 				}
 			    }
@@ -1506,6 +1509,7 @@ if {$fr == 1} {
 			    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
 			}
 			$wcan itemconfigure $idt -text $Options(-text)
+			my config -compound $Options(-compound)
 		    } else {
 			if { $tbut == "rect" && $Options(-isvg) != ""} {
     			    my config [list -isvg "$wcan $Options(-isvg)"]
@@ -1613,6 +1617,7 @@ if {$fr == 1} {
 			}
 			if {[info exists idt]} {
 			    $wcan itemconfigure $idt -text $Options(-text)
+			    my config -compound $Options(-compound)
 			    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
 			}
 		    } else {
@@ -2536,7 +2541,8 @@ oo::class create ibutton {
     		    set Options($option) $value
     		    if {[info exists Options(-isvg)]} {
 			$wcan delete $Options(-isvg)
-			catch {unset Options(-isvg)}
+    			set Options(-isvg) ""
+#			catch {unset Options(-isvg)}
     		    }
 		    if {[info exists idi]} {
 #Посчитать с учётом -ipad
@@ -2581,7 +2587,8 @@ oo::class create ibutton {
 		    $wcan delete $idor
 		}
 #Плюха в винде: тодщина строки в svg и обрамления вместо нуля остается фактически равной одному, поэтому далается пустая заливка
-		set idor [$wcan create prect [$wcan bbox $value] -strokewidth 0 -stroke {} -fillopacity 0 -strokeopacity 0 -fill red -tags [list isvg obj $canvasb $btag [linsert $btag end isvg]]]
+#		set idor [$wcan create prect [$wcan bbox $value] -strokewidth 0 -stroke {} -fillopacity 0 -strokeopacity 0 -fill red -tags [list isvg obj $canvasb $btag [linsert $btag end isvg]]]
+		set idor [$wcan create prect [$wcan coords $idr] -strokewidth 0 -stroke {} -fillopacity 0 -strokeopacity 0 -fill red -tags [list isvg obj $canvasb $btag [linsert $btag end isvg]]]
 		eval "$wcan bind $idor <Enter> {[self] enter}"
 		eval "$wcan bind $idor <Leave> {[self] leave}"
 		eval "$wcan bind $idor <ButtonPress-1> {[self] press}"
