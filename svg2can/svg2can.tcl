@@ -1386,18 +1386,16 @@ proc svg2can::parsePathAttr {path} {
 
     regsub -all -- {([\-]*[0-9]+)([\ ]*)e([\ ]*)([\-]*[0-9]+)} $path {\1e\4} path
 
-#Разбор h
-    regsub -all --  {(h)([-]*[0-9]*[.][0-9]*)} $path {\1 \2} path
-    regsub -all --  {(m)([-]*[0-9]*[.][0-9]*)} $path {\1 \2} path
-
+#Разбор h[-]. и т.п.
+    regsub -all --  {([a-zA-Z])([-]*[0-9]*[.][0-9]*)} $path {\1 \2} path
     return $path
-
-
-
+if {0} {
     regsub -all -- {([a-zA-Z])([0-9])} $path {\1 \2} path
     regsub -all -- {([0-9])([a-zA-Z])} $path {\1 \2} path
     regsub -all -- {([a-zA-Z])([a-zA-Z])} $path {\1 \2} path
     return [string map {- " -"  , " "} $path]
+}
+
 }
 
 # svg2can::StyleToOpts --
@@ -2271,4 +2269,25 @@ proc svg2can::SVGXmlToCanvas {w xml} {
 	unset svg2can::gradientIDToToken($nam)
     }
     return $gr
+}
+proc parsepath {d} {
+	set i 0
+	set len [string length $d]
+	set dpath ""
+	while {$i < $len} {
+	    set ss [string range $d $i $i]
+	    if {$ss == ","} {
+		append dpath " "
+	    } elseif {$ss == "-"} {
+		append dpath "  $ss"
+	    } elseif {$ss == "\\"} {
+		append dpath "  "
+	    } elseif {[string is alpha $ss]} {
+		append dpath " $ss "
+	    } else {
+		append dpath "$ss"
+	    }
+	    incr i
+	}
+    return "$dpath"
 }
