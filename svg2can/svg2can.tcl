@@ -276,7 +276,7 @@ proc svg2can::ParseElemRecursiveEx {xmllist paropts transAttr args} {
 
     set cmdList [list]
     set tag [gettag $xmllist]
-#puts "ParseElemRecursiveEx: tag=$tag"
+#puts "ParseElemRecursiveEx: START tag=$tag"
     switch -- $tag {
 	style {
 #puts "ParseElemRecursiveEx -> CreateCurrentColor: $xmllist C=[getchildren $xmllist]"
@@ -285,7 +285,41 @@ proc svg2can::ParseElemRecursiveEx {xmllist paropts transAttr args} {
 	circle - ellipse - image - line - polyline - polygon - rect - path - text {
 	    set func [string totitle $tag]
 #puts "ParseElemRecursiveEx -> func=$func: transAttr=$transAttr\nparopts=$paropts"
+#ORLOV		
+#puts "ParseElemRecursiveEx func=$func"
+	    if {$func == "Path"} {
+		array set attrA1 $args
+		array set attrA1 [getattr $xmllist]
 
+		foreach {key value} [array get attrA1] {
+#puts "ParseElemRecursiveEx key=$key"
+		    switch -- $key {
+			x - y - width - height {
+			    set func "Rect"
+			}
+			rx - ry {
+			    set func "Ellipse"
+			}
+			r {
+			    set func "Circle"
+			}
+			points {
+#Как быть с poliline????
+			    set func "Poligon"
+			}
+			x1 - y1 - x2 - y2 {
+			    set func "Line"
+			}
+			default {
+			    ;
+			}
+		    }
+		    if {$func != "Path"} {
+			break
+		    }
+		}
+	    }
+	       
 	    set cmd [eval {Parse${func}Ex $xmllist $paropts $transAttr} $args]
 	    if {[llength $cmd]} {
 		lappend cmdList $cmd
@@ -368,6 +402,8 @@ proc svg2can::ParseElemRecursiveEx {xmllist paropts transAttr args} {
 	    # todo
 	}
     }
+#puts "ParseElemRecursiveEx: End cmdList=$cmdList"
+
     return $cmdList
 }
 
@@ -397,6 +433,7 @@ proc svg2can::ParseDefs {xmllist paropts transAttr args} {
     
     # @@@ Only gradients so far.
 #puts "svg2can::ParseDefs c=[getchildren $xmllist]"
+#puts "svg2can::ParseDefs START"
 set grad 0
 set lgrad {}
     foreach c [getchildren $xmllist] {
@@ -427,6 +464,8 @@ set lgrad {}
     }
 #ORLOV
 #parray svg2can::gradientIDToToken
+#puts "svg2can::ParseDefs END"
+
 if {0} {
   if {$grad > 0 } {
     foreach c $lgrad {
@@ -782,6 +821,7 @@ proc svg2can::ParsePathEx {xmllist paropts transAttr args} {
     array set attrA $args
     array set attrA [getattr $xmllist]
     foreach {key value} [array get attrA] {
+#puts "ParsePathEx 0: key=$key  value=$value"
 	switch -- $key {
 	    d { 
 		set path [parsePathAttr $value]
@@ -848,6 +888,7 @@ proc svg2can::ParsePathEx {xmllist paropts transAttr args} {
 	    set opts [lreplace $opts $inds $inds $curc]
 	}
     }
+#puts "ParsePathEx 0: END"
 
     return [concat create path [list $path] $opts]
 }
@@ -2119,6 +2160,8 @@ proc svg2can::TransformAttrListToMatrix {transform} {
 #puts "TransformAttrListToMatrix: op=matrix i=$i value=$value"
 	    }
 	    rotate {
+		set value [string map {"," " "} $value]
+#puts "TransformAttrListToMatrix: op=rotate i=$i value=$value"
 		set phi [lindex $value 0]
 		set cosPhi  [expr {cos($degrees2Radians*$phi)}]
 		set sinPhi  [expr {sin($degrees2Radians*$phi)}]
