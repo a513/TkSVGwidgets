@@ -310,9 +310,9 @@ proc svg2can::ParseElemRecursiveEx {xmllist paropts transAttr args} {
 
 #		eval {lappend transAttr} [TransformAttrToList $attrA(transform)]
 		set tt [string map {")" "" } $attrA(transform)]
-		set tt [string map {"-" " -" } $tt]
 		append transAttr "[split $tt (] "
-
+#puts "ParseElemRecursiveEx -> g 1: attrA(transform)=[split $tt (]"
+#puts "ParseElemRecursiveEx -> TransformAttrToList: [TransformAttrToList $attrA(transform)]"
 		unset attrA(transform)
 	    }
 #puts "ParseElemRecursiveEx -> g: transAttr=$transAttr \nparopts=$paropts\nattrA=[array get attrA]"
@@ -378,6 +378,8 @@ proc svg2can::CreateCurrentColor {c} {
 
     catch {unset curColor}
     set stcol [getcdata $c]
+    set stcol [string map {"\{" " \{"} $stcol]
+    set stcol [string map {"\}" "\} "} $stcol]
     set j [llength $stcol]
     for {set i 0} {$i < $j}  {incr i} {
 	set t1 [string trim [lindex $stcol $i] "."]
@@ -385,7 +387,7 @@ proc svg2can::CreateCurrentColor {c} {
 	set c1 [split [lindex $stcol $i] ":"]
 	set curc [string trim [lindex $c1 1]]
 	set curc [string trim $curc ";"]
-	set curColor($t1) $curc
+	set curColor($t1) [string trim $curc]
     }
 
 }
@@ -444,6 +446,10 @@ if {0} {
 }
 
 proc svg2can::ParseCircleEx {xmllist paropts transAttr args} {
+#ORLOV
+#Переменная для currentColor
+    variable curColor
+    set curc -1
 
     set opts {}
     set cx 0
@@ -464,21 +470,63 @@ proc svg2can::ParseCircleEx {xmllist paropts transAttr args} {
 		eval {lappend opts} [StyleToOptsEx [StyleAttrToList $value]]
 	    }
 	    transform {
+		set tt [string map {")" "" } $value]
+		set tt [string map {"," " " } $tt]
+		set value "[split $tt (]"
 		eval {lappend transAttr} [TransformAttrToList $value]
+#		eval {lappend transAttr} [TransformAttrToList $value]
+	    }
+	    class {
+#puts "ParseCircleEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
+		set curc $curColor([string trim $value])
 	    }
 	    default {
 		lappend presAttr $key $value
 	    }
 	}
     }
+#ORLOV
+    if {$curc != -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	set inds [lsearch -exact $opts "-stroke"]
+	if {$ind != -1} {
+	    incr ind
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+	if {$inds != -1} {
+	    incr inds
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     if {[llength $transAttr]} {
 	lappend opts -matrix [TransformAttrListToMatrix $transAttr]
     }
     set opts [StrokeFillDefaults [MergePresentationAttrEx $opts $presAttr]]
+#ORLOV
+    if {$curc != -1 && $ind == -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	incr ind
+	if {[lindex $opts $ind] == "currentColor"} {
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+    }
+    if {$curc != -1 && $inds == -1} {
+	set inds [lsearch -exact $opts "-stroke"]
+	incr inds
+	if {[lindex $opts $inds] == "currentColor"} {
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     return [concat create circle $cx $cy $opts]
 }
 
 proc svg2can::ParseEllipseEx {xmllist paropts transAttr args} {
+#ORLOV
+#Переменная для currentColor
+    variable curColor
+    set curc -1
 
     set opts {}
     set cx 0
@@ -499,17 +547,55 @@ proc svg2can::ParseEllipseEx {xmllist paropts transAttr args} {
 		eval {lappend opts} [StyleToOptsEx [StyleAttrToList $value]]
 	    }
 	    transform {
+		set tt [string map {")" "" } $value]
+		set tt [string map {"," " " } $tt]
+		set value "[split $tt (]"
 		eval {lappend transAttr} [TransformAttrToList $value]
+#		eval {lappend transAttr} [TransformAttrToList $value]
+	    }
+	    class {
+#puts "ParseEllipseEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
+		set curc $curColor([string trim $value])
 	    }
 	    default {
 		lappend presAttr $key $value
 	    }
 	}
     }
+#ORLOV
+    if {$curc != -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	set inds [lsearch -exact $opts "-stroke"]
+	if {$ind != -1} {
+	    incr ind
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+	if {$inds != -1} {
+	    incr inds
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     if {[llength $transAttr]} {
 	lappend opts -matrix [TransformAttrListToMatrix $transAttr]
     }
     set opts [StrokeFillDefaults [MergePresentationAttrEx $opts $presAttr]]
+#ORLOV
+    if {$curc != -1 && $ind == -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	incr ind
+	if {[lindex $opts $ind] == "currentColor"} {
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+    }
+    if {$curc != -1 && $inds == -1} {
+	set inds [lsearch -exact $opts "-stroke"]
+	incr inds
+	if {[lindex $opts $inds] == "currentColor"} {
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     return [concat create ellipse $cx $cy $opts]    
 }
 
@@ -606,6 +692,10 @@ proc svg2can::ParseImageEx {xmllist paropts transAttr args} {
 }
 
 proc svg2can::ParseLineEx {xmllist paropts transAttr args} {
+#ORLOV
+#Переменная для currentColor
+    variable curColor
+    set curc -1
 
     set x1 0
     set y1 0
@@ -630,15 +720,49 @@ proc svg2can::ParseLineEx {xmllist paropts transAttr args} {
 	    transform {
 		eval {lappend transAttr} [TransformAttrToList $value]
 	    }
+	    class {
+#puts "ParseLineEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
+		set curc $curColor([string trim $value])
+	    }
 	    default {
 		lappend presAttr $key $value
 	    }
 	}
     }
+#ORLOV
+    if {$curc != -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	set inds [lsearch -exact $opts "-stroke"]
+	if {$ind != -1} {
+	    incr ind
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+	if {$inds != -1} {
+	    incr inds
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     if {[llength $transAttr]} {
 	lappend opts -matrix [TransformAttrListToMatrix $transAttr]
     }
     set opts [StrokeFillDefaults [MergePresentationAttrEx $opts $presAttr] 1]
+#ORLOV
+    if {$curc != -1 && $ind == -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	incr ind
+	if {[lindex $opts $ind] == "currentColor"} {
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+    }
+    if {$curc != -1 && $inds == -1} {
+	set inds [lsearch -exact $opts "-stroke"]
+	incr inds
+	if {[lindex $opts $inds] == "currentColor"} {
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     return [concat create pline $x1 $y1 $x2 $y2 $opts]    
 }
 
@@ -672,9 +796,6 @@ proc svg2can::ParsePathEx {xmllist paropts transAttr args} {
 #puts "ParsePathEx 0: transform transAttr=$transAttr value=$value"
 		set tt [string map {")" "" } $value]
 		set tt [string map {"," " " } $tt]
-
-		set tt [string map {"-" " -" } $tt]
-
 		set value "[split $tt (]"
 #puts "ParsePathEx 0: transform transAttr=$transAttr value=$value"
 
@@ -682,8 +803,8 @@ proc svg2can::ParsePathEx {xmllist paropts transAttr args} {
 #puts "ParsePathEx 1: transform transAttr=$transAttr"
 	    }
 	    class {
-#puts "ParsePathEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
-		set curc $curColor($value)
+#puts "ParsePathEx: class - key=$key value=\"$value\" opts=$opts color=$curColor([string trim $value])"
+		set curc $curColor([string trim $value])
 	    }
 	    default {
 		lappend presAttr $key $value 
@@ -692,10 +813,16 @@ proc svg2can::ParsePathEx {xmllist paropts transAttr args} {
     }
 #ORLOV
     if {$curc != -1} {
+#puts "ParsPathEx: curs=$curc curColor"
 	set ind [lsearch -exact $opts "-fill"]
+	set inds [lsearch -exact $opts "-stroke"]
 	if {$ind != -1} {
 	    incr ind
 	    set opts [lreplace $opts $ind $ind $curc]
+	}
+	if {$inds != -1} {
+	    incr inds
+	    set opts [lreplace $opts $inds $inds $curc]
 	}
     }
     
@@ -712,6 +839,13 @@ proc svg2can::ParsePathEx {xmllist paropts transAttr args} {
 	incr ind
 	if {[lindex $opts $ind] == "currentColor"} {
 	    set opts [lreplace $opts $ind $ind $curc]
+	}
+    }
+    if {$curc != -1 && $inds == -1} {
+	set inds [lsearch -exact $opts "-stroke"]
+	incr inds
+	if {[lindex $opts $inds] == "currentColor"} {
+	    set opts [lreplace $opts $inds $inds $curc]
 	}
     }
 
@@ -770,6 +904,10 @@ proc svg2can::ParsePolylineEx {xmllist paropts transAttr args} {
 }
 
 proc svg2can::ParsePolygonEx {xmllist paropts transAttr args} {
+#ORLOV
+#Переменная для currentColor
+    variable curColor
+    set curc -1
 
     set opts {}
     set points {0 0}
@@ -789,17 +927,55 @@ proc svg2can::ParsePolygonEx {xmllist paropts transAttr args} {
 		eval {lappend opts} [StyleToOptsEx [StyleAttrToList $value]]
 	    }
 	    transform {
+		set tt [string map {")" "" } $value]
+		set tt [string map {"," " " } $tt]
+		set value "[split $tt (]"
 		eval {lappend transAttr} [TransformAttrToList $value]
+#		eval {lappend transAttr} [TransformAttrToList $value]
+	    }
+	    class {
+#puts "ParsePoligonEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
+		set curc $curColor([string trim $value])
 	    }
 	    default {
 		lappend presAttr $key $value
 	    }
 	}
     }
+#ORLOV
+    if {$curc != -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	set inds [lsearch -exact $opts "-stroke"]
+	if {$ind != -1} {
+	    incr ind
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+	if {$inds != -1} {
+	    incr inds
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     if {[llength $transAttr]} {
 	lappend opts -matrix [TransformAttrListToMatrix $transAttr]
     }
     set opts [StrokeFillDefaults [MergePresentationAttrEx $opts $presAttr]]
+#ORLOV
+    if {$curc != -1 && $ind == -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	incr ind
+	if {[lindex $opts $ind] == "currentColor"} {
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+    }
+    if {$curc != -1 && $inds == -1} {
+	set inds [lsearch -exact $opts "-stroke"]
+	incr inds
+	if {[lindex $opts $inds] == "currentColor"} {
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     return [concat create ppolygon $points $opts]    
 }
 
@@ -811,6 +987,11 @@ proc svg2can::ParseRectEx {xmllist paropts transAttr args} {
     set width  0
     set height 0
     set presAttr {}
+#ORLOV
+#Переменная для currentColor
+    variable curColor
+    set curc -1
+
     array set attrA $args
     array set attrA [getattr $xmllist]
     
@@ -826,19 +1007,57 @@ proc svg2can::ParseRectEx {xmllist paropts transAttr args} {
 		eval {lappend opts} [StyleToOptsEx [StyleAttrToList $value]]
 	    }
 	    transform {
+		set tt [string map {")" "" } $value]
+		set tt [string map {"," " " } $tt]
+		set value "[split $tt (]"
 		eval {lappend transAttr} [TransformAttrToList $value]
+#		eval {lappend transAttr} [TransformAttrToList $value]
+	    }
+	    class {
+#puts "ParseRectEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
+		set curc $curColor([string trim $value])
 	    }
 	    default {
 		lappend presAttr $key $value
 	    }
 	}
     }
+#ORLOV
+    if {$curc != -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	set inds [lsearch -exact $opts "-stroke"]
+	if {$ind != -1} {
+	    incr ind
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+	if {$inds != -1} {
+	    incr inds
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     if {[llength $transAttr]} {
 	lappend opts -matrix [TransformAttrListToMatrix $transAttr]
     }
     set x2 [expr {$x + $width}]
     set y2 [expr {$y + $height}]
     set opts [StrokeFillDefaults [MergePresentationAttrEx $opts $presAttr]]
+#ORLOV
+    if {$curc != -1 && $ind == -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	incr ind
+	if {[lindex $opts $ind] == "currentColor"} {
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+    }
+    if {$curc != -1 && $inds == -1} {
+	set inds [lsearch -exact $opts "-stroke"]
+	incr inds
+	if {[lindex $opts $inds] == "currentColor"} {
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+
     return [concat create prect $x $y $x2 $y2 $opts]    
 }
 
@@ -1314,8 +1533,13 @@ proc svg2can::parseColor {color} {
     }
 #ORLOV
 if {0 && $col == "currentColor"} {
-puts "parseColor: col=currentColor"
+    puts "parseColor: col=currentColor"
 } 
+#puts "parseColor: color=$color"
+    if {[string length $color] == 9 && [string range $color 0 0] == "#"} {
+	set col [string range $col 0 6]
+    }
+
 
     return $col
 }
@@ -1356,10 +1580,55 @@ proc svg2can::parseFillToList {value} {
 	    return [list -fill $gradientIDToToken($id)]
 	} else {
 #	    puts "--------> missing gradientIDToToken id=$id"
-	    return [list -fill black]
+	    return [list -fill cyan]
 	}
     } else {
 	return [list -fill [parseColor $value]]
+    }
+}
+
+proc svg2can::parseStrokeToList {value} {
+    variable gradientIDToToken
+#ORLOV
+    variable gradID
+#puts "gradID: START parseStrokeToList"
+    foreach n [array names gradID] {
+#puts "gradID: name=$n"
+
+	foreach c1 $gradID($n) {
+#puts "parseFillToList: c=$c1"
+	    set c [lindex $c1 0]
+	    set tag [gettag $c]
+#puts "gradID: tag=$tag"
+	    switch -- $tag {
+		linearGradient {
+		    CreateLinearGradient $c1
+		}
+		radialGradient {
+		    CreateRadialGradient $c1
+		}
+	    }
+	}
+    }
+    foreach n [array names gradID] {
+	unset gradID($n)
+    }
+#puts "gradID: parseStrokeToList END"
+
+
+    if {[regexp {url\(#(.+)\)} $value - id]} {
+	#puts "\t id=$id"
+	if {[info exists gradientIDToToken($id)]} {
+	    #puts "\t gradientIDToToken=$gradientIDToToken($id)"
+#К сожалению не работает градиентная заливка для опции -stroke
+#	    return [list -stroke $gradientIDToToken($id)]
+	    return [list -stroke cyan]
+	} else {
+#	    puts "--------> missing gradientIDToToken id=$id"
+	    return [list -stroke black]
+	}
+    } else {
+	return [list -stroke [parseColor $value]]
     }
 }
 
@@ -1557,7 +1826,7 @@ proc svg2can::StyleToOptsEx {styleList args} {
 #puts "StyleToOptsEx key=$key value=$value"
 	switch -- $key {
 	    class {
-puts "StyleToOptsEx CLASS key=$key value=$value optsA=[array get optsA]"
+#puts "StyleToOptsEx CLASS key=$key value=$value optsA=[array get optsA]"
 #		set optsA(-fill) $curColor($value)
 	    }
 	    fill {
@@ -1572,7 +1841,10 @@ puts "StyleToOptsEx CLASS key=$key value=$value optsA=[array get optsA]"
 		set optsA(-strokeopacity) $value
 	    }
 	    stroke {
-		set optsA(-$key) [parseColor $value]		
+#puts "StyleToOptsEx STROKE key=$key value=$value optsA=[array get optsA]"
+#		set optsA(-$key) [parseColor $value]		
+		foreach {name val} [parseStrokeToList $value] { break }
+		set optsA($name) $val
 	    }
 	    stroke-dasharray {
 		if {$value eq "none"} {
@@ -1830,19 +2102,19 @@ proc svg2can::TransformAttrListToMatrix {transform} {
     
     # @@@ I don't have 100% control of multiplication order!
     set i 0
-#puts "TransformAttrListToMatrix: XAXAXA transform=$transform"
-
 #puts "TransformAttrListToMatrix: transform=$transform"
 
     foreach {op value} $transform {
-
-#ORLOV
-	set value [string map {")" "" } $value]
-	set value [string map {"," " "} $value]
-
 #puts "TransformAttrListToMatrix: XAXA op=$op value=$value"
 	switch -- $op {
 	    matrix {
+#ORLOV
+	set value [string map {")" "" } $value]
+	set value [string map {"," " "} $value]
+    regsub -all -- {([\-]*[0-9]*\.[0-9]*)(\.[0-9]+)} $value { \1 \2 } value
+
+    regsub -all -- {([\-]*[0-9]+)([\ ]*)e([\ ]*)([\-]*[0-9]+)} $value {\1e\4} value
+    regsub -all --  {([0-9])(-[\.0-9])} $value {\1 \2} value
 		set m([incr i]) $value
 #puts "TransformAttrListToMatrix: op=matrix i=$i value=$value"
 	    }
@@ -1880,6 +2152,10 @@ proc svg2can::TransformAttrListToMatrix {transform} {
 		set m([incr i]) [list 1 $tana 0 1 0 0]
 	    }
 	    translate {
+#puts "TransformAttrListToMatrix:1 translate value=$value"
+#ORLOV
+		regsub -all --  {([0-9])(-[\.0-9])} $value {\1 \2} value
+		set value [string map {"," " " } $value]
 		set tx [lindex $value 0]
 		if {[llength $value] > 1} {
 		    set ty [lindex $value 1]
@@ -1887,7 +2163,7 @@ proc svg2can::TransformAttrListToMatrix {transform} {
 		    set ty 0
 		}
 		set m([incr i]) [list 1 0 0 1 $tx $ty]
-#puts "TransformAttrListToMatrix:1 translate i=$i m($i)=$m($i)"
+#puts "TransformAttrListToMatrix:1 translate value=$value i=$i m($i)=$m($i)"
 	    }
 	}
     }
@@ -1896,18 +2172,21 @@ proc svg2can::TransformAttrListToMatrix {transform} {
 	set mat $m($i)
     } else {
 	set mat {1 0 0 1 0 0}
-#puts "TransformAttrListToMatrix -> MMult i=$i"
 	foreach i [lsort -integer [array names m]] {
 #puts "TransformAttrListToMatrix: mat=$mat m($i)=$m($i)"
 	    set mat [MMult $mat $m($i)]
 	}
     }
     foreach {a b c d tx ty} $mat { break }
+#puts "TransformAttrListToMatrix -> mat=$mat"
 
     return [list [list $a $c] [list $b $d] [list $tx $ty]]
 }
 
 proc svg2can::MMult {m1 m2} {
+#ORLOV
+#puts "MMult m1=$m1 \nm2=$m2 "
+
     foreach {a1 b1 c1 d1 tx1 ty1} $m1 { break }
     foreach {a2 b2 c2 d2 tx2 ty2} $m2 { break }
     return [list \
