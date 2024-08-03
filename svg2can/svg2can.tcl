@@ -1683,6 +1683,40 @@ proc svg2can::parseLength {length} {
     return [winfo fpixels . $length]
 }
 
+proc svg2can::parseArcSweep {dd} {
+#return $dd
+    set ret 1
+    set path ""
+    set seek 0
+#puts "svg2can::parseArcSweep: path=$d"
+    while {$ret } {
+	set ret [regexp  -indices -- {([aA])([ -.[0-9]+)} [string range $dd $seek end] ind]
+	if {$ret == 0} {
+	    append path [string range $dd $seek end]
+	    continue
+	}
+	foreach {ind1 ind2} $ind {
+	    set tind $ind2
+	    incr ind2 $seek
+	    incr ind1 $seek
+#puts "A=[string range $dd $ind1 $ind2] \nind1=$ind1 $ind2=$ind2 seek=$seek"
+	    set arcsweep [string range $dd $ind1 $ind2]
+	    if {[llength $arcsweep] < 7} {
+		regsub -- {([0-1])([0-1])([\-.]*[0-9]*)} [string range $dd $ind1 $ind2] {\1 \2 \3} arcsweep
+	    }
+#puts "Anew= $arcsweep "
+	    incr ind1 -1
+	    incr ind2
+	    incr ind2 -1
+	}
+	    append path [string range $dd $seek $ind1]
+	append path "$arcsweep"
+	incr seek $tind
+    }
+#puts "svg2can::parseArcSweep END: path=$path"
+    return $path
+}
+
 proc svg2can::parsePathAttr {path} {
 #puts "svg2can::parsePathAttr"
     regsub -all -- {([a-zA-Z])([0-9])} $path {\1 \2} path
@@ -1698,6 +1732,11 @@ proc svg2can::parsePathAttr {path} {
 
 #Разбор h[-]. и т.п.
     regsub -all --  {([a-zA-Z])([-]*[0-9]*[.][0-9]*)} $path {\1 \2} path
+#Разбор ArcSweep 
+    set path [svg2can::parseArcSweep $path]
+#  regsub -all -- {([0-1])([0-1])([0-9]*)} $path {\1 \2 \3} path
+# regsub -all -- {([0-1])([0-1])([\-.]*[0-9]*)} $path {\1 \2 \3} path
+
     return $path
 if {0} {
     regsub -all -- {([a-zA-Z])([0-9])} $path {\1 \2} path
@@ -2353,6 +2392,86 @@ proc svg2can::_DrawSVG {fileName w} {
     }
 }
 #Add V. Orlov
+proc svg2can::SVGFileToCanvas {w filePath} {
+#puts "SVGFileToCanvas: file=$filePath"    
+    set svg2can::priv(wcan) $w
+    # Opens the data file.
+    if {[catch {open $filePath r} fd]} {
+	set tail [file tail $filePath]
+	tk_messageBox -icon error -title "Error" -message "Cannot read $tail : $fd"
+	return
+    }
+    fconfigure $fd -encoding utf-8
+    set xml [read $fd]
+#puts "xml=$xml"    
+    set xmllist [tinydom::documentElement [tinydom::parse $xml]]
+#puts "xmllist=$xmllist"    
+    # Update the utags...
+    set cmdList [svg2can::parsesvgdocument $xmllist \
+      -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
+      -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
+#puts "cmdList=$cmdList"    
+    set gr [${svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
+
+    foreach cmd $cmdList {
+#puts "cmd=$cmd"
+	append cmd " -parent [set gr]"
+	eval ${svg2can::priv(wcan)} $cmd 
+    }
+    close $fd
+#Очищаем массив с именами gradient-ов
+    foreach nam [array names svg2can::gradientIDToToken ] {
+	unset svg2can::gradientIDToToken($nam)
+    }
+    return $gr
+}
+
+proc svg2can::SVGXmlToCanvas {w xml} {
+#puts "SVGFileToCanvas: file=$filePath"    
+    set svg2can::priv(wcan) $w
+#puts "xml=$xml"    
+    set xmllist [tinydom::documentElement [tinydom::parse $xml]]
+#puts "xmllist=$xmllist"    
+    # Update the utags...
+    set cmdList [svg2can::parsesvgdocument $xmllist \
+      -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
+      -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
+#puts "cmdList=$cmdList"    
+    set gr [${svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
+
+    foreach cmd $cmdList {
+#puts "cmd=$cmd"
+	append cmd " -parent [set gr]"
+	eval ${svg2can::priv(wcan)} $cmd 
+    }
+#Очищаем массив с именами gradient-ов
+    foreach nam [array names svg2can::gradientIDToToken ] {
+	unset svg2can::gradientIDToToken($nam)
+    }
+    return $gr
+}
+
+proc svg2can::SVGFileToCmds {w filePath} {
+#puts "SVGFileToCmds: file=$filePath"    
+    set svg2can::priv(wcan) $w
+    # Opens the data file.
+    if {[catch {open $filePath r} fd]} {
+	set tail [file tail $filePath]
+	tk_messageBox -icon error -title "Error" -message "Cannot read $tail : $fd"
+	return
+    }
+    fconfigure $fd -encoding utf-8
+    set xml [read $fd]
+    set xmllist [tinydom::documentElement [tinydom::parse $xml]]
+#puts "SVGFileToCmds: xmllist=$xmllist"    
+    # Update the utags...
+    set cmdList [svg2can::parsesvgdocument $xmllist \
+      -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
+      -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
+
+    return $cmdList
+}
+
 proc svg2can::cloneGrad {wcan grad canv} {
 #wcan - холст с группой
 #canv - новый холст для группы
@@ -2535,64 +2654,8 @@ set mOrig [$w itemcget $id -m]
 
     return
 }
-proc svg2can::SVGFileToCanvas {w filePath} {
-#puts "SVGFileToCanvas: file=$filePath"    
-    set svg2can::priv(wcan) $w
-    # Opens the data file.
-    if {[catch {open $filePath r} fd]} {
-	set tail [file tail $filePath]
-	tk_messageBox -icon error -title "Error" -message "Cannot read $tail : $fd"
-	return
-    }
-    fconfigure $fd -encoding utf-8
-    set xml [read $fd]
-#puts "xml=$xml"    
-    set xmllist [tinydom::documentElement [tinydom::parse $xml]]
-#puts "xmllist=$xmllist"    
-    # Update the utags...
-    set cmdList [svg2can::parsesvgdocument $xmllist \
-      -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
-      -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
-#puts "cmdList=$cmdList"    
-    set gr [${svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
 
-    foreach cmd $cmdList {
-#puts "cmd=$cmd"
-	append cmd " -parent [set gr]"
-	eval ${svg2can::priv(wcan)} $cmd 
-    }
-    close $fd
-#Очищаем массив с именами gradient-ов
-    foreach nam [array names svg2can::gradientIDToToken ] {
-	unset svg2can::gradientIDToToken($nam)
-    }
-    return $gr
-}
-proc svg2can::SVGXmlToCanvas {w xml} {
-#puts "SVGFileToCanvas: file=$filePath"    
-    set svg2can::priv(wcan) $w
-#puts "xml=$xml"    
-    set xmllist [tinydom::documentElement [tinydom::parse $xml]]
-#puts "xmllist=$xmllist"    
-    # Update the utags...
-    set cmdList [svg2can::parsesvgdocument $xmllist \
-      -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
-      -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
-#puts "cmdList=$cmdList"    
-    set gr [${svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
-
-    foreach cmd $cmdList {
-#puts "cmd=$cmd"
-	append cmd " -parent [set gr]"
-	eval ${svg2can::priv(wcan)} $cmd 
-    }
-#Очищаем массив с именами gradient-ов
-    foreach nam [array names svg2can::gradientIDToToken ] {
-	unset svg2can::gradientIDToToken($nam)
-    }
-    return $gr
-}
-proc parsepath {d} {
+proc svg2can::parsepath {d} {
 	set i 0
 	set len [string length $d]
 	set dpath ""
