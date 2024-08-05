@@ -229,46 +229,6 @@ foreach img $svgim {
     }
 }
 
-if {0} {
-foreach img $svgim {
-    if {$j == $lencan} {
-	set yim $w10m
-	set yim [expr {$yim + $w10m * 2} ]
-	set xim [expr {$ximc + $w10m / 2.0}]
-    }
-    set fimg [file tail $img]
-    set zz [ibutton new $t.c -x $xim -y $yim -width 1c -height 1c -text "" -help "$fimg" ]
-    set yim [expr {$yim + $w15m}]
-
-#    set gr [SVGFileToCanvas $t.c $img]
-#puts "-> $img"
-    if {![catch {SVGFileToCanvas $t.c $img} gr] } {
-	$zz config -image "$t.c $gr" 
-#Уничтожаем оригинал
-#puts "GR=$gr"
-	$t.c delete $gr
-	
-	foreach {x0 y0 x1 y1} [$t.c bbox [$zz move 0 0]] {
-	    if {$x1 > $ximc} {
-		set ximc $x1
-	    }
-	}
-	incr j
-#	$zz config -pad "0.5m 1m 0.5m 1m" 
-	$zz config -pad 1.5m
-    } else {
-	puts "Bad file: $img er=$gr"
-    }
-    
-    
-    update
-$t.c configure -scrollregion [$t.c bbox all]
-foreach {x0 y0 x1 y1} [$t.c bbox all] {
-    $fr config -width [expr {$x1 - $x0}] -height [expr {$y1 - $y0}]
-}
-}
-}
-
 puts "bind $bincan"
 bind $t.c <Configure> "$bincan"
 

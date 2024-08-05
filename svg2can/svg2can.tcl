@@ -233,7 +233,33 @@ proc svg2can::parsesvgdocument {xmllist args} {
     set paropts [array get argsA]
         
     set ans {}
+#ORLOV
+#GRADIENT сначало делаем без ссылок
     foreach c [getchildren $xmllist] {
+	set tag [gettag $c]
+	if {$tag == "linearGradient" || $tag == "radialGradient"} {
+	    set attr [getattr $c]
+	    set idx [lsearch -exact $attr xlink:href]
+	    if {$idx == -1} {
+		if {$tag == "linearGradient"} {
+		    CreateLinearGradient $c
+		} else {
+		    CreateRadialGradient $c
+		}
+	    }
+	}
+    }
+#GRADIENT END
+    foreach c [getchildren $xmllist] {
+	set tag [gettag $c]
+#Без ссылок градиенты уже сделаны
+	if {$tag == "linearGradient" || $tag == "radialGradient" } {
+	    set attr [getattr $c]
+	    set idx [lsearch -exact $attr xlink:href]
+	    if {$idx == -1} {
+		continue
+	    }
+	}
 #puts "svg2can::parsesvgdocument -> c=$c"
 #puts "svg2can::parsesvgdocument -> ParseElemRecursiveEx"
 	set ans [concat $ans [ParseElemRecursiveEx $c $paropts {}]]
@@ -279,12 +305,10 @@ proc svg2can::ParseElemRecursiveEx {xmllist paropts transAttr args} {
 #puts "ParseElemRecursiveEx: START tag=$tag"
     switch -- $tag {
 	style {
-#puts "ParseElemRecursiveEx -> CreateCurrentColor: $xmllist C=[getchildren $xmllist]"
 		CreateCurrentColor $xmllist
 	}
 	circle - ellipse - image - line - polyline - polygon - rect - path - text {
 	    set func [string totitle $tag]
-#puts "ParseElemRecursiveEx -> func=$func: transAttr=$transAttr\nparopts=$paropts"
 #ORLOV		
 #puts "ParseElemRecursiveEx func=$func"
 	    if {$func == "Path"} {
@@ -341,22 +365,17 @@ proc svg2can::ParseElemRecursiveEx {xmllist paropts transAttr args} {
 	    }
 	    if {[info exists attrA(transform)]} {
 #puts "ParseElemRecursiveEx -> g: attrA(transform)=$attrA(transform)"
-
-#		eval {lappend transAttr} [TransformAttrToList $attrA(transform)]
 		set tt [string map {")" "" } $attrA(transform)]
 		append transAttr "[split $tt (] "
 #puts "ParseElemRecursiveEx -> g 1: attrA(transform)=[split $tt (]"
-#puts "ParseElemRecursiveEx -> TransformAttrToList: [TransformAttrToList $attrA(transform)]"
 		unset attrA(transform)
 	    }
-#puts "ParseElemRecursiveEx -> g: transAttr=$transAttr \nparopts=$paropts\nattrA=[array get attrA]"
 	    foreach c [getchildren $xmllist] {
 #puts "ParseElemRecursiveEx -> getchildren=$c"
 		set cmdList [concat $cmdList [eval {
 		    ParseElemRecursiveEx $c $paropts $transAttr
 		} [array get attrA]]]
 	    }	    
-#puts "ParseElemRecursiveEx -> cmdList=$cmdList"
 	}
 	a - f {
 	    
@@ -402,7 +421,6 @@ proc svg2can::ParseElemRecursiveEx {xmllist paropts transAttr args} {
 	    # todo
 	}
     }
-#puts "ParseElemRecursiveEx: End cmdList=$cmdList"
 
     return $cmdList
 }
@@ -428,47 +446,10 @@ proc svg2can::CreateCurrentColor {c} {
 
 }
 
-
 proc svg2can::ParseDefs {xmllist paropts transAttr args} {
-    
     # @@@ Only gradients so far.
 #puts "svg2can::ParseDefs c=[getchildren $xmllist]"
-#puts "svg2can::ParseDefs START"
-set grad 0
-set lgrad {}
     foreach c [getchildren $xmllist] {
-	set tag [gettag $c]
-#puts "svg2can::ParseDefs tag=$tag"
-    
-	switch -- $tag {
-	    linearGradient {
-#ORLOV
-#		    CreateLinearGradient $c
-		if {[catch {CreateLinearGradient $c}]} {
-		    incr grad
-		    lappend lgrad $c
-		}
-	    }
-	    radialGradient {
-#ORLOV
-		if {[catch {CreateRadialGradient $c}]} {
-		    incr grad
-		    lappend lgrad $c
-		}
-	    }
-	    style {
-#puts "svg2can::ParseDefs -> CreateCurrentColor: $c"
-		CreateCurrentColor $c
-	    }
-	}
-    }
-#ORLOV
-#parray svg2can::gradientIDToToken
-#puts "svg2can::ParseDefs END"
-
-if {0} {
-  if {$grad > 0 } {
-    foreach c $lgrad {
 	set tag [gettag $c]
 	switch -- $tag {
 	    linearGradient {
@@ -477,11 +458,12 @@ if {0} {
 	    radialGradient {
 		    CreateRadialGradient $c
 	    }
+	    style {
+#puts "svg2can::ParseDefs -> CreateCurrentColor: $c"
+		CreateCurrentColor $c
+	    }
 	}
     }
-  }
-}
-  set lgrad {}
 }
 
 proc svg2can::ParseCircleEx {xmllist paropts transAttr args} {
@@ -824,6 +806,9 @@ proc svg2can::ParsePathEx {xmllist paropts transAttr args} {
 #puts "ParsePathEx 0: key=$key  value=$value"
 	switch -- $key {
 	    d { 
+if {$value == ""} {
+    return ""
+}
 		set path [parsePathAttr $value]
 	    }
 	    id {
@@ -2201,7 +2186,29 @@ proc svg2can::TransformAttrListToMatrix {transform} {
 	    rotate {
 		set value [string map {"," " "} $value]
 #puts "TransformAttrListToMatrix: op=rotate i=$i value=$value"
-		set phi [lindex $value 0]
+
+		if {[llength $value] == 1} {
+		    set phi [lindex $value 0]
+		    set xr 0
+		    set yr 0
+		} else {
+		    set phi [lindex $value 2]
+		    set xr [lindex $value 0]
+		    set yr [lindex $value 1]
+		}
+		set phi_my [svg2can::degre2radian $phi]
+		set m_my [tkp::matrix rotate $phi_my $xr $yr]
+#puts "TransformAttrListToMatrix: m_my=$m_my"		
+		set m_my1 [tkp::matrix mult "{1 0} {0 1} {0 0}" $m_my]
+#puts "TransformAttrListToMatrix: m_my1=$m_my1"		
+
+		foreach {a1 a2} [lindex $m_my1 0] {break}
+		foreach {a3 a4} [lindex $m_my1 1] {break}
+		foreach {a5 a6} [lindex $m_my1 2] {break}
+		set m([incr i]) [list $a1 $a2 $a3 $a4 $a5 $a6]
+
+if {0} {
+puts "TransformAttrListToMatrix: op=rotate phi=$phi value_0=[lindex $value 0]"
 		set cosPhi  [expr {cos($degrees2Radians*$phi)}]
 		set sinPhi  [expr {sin($degrees2Radians*$phi)}]
 		set msinPhi [expr {-1.0*$sinPhi}]
@@ -2215,6 +2222,9 @@ proc svg2can::TransformAttrListToMatrix {transform} {
 		      [expr {-$cx*$cosPhi + $cy*$sinPhi + $cx}] \
 		      [expr {-$cx*$sinPhi - $cy*$cosPhi + $cy}]]
 		}
+}
+#puts "TransformAttrListToMatrix: op=rotate phi_my=$phi_my m([set i])=$m([set i])"
+
 	    }
 	    scale {
 		set sx [lindex $value 0]
@@ -2262,11 +2272,10 @@ proc svg2can::TransformAttrListToMatrix {transform} {
     foreach {a b c d tx ty} $mat { break }
 #puts "TransformAttrListToMatrix -> mat=$mat"
 
-    return [list [list $a $c] [list $b $d] [list $tx $ty]]
+    return [list [list $a $b] [list $c $d] [list $tx $ty]]
 }
 
 proc svg2can::MMult {m1 m2} {
-#ORLOV
 #puts "MMult m1=$m1 \nm2=$m2 "
 
     foreach {a1 b1 c1 d1 tx1 ty1} $m1 { break }

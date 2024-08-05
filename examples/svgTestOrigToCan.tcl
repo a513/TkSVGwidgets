@@ -100,7 +100,7 @@ proc exitarm {t} {
 proc seldir {} {
     variable ans
     set typelist {{"Тип фийла" {".svg"} {}}}
-    set ans [tk_getOpenFile -title "Choose directory" -filetypes $typelist -initialdir $::initdir]
+    set ans "[tk_getOpenFile -title "Choose directory" -filetypes $typelist -initialdir $::initdir]"
 }
 proc clearcan {w10m} {
     if {[info exist svg2can::gradientIDToToken]} {
@@ -190,7 +190,7 @@ puts "VWAIT  ans=$ans"
 	continue
     }
     if {$ans == "Cmds"} {
-	if {[catch {svg2can::SVGFileToCmds $t.c $img} gr] } {
+	if {[catch {svg2can::SVGFileToCmds $t.c "$img"} gr] } {
 	    puts "Bad file: $img er=$gr"
 	} else {
 	    if {[info exist img]} {
@@ -243,7 +243,7 @@ puts "Choose directory $dirname"
 #    foreach img $svgim {}
     foreach img $tekans {
 #puts "-> $img"
-	if {[catch {svg2can::SVGFileToCanvas $t.c $img} gr] } {
+	if {[catch {svg2can::SVGFileToCanvas $t.c "$img"} gr] } {
 	    puts "Bad file: $img er=$gr"
 	} else {
 	    puts "Ok file: $img groupSVG=$gr bbox=[.test.c bbox $gr]"
