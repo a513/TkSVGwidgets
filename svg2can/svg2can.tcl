@@ -429,8 +429,7 @@ proc svg2can::ParseElemRecursiveEx {xmllist paropts transAttr args} {
 proc svg2can::CreateCurrentColor {c} {
 #Переменная для currentColor
     variable curColor
-
-    catch {unset curColor}
+#    catch {unset curColor}
     set stcol [getcdata $c]
     set stcol [string map {"\{" " \{"} $stcol]
     set stcol [string map {"\}" "\} "} $stcol]
@@ -873,6 +872,17 @@ if {$value == ""} {
 	    set opts [lreplace $opts $inds $inds $curc]
 	}
     }
+
+    set ind [lsearch -exact $opts "-fill"]
+    incr ind
+    if {$ind > 0} {
+	if {[lindex $opts $ind] == "currentColor"} {
+puts "ParsePathEx: -fill =currentColor. Replase???"
+	    set color $svg2can::curColor([lindex [array name svg2can::curColor] 0])
+	    set opts [lreplace $opts $ind $ind $color]
+	}
+    }
+
 #puts "ParsePathEx 0: END"
 
     return [concat create path [list $path] $opts]
@@ -1093,6 +1103,18 @@ proc svg2can::ParseRectEx {xmllist paropts transAttr args} {
 #       Assuming that chdata is not mixed with elements, we should now have
 #       either chdata OR more elements (tspan).
 
+proc svg2can::ParseText {xmllist paropts transformL args} {
+    set x 0
+    set y 0
+    set xAttr 0
+    set yAttr 0
+    set cmdList [ParseTspan $xmllist $transformL x y xAttr yAttr {}]
+
+#    return [lindex $cmdList 0]
+    return $cmdList
+
+}
+
 proc svg2can::ParseTextEx {xmllist paropts transAttr args} {
     return [eval {ParseText $xmllist $paropts {}} $args]
 }
@@ -1162,8 +1184,15 @@ proc svg2can::ParseTspan {xmllist transformL xVar yVar xAttrVar yAttrVar opts} {
 	# Need to adjust the text position so that the baseline matches y.
 	# nw to baseline
 	set ascent [font metrics $theFont -ascent]
-	set cmdList [list [concat create text  \
+
+if {0} {
+	set cmdList [list [concat create ptext  \
 	  $xAttr [expr {$yAttr - $ascent + $baselineShift}] $opts]]	
+	set cmdList [AddAnyTransformCmds $cmdList $transformL]
+}
+	set cmdList [concat create ptext  \
+	  $xAttr [expr {$yAttr - $ascent + $baselineShift}] $opts]
+
 	set cmdList [AddAnyTransformCmds $cmdList $transformL]
 	
 	# Each text insert moves both the running coordinate sets.
@@ -1185,11 +1214,16 @@ proc svg2can::ParseTextAttr {xmllist xVar yVar baselineShiftVar} {
     upvar $xVar x
     upvar $yVar y
     upvar $baselineShiftVar baselineShift
+#ORLOV
+#Переменная для currentColor
+    variable curColor
+    set curc -1
 
     # svg defaults to start with y being the baseline while tk default is c.
     #set opts {-anchor sw}
     # Anchor nw is simplest when newlines.
-    set opts {-anchor nw}
+#   set opts {-anchor nw}
+    set opts {-textanchor nw}
     set presAttr {}
     set baselineShift 0
     
@@ -1215,11 +1249,55 @@ proc svg2can::ParseTextAttr {xmllist xVar yVar baselineShiftVar} {
 	    x - y {
 		set $key $value
 	    }
+	    class {
+#puts "svg2can::ParseTextAttr: class - key=$key value=\"$value\" opts=$opts color=$curColor([string trim $value])"
+		set curc $curColor([string trim $value])
+	    }
 	    default {
 		lappend presAttr $key $value
 	    }
 	}
     }
+#ORLOV
+    if {$curc != -1} {
+#puts "ParsPathEx: curs=$curc curColor"
+	set ind [lsearch -exact $opts "-fill"]
+	set inds [lsearch -exact $opts "-stroke"]
+	if {$ind != -1} {
+	    incr ind
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+	if {$inds != -1} {
+	    incr inds
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+#ORLOV
+    if {$curc != -1 && $ind == -1} {
+	set ind [lsearch -exact $opts "-fill"]
+	incr ind
+	if {[lindex $opts $ind] == "currentColor"} {
+	    set opts [lreplace $opts $ind $ind $curc]
+	}
+    }
+    if {$curc != -1 && $inds == -1} {
+	set inds [lsearch -exact $opts "-stroke"]
+	incr inds
+	if {[lindex $opts $inds] == "currentColor"} {
+	    set opts [lreplace $opts $inds $inds $curc]
+	}
+    }
+    set ind [lsearch -exact $opts "-fill"]
+    incr ind
+    if {$ind > 0} {
+	if {[lindex $opts $ind] == "currentColor"} {
+puts "ParseTextAttr: -fill =currentColor. Replase???"
+	    set color $svg2can::curColor([lindex [array name svg2can::curColor] 0])
+	    set opts [lreplace $opts $ind $ind $color]
+	}
+    }
+
+
     array set optsA $opts
     set theFont $systemFont
     if {[info exists optsA(-font)]} {
@@ -1486,6 +1564,7 @@ if {![catch {${svg2can::priv(wcan)} gradient cget $hreftoken -radialtransition} 
 }
 
 proc svg2can::ParseGradientStops {xmllist} {
+    set curc -1
     
     set stops {}
     
@@ -1510,7 +1589,37 @@ proc svg2can::ParseGradientStops {xmllist} {
 		    style {
 			set opts [StopsStyleToStopSpec [StyleAttrToList $value]]
 		    }
+		    class {
+#puts "svg2can::ParseGradientStops: class - key=$key value=\"$value\" opts=$opts color=$svg2can::curColor([string trim $value])"
+			set curc $svg2can::curColor([string trim $value])
+		    }
 		}
+	    }
+#puts "svg2can::ParseGradientStops: color=$color opts=$opts"
+	    set inds [lsearch -exact $opts "color"]
+	    if {$curc != -1} {
+		set color $curc
+		set inds [lsearch -exact $opts "color"]
+		incr inds
+		if {[lindex $opts $inds] == "currentColor"} {
+		    set opts [lreplace $opts $inds $inds $curc]
+		}
+	    } elseif {$color  == "currentColor"} {
+		if {[array size svg2can::curColor] == 1} {
+		    set color $svg2can::curColor([array name svg2can::curColor])
+		    set inds [lsearch -exact $opts "color"]
+		    incr inds
+		    if {[lindex $opts $inds] == "currentColor"} {
+			set opts [lreplace $opts $inds $inds $color]
+		    }
+		}
+	    } else {
+		    incr inds
+		    if {[lindex $opts $inds] == "currentColor"} {
+puts "svg2can::ParseGradientStops: color=currentColor. Replase???"
+			set color $svg2can::curColor([lindex [array name svg2can::curColor] 0])
+			set opts [lreplace $opts $inds $inds $color]
+		    }
 	    }
 
 	    # Style takes precedence.
@@ -1781,21 +1890,13 @@ proc svg2can::StyleToOpts {type styleList args} {
 		}
 	    }
 	    font-family {
-		lset fontSpec 0 $value
-		set haveFont 1
+#		lset fontSpec 0 $value
+#		set haveFont 1
+		set optsA(-fontfamily) $value
 	    }
 	    font-size {
-		
-		# Use pixels instead of points.
-		if {[regexp {([0-9\.]+)pt} $value match pts]} {
-		    set pix [expr {int($pts * [tk scaling] + 0.01)}]
-		    lset fontSpec 1 "-$pix"
-		} elseif {[regexp {([0-9\.]+)px} $value match pix]} {
-		    lset fontSpec 1 [expr {int(-$pix)}]
-		} else {
-		    lset fontSpec 1 [expr {int(-$value)}]
-		}
-		set haveFont 1
+		set optsA(-fontsize) [parseLength $value]
+#		set haveFont 1
 	    }
 	    font-style {
 		switch -- $value {
@@ -1803,15 +1904,18 @@ proc svg2can::StyleToOpts {type styleList args} {
 			lappend fontSpec italic
 		    }
 		}
-		set haveFont 1
+#		set haveFont 1
 	    }
 	    font-weight {
+		set optsA(-fontweight) $value
+if {0} {
 		switch -- $value {
 		    bold {
 			lappend fontSpec bold
 		    }
 		}
 		set haveFont 1
+}
 	    }
 	    marker-end {
 		set optsA(-arrow) last
@@ -1820,6 +1924,13 @@ proc svg2can::StyleToOpts {type styleList args} {
 		set optsA(-arrow) first		
 	    }
 	    stroke {
+		if {$value == "none"} {
+		    set optsA(-stroke) {}
+		} else {
+		    set optsA(-stroke) $value
+		}
+	    
+if {0} {	    
 		switch -- $type {
 		    arc - oval - polygon - rectangle {
 			set optsA(-outline) [parseColor $value]
@@ -1828,6 +1939,7 @@ proc svg2can::StyleToOpts {type styleList args} {
 			set optsA(-fill) [parseColor $value]
 		    }
 		}
+}
 	    }
 	    stroke-dasharray {
 		set dash [split $value ,]
@@ -1838,31 +1950,36 @@ proc svg2can::StyleToOpts {type styleList args} {
 	    stroke-linecap {	
 		# canvas: butt (D), projecting , round 
 		# svg:    butt (D), square, round
+if {0} {
 		if {[string equal $value "square"]} {
 		    set optsA(-capstyle) "projecting"
 		}
 		if {![string equal $value "butt"]} {
 		    set optsA(-capstyle) $value
 		}
+}
+		set optsA(-strokelinecap) $value
 	    }
 	    stroke-linejoin {
-		set optsA(-joinstyle) $value
+#		set optsA(-joinstyle) $value
+		set optsA(-strokelinejoin) $value
 	    }
 	    stroke-miterlimit {
 		# empty
 	    }
 	    stroke-opacity {
-		if {[expr {$value == 0}]} {
-		    
-		}
+		set optsA(-strokeopacity) $value
 	    }
 	    stroke-width {
+if {0} {
 		if {![string equal $type "text"]} {
 		    set optsA(-width) $value
 		}
+}
+		    set optsA(-strokewidth) [parseLength $value]
 	    }
 	    text-anchor {
-		set optsA(-anchor) $textAnchorMap($value)
+		set optsA(-textanchor) $textAnchorMap($value)
 	    }
 	    text-decoration {
 		switch -- $value {
@@ -1877,19 +1994,25 @@ proc svg2can::StyleToOpts {type styleList args} {
 	    }
 	}
     }
+if {0} {
     if {$haveFont} {
 	set optsA(-font) $fontSpec
     }
+}
     return [array get optsA]
 }
 
 proc svg2can::StyleToOptsEx {styleList args} {
     variable curColor
 #puts "StyleToOptsEx styleList=$styleList args=$args"
-    
+    set colorcur -1
     foreach {key value} $styleList {    
 #puts "StyleToOptsEx key=$key value=$value"
 	switch -- $key {
+	    color {
+#puts "StyleToOptsEx COLOR key=$key value=$value optsA=[array get optsA]"
+		set colorcur $value
+	    }
 	    class {
 #puts "StyleToOptsEx CLASS key=$key value=$value optsA=[array get optsA]"
 #		set optsA(-fill) $curColor($value)
@@ -1941,6 +2064,16 @@ proc svg2can::StyleToOptsEx {styleList args} {
 	    }
 	}
     }
+
+    if {[info exist optsA(-fill)]} {
+	if {$optsA(-fill) == "currentcolor"} {
+
+	    if {$colorcur != -1} {
+		set optsA(-fill) $colorcur
+	    }
+	}
+    }
+
     return [array get optsA]
 }
 
@@ -2227,6 +2360,7 @@ puts "TransformAttrListToMatrix: op=rotate phi=$phi value_0=[lindex $value 0]"
 
 	    }
 	    scale {
+		set value [string map {"," " "} $value]
 		set sx [lindex $value 0]
 		if {[llength $value] > 1} {
 		    set sy [lindex $value 1]
@@ -2403,6 +2537,8 @@ proc svg2can::_DrawSVG {fileName w} {
 #Add V. Orlov
 proc svg2can::SVGFileToCanvas {w filePath} {
 #puts "SVGFileToCanvas: file=$filePath"    
+    array unset svg2can::curColor
+
     set svg2can::priv(wcan) $w
     # Opens the data file.
     if {[catch {open $filePath r} fd]} {
@@ -2437,6 +2573,7 @@ proc svg2can::SVGFileToCanvas {w filePath} {
 
 proc svg2can::SVGXmlToCanvas {w xml} {
 #puts "SVGFileToCanvas: file=$filePath"    
+    array unset svg2can::curColor
     set svg2can::priv(wcan) $w
 #puts "xml=$xml"    
     set xmllist [tinydom::documentElement [tinydom::parse $xml]]
@@ -2462,6 +2599,7 @@ proc svg2can::SVGXmlToCanvas {w xml} {
 
 proc svg2can::SVGFileToCmds {w filePath} {
 #puts "SVGFileToCmds: file=$filePath"    
+    array unset svg2can::curColor
     set svg2can::priv(wcan) $w
     # Opens the data file.
     if {[catch {open $filePath r} fd]} {
