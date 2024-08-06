@@ -450,6 +450,30 @@ proc svg2can::ParseDefs {xmllist paropts transAttr args} {
 #puts "svg2can::ParseDefs c=[getchildren $xmllist]"
     foreach c [getchildren $xmllist] {
 	set tag [gettag $c]
+	if {$tag == "linearGradient" || $tag == "radialGradient"} {
+	    set attr [getattr $c]
+	    set idx [lsearch -exact $attr xlink:href]
+	    if {$idx == -1} {
+		if {$tag == "linearGradient"} {
+		    CreateLinearGradient $c
+		} else {
+		    CreateRadialGradient $c
+		}
+	    }
+	}
+    }
+
+    foreach c [getchildren $xmllist] {
+	set tag [gettag $c]
+#Без ссылок градиенты уже сделаны
+	if {$tag == "linearGradient" || $tag == "radialGradient" } {
+	    set attr [getattr $c]
+	    set idx [lsearch -exact $attr xlink:href]
+	    if {$idx == -1} {
+		continue
+	    }
+	}
+
 	switch -- $tag {
 	    linearGradient {
 		    CreateLinearGradient $c
@@ -498,7 +522,10 @@ proc svg2can::ParseCircleEx {xmllist paropts transAttr args} {
 	    }
 	    class {
 #puts "ParseCircleEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
-		set curc $curColor([string trim $value])
+		set valcl [string trim $value]
+		if {[info exist curColor($valcl)]} {
+		    set curc $curColor($valcl)
+		}
 	    }
 	    default {
 		lappend presAttr $key $value
@@ -575,7 +602,10 @@ proc svg2can::ParseEllipseEx {xmllist paropts transAttr args} {
 	    }
 	    class {
 #puts "ParseEllipseEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
-		set curc $curColor([string trim $value])
+		set valcl [string trim $value]
+		if {[info exist curColor($valcl)]} {
+		    set curc $curColor($valcl)
+		}
 	    }
 	    default {
 		lappend presAttr $key $value
@@ -742,7 +772,10 @@ proc svg2can::ParseLineEx {xmllist paropts transAttr args} {
 	    }
 	    class {
 #puts "ParseLineEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
-		set curc $curColor([string trim $value])
+		set valcl [string trim $value]
+		if {[info exist curColor($valcl)]} {
+		    set curc $curColor($valcl)
+		}
 	    }
 	    default {
 		lappend presAttr $key $value
@@ -828,7 +861,10 @@ if {$value == ""} {
 	    }
 	    class {
 #puts "ParsePathEx: class - key=$key value=\"$value\" opts=$opts color=$curColor([string trim $value])"
-		set curc $curColor([string trim $value])
+		set valcl [string trim $value]
+		if {[info exist curColor($valcl)]} {
+		    set curc $curColor($valcl)
+		}
 	    }
 	    default {
 		lappend presAttr $key $value 
@@ -971,7 +1007,10 @@ proc svg2can::ParsePolygonEx {xmllist paropts transAttr args} {
 	    }
 	    class {
 #puts "ParsePoligonEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
-		set curc $curColor([string trim $value])
+		set valcl [string trim $value]
+		if {[info exist curColor($valcl)]} {
+		    set curc $curColor($valcl)
+		}
 	    }
 	    default {
 		lappend presAttr $key $value
@@ -1051,7 +1090,10 @@ proc svg2can::ParseRectEx {xmllist paropts transAttr args} {
 	    }
 	    class {
 #puts "ParseRectEx: class - key=$key value=$value opts=$opts color=$curColor($value)"
-		set curc $curColor([string trim $value])
+		set valcl [string trim $value]
+		if {[info exist curColor($valcl)]} {
+		    set curc $curColor($valcl)
+		}
 	    }
 	    default {
 		lappend presAttr $key $value
@@ -1251,7 +1293,10 @@ proc svg2can::ParseTextAttr {xmllist xVar yVar baselineShiftVar} {
 	    }
 	    class {
 #puts "svg2can::ParseTextAttr: class - key=$key value=\"$value\" opts=$opts color=$curColor([string trim $value])"
-		set curc $curColor([string trim $value])
+		set valcl [string trim $value]
+		if {[info exist curColor($valcl)]} {
+		    set curc $curColor($valcl)
+		}
 	    }
 	    default {
 		lappend presAttr $key $value
@@ -1591,7 +1636,10 @@ proc svg2can::ParseGradientStops {xmllist} {
 		    }
 		    class {
 #puts "svg2can::ParseGradientStops: class - key=$key value=\"$value\" opts=$opts color=$svg2can::curColor([string trim $value])"
-			set curc $svg2can::curColor([string trim $value])
+			set valcl [string trim $value]
+			if {[info exist curColor($valcl)]} {
+			    set curc $curColor($valcl)
+			}
 		    }
 		}
 	    }
