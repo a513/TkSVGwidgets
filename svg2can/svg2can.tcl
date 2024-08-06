@@ -43,7 +43,6 @@ package require tinydom
 package provide svg2can 2.0
 
 namespace eval svg2can {
-
     variable confopts
     array set confopts {
 	-foreignobjecthandler ""
@@ -112,6 +111,7 @@ namespace eval svg2can {
     variable cache_key ""
 #Переменная для currentColor
     variable curColor
+set curColor() "red"
 }
 
 # svg2can::config --
@@ -2585,7 +2585,11 @@ proc svg2can::_DrawSVG {fileName w} {
 #Add V. Orlov
 proc svg2can::SVGFileToCanvas {w filePath} {
 #puts "SVGFileToCanvas: file=$filePath"    
-    array unset svg2can::curColor
+    foreach name [array name svg2can::curColor] {
+	unset svg2can::curColor($name)
+    }
+    set svg2can::curColor() red
+#    array unset svg2can::curColor
 
     set svg2can::priv(wcan) $w
     # Opens the data file.
@@ -2621,7 +2625,11 @@ proc svg2can::SVGFileToCanvas {w filePath} {
 
 proc svg2can::SVGXmlToCanvas {w xml} {
 #puts "SVGFileToCanvas: file=$filePath"    
-    array unset svg2can::curColor
+    foreach name [array name svg2can::curColor] {
+	unset svg2can::curColor($name)
+    }
+    set svg2can::curColor() red
+
     set svg2can::priv(wcan) $w
 #puts "xml=$xml"    
     set xmllist [tinydom::documentElement [tinydom::parse $xml]]
@@ -2647,7 +2655,11 @@ proc svg2can::SVGXmlToCanvas {w xml} {
 
 proc svg2can::SVGFileToCmds {w filePath} {
 #puts "SVGFileToCmds: file=$filePath"    
-    array unset svg2can::curColor
+    foreach name [array name svg2can::curColor] {
+	unset svg2can::curColor($name)
+    }
+    set svg2can::curColor() red
+
     set svg2can::priv(wcan) $w
     # Opens the data file.
     if {[catch {open $filePath r} fd]} {
