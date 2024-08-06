@@ -2408,6 +2408,8 @@ puts "TransformAttrListToMatrix: op=rotate phi=$phi value_0=[lindex $value 0]"
 
 	    }
 	    scale {
+#ORLOV
+		regsub -all --  {([0-9])(-[\.0-9])} $value {\1 \2} value
 		set value [string map {"," " "} $value]
 		set sx [lindex $value 0]
 		if {[llength $value] > 1} {
