@@ -110,6 +110,8 @@ namespace eval svg2can {
     variable chache
     variable cache_key ""
 #Переменная для currentColor
+    variable viewBox
+    set viewBox ""
     variable curColor
 set curColor() "red"
 }
@@ -233,10 +235,10 @@ proc svg2can::parsesvgdocument {xmllist args} {
     set paropts [array get argsA]
         
     set ans {}
-#ORLOV
 #GRADIENT сначало делаем без ссылок
     foreach c [getchildren $xmllist] {
 	set tag [gettag $c]
+#puts "svg2can::parsesvgdocument -> tag=$tag c=$c"
 	if {$tag == "linearGradient" || $tag == "radialGradient"} {
 	    set attr [getattr $c]
 	    set idx [lsearch -exact $attr xlink:href]
@@ -2585,6 +2587,20 @@ proc svg2can::_DrawSVG {fileName w} {
     }
 }
 #Add V. Orlov
+#viewBox!!!
+proc svg2can::ParseViewBox {xmllist} {
+    set svg2can::viewBox ""
+    if {[gettag $xmllist] == "svg"} {
+	set attr [getattr $xmllist]
+	set idx [lsearch -exact $attr "viewBox"]
+    	if {$idx > -1} {
+	    incr idx
+	    foreach {x0 y0 width height} "[string map {"," " "} [lindex $attr $idx]]" {break}
+#puts "svg2can::SVGFileToCanvas:viewBox = $x0 $y0 $width $height"    
+	    set svg2can::viewBox [list $x0 $y0 $width $height]
+	}
+    }
+}
 proc svg2can::SVGFileToCanvas {w filePath} {
 #puts "SVGFileToCanvas: file=$filePath"    
     foreach name [array name svg2can::curColor] {
@@ -2602,9 +2618,12 @@ proc svg2can::SVGFileToCanvas {w filePath} {
     }
     fconfigure $fd -encoding utf-8
     set xml [read $fd]
-#puts "xml=$xml"    
+#puts "svg2can::SVGFileToCanvas: xml=$xml"    
     set xmllist [tinydom::documentElement [tinydom::parse $xml]]
-#puts "xmllist=$xmllist"    
+#puts "svg2can::SVGFileToCanvas:xmllist=$xmllist"    
+#viewBox!!!
+    svg2can::ParseViewBox $xmllist
+
     # Update the utags...
     set cmdList [svg2can::parsesvgdocument $xmllist \
       -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
@@ -2635,8 +2654,10 @@ proc svg2can::SVGXmlToCanvas {w xml} {
     set svg2can::priv(wcan) $w
 #puts "xml=$xml"    
     set xmllist [tinydom::documentElement [tinydom::parse $xml]]
-#puts "xmllist=$xmllist"    
-    # Update the utags...
+#puts "svg2can::SVGXmlToCanvas:xmllist=$xmllist"    
+#viewBox!!!
+    svg2can::ParseViewBox $xmllist
+
     set cmdList [svg2can::parsesvgdocument $xmllist \
       -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
       -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
@@ -2673,7 +2694,8 @@ proc svg2can::SVGFileToCmds {w filePath} {
     set xml [read $fd]
     set xmllist [tinydom::documentElement [tinydom::parse $xml]]
 #puts "SVGFileToCmds: xmllist=$xmllist"    
-    # Update the utags...
+#viewBox!!!
+    svg2can::ParseViewBox $xmllist
     set cmdList [svg2can::parsesvgdocument $xmllist \
       -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
       -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
