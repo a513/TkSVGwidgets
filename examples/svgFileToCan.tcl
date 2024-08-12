@@ -104,7 +104,8 @@ set w15m [winfo fpixels $t.c 15m]
 set yim $w10m
 set xim $w10m
 if {1} {
-    set iddir [ibutton new $t.c -x $xim -y $yim -text "Кнопка выбора SVG-файла" -help "Вы еще не выбрали файл" -height 1.0c -width 1c -command seldir]
+#    set iddir [ibutton new $t.c -x $xim -y $yim -text "Кнопка выбора SVG-файла" -help "Вы еще не выбрали файл" -height 1.0c -width 1c -command seldir]
+    set iddir [ibutton new $t.c -x 5c -y $yim -text "Кнопка выбора SVG-файла" -help "Вы еще не выбрали файл" -height 1.0c -width 1c -command seldir]
 	set yim [expr {$yim + $w10m * 2} ]
 #	set xim [expr {$ximc + $w10m / 2.0}]
 }
@@ -128,7 +129,7 @@ while {1} {
 	continue
     } 
     if {$gr1 != -1} {
-	$t.c delete $gr $gr1 $gr2 $gr3
+catch {	$t.c delete $gr $gr1 $gr2 $gr3}
     }
 
     foreach  {yim xim ximc} [clearcan $w10m] {break}
@@ -142,7 +143,7 @@ puts "Choose file $ans"
 
     set img $ans
 #puts "-> $img"
-    if {[catch {SVGFileToCanvas $t.c $img} gr] } {
+    if {[catch {svg2can::SVGFileToCanvas $t.c $img} gr] } {
 	puts "Bad file: $img er=$gr"
     } else {
 	foreach {x0 y0 xe ye} [$t.c bbox $gr] {
