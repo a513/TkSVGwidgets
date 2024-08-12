@@ -2603,6 +2603,9 @@ proc svg2can::ParseViewBox {xmllist} {
 }
 proc svg2can::SVGFileToCanvas {w filePath} {
 #puts "SVGFileToCanvas: file=$filePath"    
+    if {[winfo class $w] != "PathCanvas"} {
+	return -coge error "Bad type canvas. The canvas type must be PathCanvas."
+    }
     foreach name [array name svg2can::curColor] {
 	unset svg2can::curColor($name)
     }
@@ -2646,6 +2649,9 @@ proc svg2can::SVGFileToCanvas {w filePath} {
 
 proc svg2can::SVGXmlToCanvas {w xml} {
 #puts "SVGFileToCanvas: file=$filePath"    
+    if {[winfo class $w] != "PathCanvas"} {
+	return -coge error "Bad type canvas. The canvas type must be PathCanvas."
+    }
     foreach name [array name svg2can::curColor] {
 	unset svg2can::curColor($name)
     }

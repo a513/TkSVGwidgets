@@ -4996,6 +4996,11 @@ puts "RESIZE CFRAME tbut=$tbut"
     set onemm2px [winfo fpixels $wcan 1m]
     set x [$wcan canvasx $x]
     set y [$wcan canvasx $y]
+if {0} {
+    foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
+    set x $x0
+    set y $y0
+}
     if {![info exist Canv(W)]} {
 	set Canv(W) [winfo width $wcan]
 	set Canv(H) [winfo height $wcan]
