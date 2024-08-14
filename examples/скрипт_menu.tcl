@@ -297,13 +297,14 @@ puts "createConfigMenu 1_3"
 #    $ch1 config -text "Папки вверху"
     set ch1 [$::cmenubut add separator]
 
-    set iprev [[$::cmenubut canvas] create path "M 3 3 L 13 13 3 23" -strokewidth 2]
+    set gr [[$::cmenubut canvas] create group]
+    set iprev [[$::cmenubut canvas] create path "M 3 3 L 13 13 3 23" -strokewidth 2 -parent $gr]
 
-    set chcas [$::cmenubut add cascade -text "Состав данных" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -compound none -image "[$::cmenubut canvas] $iprev"  -ipad "4.5c 3m 2.5m 4m" ]
-puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
-
+    set chcas [$::cmenubut add cascade -text "Состав данных" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -height 6m -compound none -ipad "4.5c 3m 2.5m 4m" ]
+#puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
+    $::cmenubut config -image "[$::cmenubut canvas] $gr" 
 #puts "СОСТАВ ДАННЫХ=$chcas ::cmenubut=$::cmenubut chcas=$chcas iprev=$iprev"
-    [$::cmenubut canvas] delete $iprev
+    [$::cmenubut canvas] delete $gr
     set ch1 [$::cmenubut add separator]
 #Создаем SubMenu
 #set sm [showSubMenu [$chcas canvas] "submenu" "new" 1]
@@ -317,8 +318,9 @@ set ::butsub $chcas
 #puts "createConfigMenu 1_4 sm=$sm chcas=$chcas"
 #placeSubMenu 1-й параметр кнопка, которую надо раскрыть, 2-й - объект submenu
 #    $chcas config -command "[subst {placeSubMenu [set chcas] [set sm]}]"
-$chcas config -command ""
-puts "createConfigMenu 1_4"
+    $chcas config -command ""
+
+#puts "createConfigMenu 1_4"
 
     set cr0 [$::cmenubut add radio " -variable details -text {Только имена} -value 0"]
     eval "$cr0 config -command {puts \"Укороченный список\"}"
@@ -352,7 +354,7 @@ wm geometry $t 800x600+150+150
 frame $t.frame  -bg yellow
 pack $t.frame  -in $t -fill both -expand 1 -padx 3m -pady 3m
 set ch [cbutton new $t.type -type check -variable dir -text "Только каталоги" -bg yellow -fontsize 4.5m]
-set mn [cbutton new $t.bmenu -type rect  -text "Выпадаюшее меню" -bg yellow]
+set mn [cbutton new $t.bmenu -type rect  -text "Выпадаюшее меню" -bg yellow -compound none -width 8c]
 puts "Кнопка меню=$mn"
 #$mn config -command "showConfigMenu [$mn canvas] $t.frame  0"
 #$mn config -command "showConfigMenu $mn $t.frame  0"

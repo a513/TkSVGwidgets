@@ -303,13 +303,14 @@ puts "createConfigMenu 1_3"
 #    $ch1 config -text "Папки вверху"
     set ch1 [$::cmenubut add separator]
 
-    set iprev [[$::cmenubut canvas] create path "M 3 3 L 13 13 3 23" -strokewidth 2]
+    set gr [[$::cmenubut canvas] create group]
+    set iprev [[$::cmenubut canvas] create path "M 3 3 L 13 13 3 23" -strokewidth 2 -parent $gr]
 
-    set chcas [$::cmenubut add cascade -text "Состав данных" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -compound none -image "[$::cmenubut canvas] $iprev"  -ipad "4.5c 3m 2.5m 4m" ]
+    set chcas [$::cmenubut add cascade -text "Состав данных" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -compound none  -ipad "4.5c 3m 2.5m 4m" ]
 puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
-
+#    $chcas config  -image "[$::cmenubut canvas] $gr"
 #puts "СОСТАВ ДАННЫХ=$chcas ::cmenubut=$::cmenubut chcas=$chcas iprev=$iprev"
-    [$::cmenubut canvas] delete $iprev
+    [$::cmenubut canvas] delete $gr
     set ch1 [$::cmenubut add separator]
 #Создаем SubMenu
 #set sm [showSubMenu [$chcas canvas] "submenu" "new" 1]
@@ -362,7 +363,7 @@ pack $t.frame  -in $t -fill both -expand 1 -padx 3m -pady 3m
 #set ch [cbutton new $t.type -type check -variable dir -text "Только каталоги" -bg yellow -fontsize 4.5m]
 #set mn [cbutton new $t.bmenu -type rect  -text "Выпадаюшее меню" -bg yellow]
 set ch [cbutton new $t.frame -type check -x 40 -y 280 -variable dir -text "Только каталоги" -bg yellow -fontsize 4.5m]
-set mn [cbutton new $t.frame -type rect -x 320 -y 280  -text "Выпадаюшее меню" -bg yellow]
+set mn [cbutton new $t.frame -type rect -x 320 -y 280  -text "Выпадаюшее меню" -bg yellow -compound none -width 4c]
 puts "Кнопка меню=$mn"
 #$mn config -command "showConfigMenu [$mn canvas] $t.frame  0"
 #$mn config -command "showConfigMenu $mn $t.frame  0"
