@@ -274,7 +274,7 @@ proc createConfigMenu { oow fm direct {mtype 0}} {
     variable t
 
 ###################################
-puts "createConfigMenu START oow=$oow fm=$fm direct=$direct mtype=$mtype"
+#puts "createConfigMenu START oow=$oow fm=$fm direct=$direct mtype=$mtype"
     set mm2px [winfo pixels [$oow canvas] 1m]
 #Создаётся отдельное окно для меню
     if {$mtype == 1} {
@@ -285,47 +285,51 @@ puts "createConfigMenu START oow=$oow fm=$fm direct=$direct mtype=$mtype"
 	wm state $fmWin withdraw
 	set ::cmenubut [cmenu new $fmWin.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m -lockwindow $t]
     } else {
-puts "showConfigMenu 1_2 ddd oow=$oow"
+#puts "showConfigMenu 1_2 ddd oow=$oow"
 	set win [winfo toplevel [$oow canvas]]
 	if {$win == "."} {
 	    set win ""
 	}
-#	set ::cmenubut [cmenu new $win.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m]
-puts "showConfigMenu 1_2 ddd1 oow=$oow direction=$direct"
+#puts "showConfigMenu 1_2 ddd1 oow=$oow direction=$direct"
 	set ::cmenubut [cmenu new .test1.frame -x 300 -y 305 -tongue "0.45 0.5 0.55 2m" -direction $direct  -strokewidth 2 -pad 1m -fillnormal snow  -stroke gray70]
 
-puts "showConfigMenu 1_2 ddd2 oow=$oow"
     }
-puts "showConfigMenu 1_2"
     set ch1 [$::cmenubut add check -text {Папки вверху} -variable foldersfirst]
     eval "variable foldersfirst;$ch1 config -command {puts \"Папки вверну foldersfirst=\$foldersfirst \"}"
-puts "createConfigMenu 1_3"
-#    $ch1 config -text "Папки вверху"
     set ch1 [$::cmenubut add separator]
 
     set gr [[$::cmenubut canvas] create group]
     set iprev [[$::cmenubut canvas] create path "M 3 3 L 13 13 3 23" -strokewidth 2 -parent $gr]
 
     set chcas [$::cmenubut add cascade -text "Состав данных" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -compound none  -ipad "4.5c 3m 2.5m 4m" ]
-puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
-#    $chcas config  -image "[$::cmenubut canvas] $gr"
-#puts "СОСТАВ ДАННЫХ=$chcas ::cmenubut=$::cmenubut chcas=$chcas iprev=$iprev"
-    [$::cmenubut canvas] delete $gr
+
+if {0} {
+#Иконки на кнопках в меню можно выставлять после команды add finish !!!!!
+set ::mdata $chcas
+#puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
+
+set btag canvasb
+append btag [string range "$chcas" [string first Obj "$chcas"] end]
+
+puts "BBOX chcas=[[$::cmenubut canvas] bbox $btag]"
+set ::gr1 $gr
+        $chcas config  -isvg "[$::cmenubut canvas] $gr"
+puts "СОСТАВ ДАННЫХ=$chcas ::cmenubut=$::cmenubut chcas=$chcas iprev=$iprev gr=$gr canvas=[$::cmenubut canvas] btag=$btag"
+puts "BBOX 1 chcas=[[$::cmenubut canvas] bbox $btag]"
+
+#    [$::cmenubut canvas] delete $gr
+}
+
     set ch1 [$::cmenubut add separator]
 #Создаем SubMenu
 #set sm [showSubMenu [$chcas canvas] "submenu" "new" 1]
-set sm [showSubMenu [$chcas canvas] "submenu" "new" $::tmenu]
+    set sm [showSubMenu [$chcas canvas] "submenu" "new" $::tmenu]
 #enter - отображать меню при наведении на кнопку с меню
-$chcas config -menu $sm -displaymenu enterhidden
-set ::butsub $chcas
+    $chcas config -menu $sm -displaymenu enterhidden
+    set ::butsub $chcas
 #release - отображать меню при щелчке по кнопке с меню
 #$chcas config -menu $sm -displaymenu release
-
-#puts "createConfigMenu 1_4 sm=$sm chcas=$chcas"
-#placeSubMenu 1-й параметр кнопка, которую надо раскрыть, 2-й - объект submenu
-#    $chcas config -command "[subst {placeSubMenu [set chcas] [set sm]}]"
-$chcas config -command ""
-puts "createConfigMenu 1_4"
+    $chcas config -command ""
 
     set cr0 [$::cmenubut add radio " -variable details -text {Только имена} -value 0"]
     eval "$cr0 config -command {puts \"Укороченный список\"}"
@@ -334,18 +338,21 @@ puts "createConfigMenu 1_4"
     set cr1 [$::cmenubut add radio "-variable details -text {Расширенный список} -value 1"]
     eval "$cr1 config -command {puts \"Расширенный список\"}"
     set ch1 [$::cmenubut add separator]
-#    $ch1 config -text ""
     set chlast [$::cmenubut add check "-text {Папки и файлы раздельно} -variable sepfolders"]
     $chlast config -command "puts {Папки и файлы раздельно}"
 
+
     set ch1 [$::cmenubut add separator]
     set mbut [$::cmenubut add finish]
+    $chcas config  -isvg "[$::cmenubut canvas] $gr"
+    [$::cmenubut canvas] delete $gr
+
     $mbut config -command ""
     $oow config -menu $::cmenubut -displaymenu releasehidden
     set ::osnmenu $oow
-#    return $mbut
-puts "creatConfigMenu end: cmenu=$::cmenubut callout=$mbut mbut=$mbut"
-return $::cmenubut
+#puts "creatConfigMenu end: cmenu=$::cmenubut callout=$mbut mbut=$mbut"
+
+    return $::cmenubut
 }
 
 
@@ -407,6 +414,7 @@ eval "bind $t.frame  <ButtonPress-3> {update;after 200;puts XAXA;showContextMenu
 #createConfigMenu $mn ffff up 1
 
 set men1 [createConfigMenu $mn ffff up $::tmenu]
+#$::mdata config  -isvg "[$::cmenubut canvas] $gr1"
 $::cmenubut config -state hidden 
 set r1 [cbutton new $t.frame -x 40 -y 40 -type radio -variable rad -value release -text "Меню появляются при нажатии кнопки" -bg yellow -fontsize 4m]
 set r2 [cbutton new $t.frame -x 40 -y 100 -type radio -variable rad -value enter -text "Меню появляются при наведении на кнопку" -bg yellow -fontsize 3.5m]
