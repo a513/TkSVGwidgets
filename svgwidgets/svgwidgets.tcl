@@ -7,7 +7,7 @@ package require tkpath
 package require treectrl
 
 namespace eval ::svgwidget {
-
+    set treemenu [list ]
 image create photo ::svgwidget::tpblank \
   -data {R0lGODlhFAAUAIAAAAAAAP///yH5BAkAAAAALAAAAAAUABQAAAIRhI+py+0Po5y02ouz3rz7rxUAOw==} \
   -gamma {1.0} -height {0}  -width {0}
@@ -3221,14 +3221,19 @@ set methshowmenu {
 	  }
 	    return "$rootx $rooty"
 	} else {
+		if {[my config -displaymenu] == "enter"} {
+		    set tbind "<Enter>"
+		} else {
+		    set tbind "<ButtonRelease>"		
+		}
 
 	    if {[tk busy status $tlb]} {
 		set sttlb 1
 		set tlbw [winfo toplevel $tlb]
 		if {$tlbw != $tlb ||  $tlb == "."} {
-		    set brel [bind [set tlb]_Busy <ButtonRelease>]
+		    set brel "[bind [set tlb]_Busy $tbind]"
 		} else {
-		    set brel [bind [set tlb]._Busy <ButtonRelease>]
+		    set brel "[bind [set tlb]._Busy $tbind]"
 		}
 	    } else {
 		tk busy hold $tlb
@@ -3246,17 +3251,31 @@ set methshowmenu {
 #puts "LMENU: $brel"
 		set bconf [bind [set tlb] <Configure>]
 		set tlbw [winfo toplevel $tlb]
+		lappend ::svgwidget::treemenu $winm
+		if {[my config -displaymenu] == "enter"} {
+		    set tbind "<Enter>"
+		} else {
+		    set tbind "<ButtonRelease>"		
+		}
 		if { $sttlb } {
 		    if {$tlbw != $tlb ||  $tlb == "."} {
-			eval "bind [set tlb]_Busy <ButtonRelease> {bind [set tlb]_Busy <ButtonRelease> {$brel};place forget $winm}"
+#puts "STTLB 1 tlb=$tlb tlbw=$tlbw winm=$winm self=[self]"
+			lower [set tlb]_Busy $winm
+			eval "bind [set tlb]_Busy <ButtonRelease> {bind [set tlb]_Busy $tbind {$brel};place forget $winm;set ::svgwidget::treemenu \"[lreplace $::svgwidget::treemenu end end]\"; eval lower [set tlb]_Busy \[lindex \$::svgwidget::treemenu end]}"
 		    } else {
-			eval "bind [set tlb]._Busy <ButtonRelease> {bind [set tlb]._Busy <ButtonRelease> {$brel};place forget $winm}"
+#puts "STTLB 2 tlb=$tlb tlbw=$tlbw winm=$winm self=[self] displaymenu=[my config -displaymenu]"
+			eval "bind [set tlb]._Busy $tbind {bind [set tlb]._Busy $tbind {$brel};place forget $winm}"
 		    }
 		} else {
 		    if {$tlbw != $tlb ||  $tlb == "."} {
-			eval "bind [set tlb]_Busy <ButtonRelease> {bind [set tlb]_Busy <ButtonRelease> {$brel};tk busy forget $tlb; place forget $winm}"
+#puts "STTLB  No 1 tlb=$tlb tlbw=$tlbw winm=$winm self=[self]"
+
+			eval "bind [set tlb]_Busy <ButtonRelease> {bind [set tlb]_Busy $tbind {$brel};tk busy forget $tlb; place forget $winm}"
 		    } else {
-			eval "bind [set tlb]._Busy <ButtonRelease> {bind [set tlb]._Busy <ButtonRelease> {$brel};tk busy forget $tlb; place forget $winm}"
+#puts "STTLB No 2 tlb=$tlb tlbw=$tlbw winm=$winm self=[self]"
+#Меню в своем окне
+			eval "bind [set tlb] <Configure> {lower [set tlb]._Busy $winm}"
+			eval "bind [set tlb]._Busy $tbind {bind [set tlb]._Busy $tbind {$brel};tk busy forget $tlb; place forget $winm;set ::svgwidget::treemenu \"[lreplace $::svgwidget::treemenu end end]\";bind [set tlb] <Configure> {}}"
 		    }    
 		}
 	    }
