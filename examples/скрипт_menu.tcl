@@ -106,7 +106,10 @@ if {$::submenu != ""}  {
     } else {
 #	set ::cmenubut [cmenu new $win.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m]
 	set tl [winfo toplevel $w]
-	set ::submenu [cmenu new $t.subMenu -tongue "0.30 0.20 0.45 2m" -strokewidth 2 -pad 1m -fillnormal snow -stroke gray70 -direction $direct]
+	if {$tl == "."} {
+	    set tl ""
+	}
+	set ::submenu [cmenu new $tl.subMenu -tongue "0.30 0.20 0.45 2m" -strokewidth 2 -pad 1m -fillnormal snow -stroke gray70 -direction $direct]
 #	set ::submenu [cmenu new $fm -tongue "0.30 0.20 0.45 2m" -strokewidth 2 -pad 1m -fillnormal snow -stroke gray70 -direction $direct]
     }
 	set i 0
