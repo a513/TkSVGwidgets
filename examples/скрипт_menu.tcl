@@ -14,7 +14,12 @@ set ::bgold [. cget -bg]
 set ::geo [wm geometry .]
 set ::min [wm minsize .]
 #Меню создаются в окнах (toplevel) ::tmenu=1 в отдельных окнах, tmenu=0 - в главном окне
+#Каждое меню создается на отдельном холсте
 set ::tmenu 0
+#Каждое меню создается в отдельно окне
+#et ::tmenu 1
+set ::cmenubut ""
+set ::submenu ""
 
 proc exitarm {t mestok} {
 	if {$t == "."} {
@@ -85,6 +90,10 @@ puts "showSubMenu START: w=$w fm=$fm obj=$obj mtype=$mtype"
 #	set ::submenu [cmenu new $fm.subMenu -tongue "0.45 0.5 0.55 2m" -strokewidth 2 -pad 1m]
 #####################
 set direct left
+if {$::submenu != ""}  {
+    $::submenu destroy
+}
+
     if {$mtype == 1} {
 	set fmWin ".$fm"
 	catch {destroy $fmWin}
@@ -93,10 +102,12 @@ set direct left
 	wm state $fmWin withdraw
 #	set ::submenu [cmenu new $fmWin.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m]
 	set ::submenu [cmenu new $fmWin.$fm -tongue "0.30 0.20 0.45 2m" -direction $direct -strokewidth 2 -pad 1m  -fillnormal snow -stroke gray70 -direction $direct -lockwindow $t]
+#	set ::submenu [cmenu new $fm -tongue "0.30 0.20 0.45 2m" -direction $direct -strokewidth 2 -pad 1m  -fillnormal snow -stroke gray70 -direction $direct -lockwindow $t]
     } else {
 #	set ::cmenubut [cmenu new $win.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m]
 	set tl [winfo toplevel $w]
 	set ::submenu [cmenu new $t.subMenu -tongue "0.30 0.20 0.45 2m" -strokewidth 2 -pad 1m -fillnormal snow -stroke gray70 -direction $direct]
+#	set ::submenu [cmenu new $fm -tongue "0.30 0.20 0.45 2m" -strokewidth 2 -pad 1m -fillnormal snow -stroke gray70 -direction $direct]
     }
 	set i 0
 #	foreach hcol  "$::FE::folder(displaycolumns)" {}
@@ -144,7 +155,7 @@ puts "showSubMenu END: i=$i hcol=$hcol"
 	M 1.25 31.25 L 1.25 17.5 L 20.0 17.5 C 31.625 17.5 38.75 18.0 38.75 18.75 C 38.75 19.5 32.125 20.0 21.25 20.0 L 3.75 20.0 L 3.75 31.25 
 	L 3.75 42.5 L 21.25 42.5 C 32.125 42.5 38.75 43.0 38.75 43.75 C 38.75 44.5 31.625 45.0 20.0 45.0 L 1.25 45.0 L 1.25 31.25 Z"
     set t {}
-puts "showContextMenu: w=$w fm=$fm x=$x y=$y rootx=$rootx rooty=$rooty mtype=$mtype"
+#puts "showContextMenu: w=$w fm=$fm x=$x y=$y rootx=$rootx rooty=$rooty mtype=$mtype"
     if {$dir == 0} {
 	set t "file"
     } else {
@@ -266,9 +277,12 @@ proc createConfigMenu { oow fm direct {mtype 0}} {
 # mtype - 0 меню создается в окне кнопки; 1 - меню создается в отдельном окне 
 #set mtype 0
     variable t
+if {$::cmenubut != ""}  {
+    $::cmenubut destroy
+}
 
 ###################################
-#puts "createConfigMenu START oow=$oow fm=$fm direct=$direct mtype=$mtype"
+puts "createConfigMenu START oow=$oow fm=$fm direct=$direct mtype=$mtype"
     set mm2px [winfo pixels [$oow canvas] 1m]
 #Создаётся отдельное окно для меню
     if {$mtype == 1} {
@@ -295,8 +309,10 @@ proc createConfigMenu { oow fm direct {mtype 0}} {
 
     set ch1 [$::cmenubut add separator]
 #Создаем SubMenu
-#set sm [showSubMenu [$chcas canvas] "submenu" "new" 1]
+#et sm [showSubMenu [$chcas canvas] "submenu" "new" 1]
     set sm [showSubMenu [$chcas canvas] "submenu" "new" $::tmenu]
+
+#    set sm [showSubMenu [$chcas canvas] "$wsm" "new" $::tmenu]
 #enter - отображать меню при наведении на кнопку с меню
     $chcas config -menu $sm -displaymenu enter
     set ::butsub $chcas
@@ -322,7 +338,7 @@ proc createConfigMenu { oow fm direct {mtype 0}} {
     [$::cmenubut canvas] delete $gr
 
     $mbut config -command ""
-    $oow config -menu $::cmenubut -displaymenu release
+    $oow config -menu $::cmenubut -displaymenu enter
     set ::osnmenu $oow
 #    return $mbut
 #puts "creatConfigMenu end: cmenu=$::cmenubut callout=$mbut"
@@ -341,51 +357,39 @@ frame $t.frame  -bg yellow
 pack $t.frame  -in $t -fill both -expand 1 -padx 3m -pady 3m
 set ch [cbutton new $t.type -type check -variable dir -text "Только каталоги" -bg yellow -fontsize 4.5m]
 set mn [cbutton new $t.bmenu -type rect  -text "Выпадаюшее меню" -bg yellow -compound none -width 8c]
+set ::mn $mn
 puts "Кнопка меню=$mn"
-#$mn config -command "showConfigMenu [$mn canvas] $t.frame  0"
-#$mn config -command "showConfigMenu $mn $t.frame  0"
+set r0 [cbutton new $t.rad0 -type check -variable ::tmenu -value release -text "Меню создаются в отдельных окнах" -bg yellow -fontsize 4m]
+$r0 config  -command {createConfigMenu $::mn ffff up $::tmenu;displaymenu 1 2 3} 
 set r1 [cbutton new $t.rad1 -type radio -variable rad -value release -text "Меню появляются при нажатии кнопки" -bg yellow -fontsize 4m]
 set r2 [cbutton new $t.rad2 -type radio -variable rad -value enter -text "Меню появляются при наведении на кнопку" -bg yellow -fontsize 3.5m]
+pack [$r0 canvas] -in $t.frame  -side top -padx "1c 0" -pady "1c 0" -anchor nw
 pack [$r1 canvas] -in $t.frame  -side top -padx "1c 0" -pady 1c -anchor nw
-#-fill x -expand 1
 pack [$r2 canvas] -in $t.frame  -side top -padx "1c 0" -pady 0c -anchor nw
-# -fill x -expand 1
 
 set went [cframe new $t.cent -type centry -rx 2m -bg yellow -height 7m]
-#$t.cent configure -height 28
 pack [$went canvas] -in $t.frame -side top -fill x -expand 0 -padx 3c -pady 5m -anchor nw
-#set wmsg [cframe new $t.cent -type centry -rx 2m -bg yellow -height 7m]
 set mes1 "Для вызова контекстного меню\nщелкните правой кнопкой мыши \nна свободном от виджевов поле"
 
 set wmsg [mbutton new "$t.msg1" -type down -tongue "0.45 0.5 0.55 0" -text "$mes1" -textanchor n -bg yellow -state disabled]
 
 pack [$wmsg canvas] -in $t.frame -side top -fill none -expand 0 -padx 1c -pady "5m 0" -anchor nw
-#$wmsg pack  -in $t.frame -side top -fill none -expand 0 -padx 1c -pady "5m 0" -anchor nw
 
-
-#$t.cent configure -height 28
 pack [$went canvas] -in $t.frame -side top -fill x -expand 0 -padx 3c -pady 5m -anchor nw
 
 pack [$ch canvas] -in $t.frame -side left -padx "1c 0" -pady "0 0" -anchor nw
-#raise [$ch canvas]
 pack [$mn canvas] -in $t.frame -side left -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
-#raise [$mn canvas]
-
-
-
 
 set  w "$t.frame "
 set typefb $dir
-#eval "bind $t.frame  <ButtonPress-3> {puts XAXA;showContextMenu %W %x %y %X %Y $w $typefb}"
-#eval "bind $t.frame  <ButtonPress-3> {wm state $t withdraw;update;after 200;puts XAXA;showContextMenu %W %x %y %X %Y $w $typefb; wm state $t normal}"
 eval "bind $t.frame  <ButtonPress-3> {update;after 200;puts XAXA;showContextMenu %W %x %y %X %Y $w $typefb}"
-#createConfigMenu $mn ffff up 1
-createConfigMenu $mn ffff up $::tmenu
+#reateConfigMenu $mn ffff up 1
+createConfigMenu $mn ffff up $::tmenu 
 
 set foldersfirst 1
 set details	 0
 set sepfolders	 1
-puts "ГОТОВО=$mn r1=$r1 r2=$r2"
+#puts "ГОТОВО=$mn r1=$r1 r2=$r2"
 update
 trace variable rad w displaymenu
 #set rad enter
@@ -393,6 +397,3 @@ set rad release
 if {$::tmenu == 0} {
     $::osnmenu config -command "bind $t <Configure> {catch {lower $t._Busy $t.ffff}}"
 }
-
-
-
