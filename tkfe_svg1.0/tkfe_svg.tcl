@@ -2064,21 +2064,30 @@ puts "selectdir: exists $w1.butMenu"
   }
 
   proc fereturn {typew w typefb otv} {
-#puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv ::endMenu=$::endMenu"
+#puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv "
+    set num [$w.files.t selection]
+    set titem [$w.files.t item $num -value]
+    set ret [lindex $titem 0]
+    if {$ret == ""} {
+	return ""
+    }
+    set type [file type $ret]
+#puts "TYPE=$type typefb=$typefb"
+    if {$typefb == "dir" && $type != "directory"} {
+#puts "Надо выбрать каталог!"
+	return ""
+    }
+    if {$typefb != "dir" && $type != "file"} {
+#puts "Надо выбрать файл!"
+	return ""
+    }
     if {[info exist ::submenu]} {
 	$::submenu destroy
     }
     if {[info exist ::cmenubut]} {
 	$::cmenubut destroy
     }
-    if {$::endMenu} {
-	set ::endMenu 0
-	return
-    }
     variable $otv
-    set num [$w.files.t selection]
-    set titem [$w.files.t item $num -value]
-    set ret [lindex $titem 0]
     if {$ret == ""} {
       if {$typefb == "dir"} {
         $w.tekfolder.ldir configure -state normal
@@ -2104,12 +2113,11 @@ puts "selectdir: exists $w1.butMenu"
 	all_busy_forget [winfo parent $w]
     }
     catch {destroy $w}
-#puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv ::endMenu=$::endMenu otv=$otv \$otv=[set [subst $otv]]"
+#puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv  otv=$otv \$otv=[set [subst $otv]]"
 update
     return $otv
   }
 
-    set ::endMenu 0
   proc fecancel {typew w typefb otv} {
     if {[info exist ::submenu]} {
 	$::submenu destroy
@@ -2118,10 +2126,6 @@ update
 	$::cmenubut destroy
     }
 #puts "fecancel: [winfo exists .fe.butMenu]"
-    if {$::endMenu} {
-	set ::endMenu 0
-	return
-    }
     if {$typew != "frame"} {
 set ::Fegeo [wm geometry $w]
 	catch {tk busy forget [winfo parent $w]}
