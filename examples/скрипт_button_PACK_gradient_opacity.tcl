@@ -82,7 +82,7 @@ wm state $t withdraw
 wm state $t normal
 wm title $t "tcl/tk pack gradient and opacity demo"
 
-wm geometry $t 800x600+150+150
+wm geometry $t 798x598+150+150
 
 tkp::canvas $t.c -bg yellow
 #Уствновить gradient
@@ -167,9 +167,11 @@ set ::uu $upwin
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 #Обновить окно
+wm geometry $t 800x600+150+150
 $::b1 fon;$::clfrv fon;$went fon
 lower [$::b1 canvas] [$::xa1 canvas]
 #raise [$::xa3 canvas]
 lower [$::clfrv canvas] [$::rc1 canvas]
 raise [$went canvas ]  $t.c
+$bel invoke
 puts "::rc1=$::rc1"

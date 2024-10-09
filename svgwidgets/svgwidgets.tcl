@@ -187,7 +187,8 @@ oo::class create cbutton {
     set  Options(-width) 7m
     set  Options(-height) 7m
     set  Options(-rotate) 0
-    set  Options(-compound) "left"
+#    set  Options(-compound) "left"
+    set  Options(-compound) "none"
 # Отступ слева, ширина, отступ сверху, отступ снизу
     set  Options(-ipad) [list 1m 1m 1m 1m]
     set Options(-strokewidth) 1
@@ -1331,6 +1332,7 @@ if {1} {
 #		    $wcan itemconfigure $isvg -tags [list isvg obj $canvasb $btag [linsert $btag end isvg] utag$idt]
 		    $wcan itemconfigure $isvg -tags [list isvg obj $canvasb [set btag]Group [linsert $btag end isvg] utag$idt]
 		}
+if {[$wcan bbox $isvg] != ""} {
     		foreach {sx1 sy1 sx2 sy2} [$wcan bbox $isvg] {break}
     		if {$tbut == "rect" } {
     		    foreach {rx1 ry1 rx2 ry2} [$wcan bbox $idr] {break}
@@ -1351,6 +1353,7 @@ if {$fr == 1} {
 		set pyl [winfo fpixels $wcan $pyl]
     		set pyr [winfo fpixels $wcan $pyr]
 		set pheight $pyr
+if {[$wcan bbox $isvg] != ""} {
     		if {$tbut == "rect" } {
     		    set scalex [expr {$pwidth  / ($sx2 - $sx1 )}]
     		    set scaley [expr {$pheight / ($sy2 - $sy1 )}]
@@ -1358,6 +1361,7 @@ if {$fr == 1} {
     			set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl)) / ($sx2 - $sx1 )}]
     			set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl)) / ($sy2 - $sy1 )}]
 		}
+}
 #puts "scalex=$scalex scaley=$scaley"
 #Изменение размеров - ширины и высоты
 		foreach {width height xy} [$wcan itemcget $isvg -matrix] {
@@ -1369,7 +1373,7 @@ if {$fr == 1} {
 		    }
 		    $wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
 		}
-
+if {[$wcan bbox $isvg] != ""} {
     		foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 
 #Перемещение по x и y
@@ -1380,7 +1384,8 @@ if {$fr == 1} {
 		    }
 		    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
 		}
-
+}
+}
     		if {$isvgold != "" } {
     		    $wcan delete $isvgold
     		}
@@ -1810,8 +1815,11 @@ if {$fr == 1} {
 			} else {
 			    set xx1 [expr {$xt1 - $xt0}]
 			    if {$xx1 > $xx}  {
+if {0} {
+#Происходит зацикливание
 				set del [expr {$xx1 - ($xe1 - $xe0)}]
 				my config -width [expr {$xx + $del}]
+}
 			    }
 			}
 ###  COMPOUND ###########
@@ -2571,7 +2579,6 @@ oo::class create ibutton {
     		if {[lsearch $svgtype $itype] == -1} {
 			error "ibutton: Bad svg image=$itype, value=$value"
     		}
-###########
     		set isvgold ""
     		if {[info exists Options(-isvg)]} {
     		    set isvgold $Options(-isvg)
@@ -2597,7 +2604,6 @@ oo::class create ibutton {
     		$wcan itemconfigure $idi -state hidden
     		$wcan raise $isvg $idr
     		$wcan raise $idor
-#puts "IMAGE: -image END"
 	    }
 	    -pad {
 		set lpad [llength $value]
@@ -2629,43 +2635,49 @@ oo::class create ibutton {
 		if {[info exists idi]} {
 		    if {[info exists Options(-isvg)]} {
 #puts "-pad: Options(-isvg)=$Options(-isvg) pad=Options(-pad) idr=$idr"
-			set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
-    			set isvg $Options(-isvg)
-#puts "ibutton: -isvg ok isvg=$isvg idr=$idr"
-    			foreach {sx1 sy1 sx2 sy2} [$wcan bbox $isvg] {break}
-    			foreach {rx1 ry1 rx2 ry2} [$wcan bbox "$btag rect"] {break}
-if {0} {
-    			foreach {rx1 ry1 rx2 ry2} [$wcan coords $idr] {break}
-}
-			foreach {pxl pxr pyl pyr} $Options(-pad) {break}
-			set pxl [winfo fpixels $wcan $pxl]
-			set pxr [winfo fpixels $wcan $pxr]
-			set pyl [winfo fpixels $wcan $pyl]
-    			set pyr [winfo fpixels $wcan $pyr]
+			set isvg $Options(-isvg)
+			if {[$wcan bbox $isvg] != ""} {
 
-    			set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl) - $strwidth * 1.0 * 0) / ($sx2 - $sx1 - $strwidth * 1.0 * 0)}]
-    			set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl) - $strwidth * 1.0 * 0) / ($sy2 - $sy1 - $strwidth * 1.0 * 0)}]
+			    set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
+    			    set isvg $Options(-isvg)
+#puts "ibutton: -isvg ok isvg=$isvg idr=$idr"
+    			    foreach {sx1 sy1 sx2 sy2} [$wcan bbox $isvg] {break}
+    			    foreach {rx1 ry1 rx2 ry2} [$wcan bbox "$btag rect"] {break}
+if {0} {
+    			    foreach {rx1 ry1 rx2 ry2} [$wcan coords $idr] {break}
+}
+			    foreach {pxl pxr pyl pyr} $Options(-pad) {break}
+			    set pxl [winfo fpixels $wcan $pxl]
+			    set pxr [winfo fpixels $wcan $pxr]
+			    set pyl [winfo fpixels $wcan $pyl]
+    			    set pyr [winfo fpixels $wcan $pyr]
+
+    			    set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl) - $strwidth * 1.0 * 0) / ($sx2 - $sx1 - $strwidth * 1.0 * 0)}]
+    			    set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl) - $strwidth * 1.0 * 0) / ($sy2 - $sy1 - $strwidth * 1.0 * 0)}]
 
 #Изменение размеров - ширины и высоты
 #    			$wcan scale $isvg 0 0 $scalex $scaley
-			foreach {width height xy} [$wcan itemcget $isvg -matrix] {
-			    foreach {w1 w0} $width {
-				set w1 [expr {$w1 * $scalex}]
+			    foreach {width height xy} [$wcan itemcget $isvg -matrix] {
+				foreach {w1 w0} $width {
+				    set w1 [expr {$w1 * $scalex}]
+				}
+				foreach {h0 h1} $height {
+				    set h1 [expr {$h1 * $scaley}]
+				}
+				$wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
 			    }
-			    foreach {h0 h1} $height {
-				set h1 [expr {$h1 * $scaley}]
-			    }
-			    $wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
-			}
-
-    			foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
+			    if {[$wcan bbox $isvg] != ""} {
+    				foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 #Перемещение по x и y
-			foreach {width height xy} [$wcan itemcget $isvg -matrix] {
-			    foreach {x y} $xy {
-				set x [expr {$x + $rx1 - $snx1 + $pxl + $strwidth * 1 * 0.5 * 0}]
-				set y [expr {$y + $ry1 - $sny1 + $pyl + $strwidth * 1 * 0.5 * 0}]
+				foreach {width height xy} [$wcan itemcget $isvg -matrix] {
+				    foreach {x y} $xy {
+					set x [expr {$x + $rx1 - $snx1 + $pxl + $strwidth * 1 * 0.5 * 0}]
+					set y [expr {$y + $ry1 - $sny1 + $pyl + $strwidth * 1 * 0.5 * 0}]
+				    }
+			
+				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
+				}
 			    }
-			    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
 			}
 		    } else {
 #Старое pad
@@ -2699,6 +2711,7 @@ if {0} {
 		if {[info exists idi]} {
 		    foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 		    set x2 [expr {$x1 + $val - $strwidth * 2}]
+if {$x1 > 0 && $x2 > 0 && $x2 > $x1} {
 		    $wcan coords $idr "$x1 $y1 $x2 $y2"
     		    if {[info exists Options(-isvg)]} {
     			set old $Options(-isvg)
@@ -2717,6 +2730,7 @@ if {0} {
 		    set x [expr {$x2 + $onemm2px}]
 		    set y [expr { ($y1 + $y2) / 2.0}]
 		    $wcan coords $idt "$x $y"
+}
 		}
 	    }
 	    -height {
@@ -2977,7 +2991,19 @@ set methodman {
 	    lower $wcan
 	    update
     }
+############################
+    if {$wclass == "cbutton"} {
+	set strw [$wcan itemcget $idr -strokewidth]
+	set ww [expr {[winfo width $wcan] - $strw}]
+	set hh [expr {[winfo height $wcan] - $strw}]
+	if {$ww > 0 && $hh > 0} {
+	    my config -width $ww -height $hh
+	    update
+	}
+    }
+    $wcan delete fon
     my fon
+
   }
 #Какие окна размещены в этом окне
   method slaves {} {
@@ -3005,11 +3031,14 @@ set methodman {
 
  method fon {} {
     $wcan delete fon
+    update
     set rx [winfo rootx $wcan]
     set ry [winfo rooty $wcan]
 
     set wb [winfo width $wcan]
     set hb [winfo height $wcan]
+
+#set hb [expr {$hb - 1}]
 #puts "MANAGER COORDS type=$type rx=$rx ry=$ry wb=$wb hb=$hb args=$args"
 if {1} {
     set cc [my slaves]
@@ -5135,7 +5164,7 @@ if {0} {
 		}
 		$wcan itemconfigure $id -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
 	    }
-
+if {[$wcan bbox $id] != ""} {
     	    foreach {snx1 sny1 snx2 sny2} [$wcan bbox $id] {break}
 
 #Перемещение по x и y
@@ -5146,7 +5175,7 @@ if {0} {
 		}
 		$wcan itemconfigure $id -matrix [list "$width" "$height" "$x $y"]
 	    }
-
+}
 	    continue
       }
       

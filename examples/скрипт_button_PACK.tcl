@@ -52,7 +52,7 @@ wm state $t withdraw
 wm state $t normal
 
 #####################
-wm geometry $t 800x600+150+150
+wm geometry $t 798x598+150+150
 wm title $t "tcl/tk svg widgets pack demo"
 
 #tkp::canvas $t.c -bg yellow
@@ -149,5 +149,6 @@ $rc5 pack -in [$clfrv canvas] -padx 1c -pady "2m 0"
 $rc7 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill x
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "2m 5m" -fill both -expand 1
 pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
+wm geometry $t 800x600+150+150
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
