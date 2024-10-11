@@ -1174,6 +1174,7 @@ return $::cmenubut
 # 1: the configuration specs
 #
     catch {unset ::FE::data}
+    set ::FE::folder(otv) $otv
 
     set few [winfo pixels . 10c]
     set feh [winfo pixels . 15c]
@@ -1358,11 +1359,14 @@ set zz [winfo toplevel $w]
       }
       toplevel $w -bd 2  -relief groove -bg #d9d9d9
       wm geometry $w $geometr
+      bind $w <Destroy> {if {"%W" == $::FE::folder(w)} {::FE::fecancel $::FE::folder(typew) $::FE::folder(w) $::FE::folder(typefb) $::FE::folder(otv)}}
       if {$FE::data(-width) > 0 && $FE::data(-height) > 0} {
     	    set geom $FE::data(-width)
     	    append geom "x"
     	    append geom $FE::data(-height)
     	    wm geometry $w $geom
+      } elseif {[info exists ::Fegeo]} {
+	    wm geometry $w $::Fegeo
       }
  #Конфигурирование виджета под смартфон
   #Ширина 75 mm
@@ -1370,9 +1374,6 @@ set zz [winfo toplevel $w]
   wm minsize $w [expr {int([winfo fpixels $w 75m])}] [expr {int([winfo fpixels $w 80m])}]
 #  wm minsize . [expr $::scrwidth * 2] $::scrheight
 #Устанавливаем последнюю геометрию окна
-  if {[info exists ::Fegeo]} {
-	wm geometry $w $::Fegeo
-  }
 
 #Окно не может перекрываться (yes)
 #      wm attributes $w -topmost yes   ;# stays on top - needed for Linux
@@ -1467,6 +1468,7 @@ set zz [winfo toplevel $w]
     frame $fm.buts  -bg #d9d9d9
 #    eval "ttk::button $fm.buts.ok -text [mc {Done}]  -command {[namespace current]::fereturn $typew $fm $typefb $otv}"
     set cbut [eval "cbutton new $fm.buts.ok -type round  -text [mc Done]   -command {[namespace current]::fereturn $typew $fm $typefb $otv}"]
+    set ::FE::folder(firstOO) $cbut
 
 #    eval "ttk::button $fm.buts.cancel -text [mc {Cancel}]  -command {[namespace current]::fecancel $typew $fm $typefb $otv}"
     set cbut [eval "cbutton new $fm.buts.cancel -type round  -text [mc Cancel]   -command {[namespace current]::fecancel $typew $fm $typefb $otv}"]
@@ -2062,6 +2064,22 @@ puts "selectdir: exists $w1.butMenu"
     }
     [namespace current]::columnSort $w1.files.t $::FE::folder(column) $::FE::folder(direction)
   }
+    proc fedeloo {} {
+#	puts "firstOO = $::FE::folder(firstOO) lastOO = $::FE::folder(lastOO)"    
+	set ind0 [string range $::FE::folder(firstOO) 9 end]
+	set indN [string range $::FE::folder(lastOO) 9 end]
+	puts "firstOO = $ind0 lastOO = $indN"
+	while {$ind0 <= $indN} {
+	    set deloo "::oo::Obj$ind0"
+	    if {[catch {info object class $deloo}] == 0} {
+		catch {$deloo destroy}
+	    }
+	    incr ind0
+	}
+	
+	return
+    }
+
 
   proc fereturn {typew w typefb otv} {
 #puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv "
@@ -2080,12 +2098,6 @@ puts "selectdir: exists $w1.butMenu"
     if {$typefb != "dir" && $type != "file"} {
 #puts "Надо выбрать файл!"
 	return ""
-    }
-    if {[info exist ::submenu]} {
-	$::submenu destroy
-    }
-    if {[info exist ::cmenubut]} {
-	$::cmenubut destroy
     }
     variable $otv
     if {$ret == ""} {
@@ -2114,20 +2126,15 @@ puts "selectdir: exists $w1.butMenu"
     }
     catch {destroy $w}
 #puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv  otv=$otv \$otv=[set [subst $otv]]"
-update
+    update
+    ::FE::fedeloo
     return $otv
   }
 
   proc fecancel {typew w typefb otv} {
-    if {[info exist ::submenu]} {
-	$::submenu destroy
-    }
-    if {[info exist ::cmenubut]} {
-	$::cmenubut destroy
-    }
 #puts "fecancel: [winfo exists .fe.butMenu]"
     if {$typew != "frame"} {
-set ::Fegeo [wm geometry $w]
+	set ::Fegeo [wm geometry $w]
 	catch {tk busy forget [winfo parent $w]}
     } else {
 	all_busy_forget [winfo parent $w]
@@ -2135,6 +2142,7 @@ set ::Fegeo [wm geometry $w]
     catch {destroy $w}
     variable $otv
     set $otv ""
+    ::FE::fedeloo
     return $otv
   }
 
@@ -2307,6 +2315,7 @@ set ::Fegeo [wm geometry $w]
     [$cbut canvas] configure -background [$clfr config -fillnormal]
 #    eval "ttk::button $fm.topName.butOk  -command {[namespace current]::readName $fm.topName.entryPw} -text [mc Done]"
     set cbut [eval "cbutton new $fm.topName.butOk -type ellipse  -text [mc Done]  -fillnormal red  -command {[namespace current]::readName $fm.topName.entryPw}"]
+    set ::FE::folder(lastOO) $cbut
 #    set g11 [$fm.topName.butOk gradient create linear -stops {{0 yellow} {1 cyan}} -lineartransition {0 0 0 1}]
     set g11 [$fm.topName.butOk gradient create radial -stops {{0 "#03b1fc"} {1 "#00FFEB"}} -radialtransition {0.50 0.50 0.50 0.8 0.8}]
     $cbut config -fillnormal $g11
