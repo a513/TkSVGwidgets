@@ -1,5 +1,7 @@
 #!/usr/bin/wish
+
 package require Tk
+#lappend auto_path "/modadd_Wish"
 package require svgwidgets
 package require msgcat
 #Комплексный пример импользования файлового проводника tkfe
@@ -126,6 +128,7 @@ if {0} {
 	set r "Отмена"
     }
     .labchoose configure -text "Ваш выбор:\n$r"
+    puts "Ваш выбор:\n$r"
 }
   #Процедура смены языка и синхронный перевод
 proc changelang {w } {
