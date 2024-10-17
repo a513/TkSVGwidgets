@@ -2068,7 +2068,7 @@ puts "selectdir: exists $w1.butMenu"
 #	puts "firstOO = $::FE::folder(firstOO) lastOO = $::FE::folder(lastOO)"    
 	set ind0 [string range $::FE::folder(firstOO) 9 end]
 	set indN [string range $::FE::folder(lastOO) 9 end]
-	puts "firstOO = $ind0 lastOO = $indN"
+#	puts "firstOO = $ind0 lastOO = $indN"
 	while {$ind0 <= $indN} {
 	    set deloo "::oo::Obj$ind0"
 	    if {[catch {info object class $deloo}] == 0} {
