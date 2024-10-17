@@ -962,7 +962,7 @@ set direct left
 	    incr i
 	}
 #	    set ch$i [$::submenu add check -text [::msgcat::mc "$hcol"] -variable ::FE::displaycolumns($hcol)]
-puts "showSubMenu END: i=$i hcol=$hcol"
+#puts "showSubMenu END: i=$i hcol=$hcol"
     set chsep [$::submenu add separator ]
     $chsep config -stroke "" -fillnormal "" -fillenter "##"
     set chsep [$::submenu add finish]
@@ -980,7 +980,7 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
 #set mtype 0
 
 ###################################
-puts "createConfigMenu 1 oow=$oow fm=$fm"
+#puts "createConfigMenu 1 oow=$oow fm=$fm"
     set mm2px [winfo pixels [$oow canvas] 1m]
 #Создаётся отдельное окно для меню
     if {[info exist ::cmenubut]} {
@@ -1009,7 +1009,7 @@ puts "createConfigMenu 1 oow=$oow fm=$fm"
     $ch1 config -command "[namespace current]::columnSort \$::FE::folder(w).files.t \$FE::folder(column) \$FE::folder(direction)"
 
 #    eval "variable foldersfirst;$ch1 config -command {puts \\\"Папки вверну foldersfirst=\$foldersfirst \\\"}"
-puts "createConfigMenu 1_3"
+#puts "createConfigMenu 1_3"
 #    $ch1 config -text "Папки вверху"
     set ch1 [$::cmenubut add separator]
     set gr [[$::cmenubut canvas] create group]
@@ -1019,25 +1019,25 @@ puts "createConfigMenu 1_3"
 #enter - отображать меню при наведении на кнопку с меню
 #release - отображать меню при щелчке по кнопке с меню
     set chcas [$::cmenubut add cascade -text "Состав данных" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -compound none -ipad "4.5c 3m 2.5m 4m"  -displaymenu release]
-puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
+#puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
 
 #puts "СОСТАВ ДАННЫХ=$chcas ::cmenubut=$::cmenubut chcas=$chcas iprev=$iprev"
     set ch1 [$::cmenubut add separator]
 #Создаем SubMenu
 #set sm [showSubMenu [$chcas canvas] "submenu" "new" 1]
-puts "createConfigMenu 1_4"
+#puts "createConfigMenu 1_4"
 #set sm [showSubMenu [$chcas canvas] "submenu" "new" 0]
 set sm [showSubMenu [$chcas canvas] "submenu" "new" $mtype]
-$chcas config -menu $sm -displaymenu release
-puts "createConfigMenu 1_5 obj_Menu=$oow  Menu==$::cmenubut  obj_subMenu=$chcas subMenu=$$sm"
+    $chcas config -menu $sm -displaymenu release
+#puts "createConfigMenu 1_5 obj_Menu=$oow  Menu==$::cmenubut  obj_subMenu=$chcas subMenu=$$sm"
 
 #puts "createConfigMenu 1_4 sm=$sm chcas=$chcas"
-$chcas config -command ""
+    $chcas config -command ""
     set cmd ""
 	foreach hcol  "$::FE::folder(displaycolumns)" {
 	    append cmd "set ::FE::displaycolumns($hcol) \$::FE::displaycolumns($hcol);"
 	}
-$chcas config -command "$cmd;::FE::detailedview \$::FE::folder(w)"
+    $chcas config -command "$cmd;::FE::detailedview \$::FE::folder(w)"
 
 
     set cr0 [$::cmenubut add radio " -variable ::FE::folder(details) -text {Только имена} -value 0"]
@@ -1063,7 +1063,7 @@ $chcas config -command "$cmd;::FE::detailedview \$::FE::folder(w)"
     $mbut config -command ""
     $oow config -menu $::cmenubut
 #    return $mbut
-puts "creatConfigMenu end: cmenu=$::cmenubut callout=$mbut"
+#puts "creatConfigMenu end: cmenu=$::cmenubut callout=$mbut"
 $::FE::folder(configureBtn) config -command ""
 $::FE::folder(configureBtn) config -menu $::cmenubut
 
@@ -1243,7 +1243,7 @@ return $::cmenubut
 	}
     }
     if {[info exist foldersfirst]} {
-puts "initfe: foldersfirst=$foldersfirst"
+#puts "initfe: foldersfirst=$foldersfirst"
 	set ::FE::folder(foldersfirst) $foldersfirst
 	set ::FE::data(foldersfirst) $foldersfirst
 	set ::FE::folder(sepfolders) $sepfolders
@@ -1730,7 +1730,7 @@ $f1.lang delete $objru
 	    append dcol " $col"
 	}
     }
-    puts $dcol 
+#    puts "detailedview dcol=$dcol" 
     $w configure -displaycolumns "$dcol"
     if {$dcol != ""} { 
 	$w column {#0} -stretch 0 -width $::FE::folder(width0)
@@ -1756,15 +1756,15 @@ set w "$::FE::folder(w)"
 #	eval "$FE::folder(panedwindow) forget 0"
 	eval "$FE::folder(panedwindow) forget $FE::folder(panedir)"
 	$w1.files.t heading "#0" -text "[mc {Folders and files}]"
-puts "gosepfolders 0 ::FE::folder(sepfolders)=$::FE::folder(sepfolders)"
+#puts "gosepfolders 0 ::FE::folder(sepfolders)=$::FE::folder(sepfolders)"
     } else {
 #	eval "$FE::folder(panedwindow) insert 0 $FE::folder(panedir)"
 	eval "$FE::folder(panedwindow) add $FE::folder(panedir) -before $FE::folder(panefile)"
 	$w1.files.t heading "#0" -text  [mc {Files}]
-puts "gosepfolders 1 ::FE::folder(sepfolders)=$::FE::folder(sepfolders)"
+#puts "gosepfolders 1 ::FE::folder(sepfolders)=$::FE::folder(sepfolders)"
     }
     goupdate $w $typefb
-puts "gosepfolders END"
+#puts "gosepfolders END"
   }
  
   proc goup {w typefb} {
@@ -2083,6 +2083,7 @@ puts "selectdir: exists $w1.butMenu"
 
   proc fereturn {typew w typefb otv} {
 #puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv "
+    bind $w <Destroy> {}
     set num [$w.files.t selection]
     set titem [$w.files.t item $num -value]
     set ret [lindex $titem 0]
@@ -2133,6 +2134,7 @@ puts "selectdir: exists $w1.butMenu"
 
   proc fecancel {typew w typefb otv} {
 #puts "fecancel: [winfo exists .fe.butMenu]"
+    bind $w <Destroy> {}
     if {$typew != "frame"} {
 	set ::Fegeo [wm geometry $w]
 	catch {tk busy forget [winfo parent $w]}
