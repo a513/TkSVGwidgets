@@ -329,20 +329,6 @@ BIGQKWPmDBqJBW8ITAMAsZo1bNq4yWLQwBs4EuIQlDOHTh07Vu7gASlwQB49MPYUlMOnj58/
 gAIJGkSokKFDiFwkIlAQgqJFjBo5osBDxSMWkBYmRJI0yeAYSgMrWbqEiU2mHJo2leBksJNB
 T59AhRI1ipTj/wD6FRAAOw==}
 
-image create photo fe_folder_new -data {
-R0lGODlhEAAQAMYAAG1va2dpZc7OzsrEuW1pXvyxPsDAv5aXlZuYkOOrVb6cZODCkfvSkNyy
-bMuYSfywPsnJyaamptm5hv3nw/765/740f3urPzJZvuyQGF6mjRlpDtnoFJwlNvFnv766P77
-5P32u/3xkfzkddSsW2R4jMbY677S6MjMy+64Y/zTk/740/32vP3zo/zue/zoYPq+SNCgVK7H
-44yx2I+w05yxwebFif3vrv3xkvzufPzrYfzfUe2+YV9hXdCyfvzLavzld/zoYfzgUfvDRNu6
-gVVXU5OwzeGwYs2yf+a7Zvq9SeW6YNCxeem1ZT5onpWwy5Gw0J2xwOOxX7PF2ERrm4+x0p6x
-vomu1qbC4Dlnoq3H44uw14qv14iu1oWr1YCo03qk0nOgz26dzpi53Fh2m5u73XCeznCdz26c
-zm2czmybzmubzWqazmmZzWiZzZS226mrqYmv12uazWqazWiYzWaYzGWYzWWXzGSWzGOVzJq6
-3lNxlkVdeT5giT9ghv///////yH5BAEKAH8ALAAAAAAQABAAAAfNgH8Ag4MBAX+IiYgAAo2O
-AwSIBYoABgeXlwgJCgsMDQ4PghARpKUSExQVFhcYfwEGGRqyGxwdHh8gISIjJAEQGiUmJico
-KSorLC0uLzCvGjEyMjM0NTY3ODk6Oxw8v9DRMj0+P0BBQkMaRAbP4EVGR0hJSktMTUTe4E5P
-MlBRNDJSpqhjBy4alSozrFxJBwFLFi0ytGzh0sXLFzBhxKQzMIZMGTNhzqBJo2YNmzZu0r2B
-oyaOHDZz6NSxcwdPHj17+MjayZNnH0VAgyIKBAA7}
-
 image create photo fe_configure -data {
 R0lGODlhFgAWAMYAAH9/f+rp6Pn5+NjY1/j39vPy8YKXsjRlpOzq6P///050pHx8fLu7u+3r
 6szMzK+vr2WErOjn5Orq6q2trePj4vr6+Xl4dNzc3JmZmejn5vLx7+3r6evp5/r6+oeHh8/N
@@ -358,21 +344,19 @@ npIxNTY3YhzAkUPHCH6J/O3g0cNHDAAjhh2MFOMHkCA+hAyJsWiEsImIYhApYuSIkBpIOHaU
 mISekiVGmJxMeQhiEycgYzyBEkUmSpWCpAgdKvRPjClUqswEGpToUKNWhFx5QjORUymDYlix
 4lAS0ZD15hUVFAgAOw==}
 
-image create photo fe_folder -data {
-R0lGODlhEAAQAKUAAG1va2dpZc7OzsbGxWNlYcDAv5aXlVVXU8nJyaampqenp6ioqGF6mjRl
-pEZtnMbY677S6K7H44yx2F9hXYmu1qbC4Dlnoq3H44uw14qv14iu1oWr1YCo03qk0nOgz26d
-zpi53Fh2m5u73XCeznCdz26czm2czmybzmubzWqazmmZzWiZzZS226mrqYmv12uazWqazWiY
-zWaYzGWYzWWXzGSWzGOVzJq63lNxlkVdeT5giT9ghv///////////////yH5BAEKAD8ALAAA
-AAAQABAAAAaGwB9gOAwEfsgkEiBoOgcEZRJQMFivhoNWu0QkvmCwYnFABgqMhnrNVjsCiMYD
-Qq/bH41zIyLp+/8RDRNxfH+GgQcFe4aHDQeEjICOioWRFBWOCBYXGBIYGRobHB0eHyCTISIj
-JB8lJicoKSorLI4tLigvMCoxMjM0NTY3ODk6bcdqO1LLy0EAOw==}
+image create photo fe_folder_link -data {
+iVBORw0KGgoAAAANSUhEUgAAABIAAAAOCAYAAAAi2ky3AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABbElEQVQoz5WSPSwDcRyGnzvtibaKlDRRQVREF5MuRomNyccqMVg0
+ImI1mAxU4msWg8XaRhgkJgwMpENTBh9tqr6ql9L2rv3XTs/Vu/7ePHnzyyOVov4VYB6Q+RlN25Xvr065pXIkYtIcJwBSKeov80fkxANcp4wLEiPSHGEZkwh3K9RYjAtl
+PFUtAhBPebPKlumiKhOw/HXVRAfR7Djqc56+pkMc1ojxL40OGX2AYHybdLEFXSjMRJbIFXv+B0rmx1hLLDLqCvNebMRbH6G7Nkv8q796UEF0sZGcZsq9x/HHIA01KnfZ
+Xp50Gw3WFIGrfVSt3xyk6j7alQw2+Y10ycancHCW9jHbGWIhOkOg4wCncvEL9OvZ9dYYj7oTSRKMu0IUhJ0WV471u2GWe3bw2EOVvazkUSI/wU5qkjYljVqqQ715IeDd
+xKlcGgtuLKTMqzaEImdwvJ6YiiQDq4Co4DPNyhFOy7kZowwEvwF/CoUzZm0bGAAAAABJRU5ErkJggg==}
 
-image create photo fe_file -data {
-R0lGODlhEAAQAIQAAJmZmYGBgf///+zs7Orq6uvr6+3t7fDw8MTExMXFxcbGxsfHx+7u7u3t
-5e3t5u/v78jIyPHx8fLy8pWVlf//////////////////////////////////////////////
-/yH5BAEKAB8ALAAAAAAQABAAAAVuIBCMZDl+aCCsbLsGqTAQRGEPg3EI8KcSiERCQVQsdr3f
-DWcwMJCxwrBIPPKiBaahMXhefYIClcFweJOynJPxaEPBg+JiAam/VTmyO8L/qgxGdHV8En4C
-TWwPBwcREoVoLpE9EyaVARMomZqbmiEAOw==}
+image create photo fe_file_link -data {
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABhElEQVQ4y6WTu0srQRSHvzVuZhIFXQw+8V4LEfHVK1oFQQTBSrS9
+YOV/YX//gVvYXm20EATf2GgjIr5QC9EQRJP44sbZzUazt9GQNetG8FTnnDnzm++cmdF4s/HfGwezRn03Pjapks5Cwoympoc233NafnXmxLkerENI/VOBmsU4U89JNZc0
+B1LTQ3sA5YUFqSdFz+q/fLzVLelqibhEwroWBuaBliKCs36D+H3arwtaGw1+riXgV4cGUMY3zdWCZWeJnmR9N5xHXlyxiyD36nyPoLpScjdiFBVZGRspggWZe2+CrP1C
+Luem2L9I0rSSoGYx7klQNETLtPN+4uGZ6HGG2+FGAEwr498CgGXZCKnzpGyU/UrkMkbdEqx3CkJSlBZwHNg+umY0BpHLGMtjXYSDAWqNitJDfMdculKc9jXQzg/fzZ4C
+ISn4o4VRO7csNAuqQsGvX2P+sfRWYWYkISFIpy2UspFSR9cDBMrLvAXGH24O23b48J0tz1MnHm92/775/wG+roQfoIxS/AAAAABJRU5ErkJggg==}
 
 # Images for ttk::chooseDirectory
 
@@ -465,15 +449,6 @@ MJrpNmVJEWDBDV6+sIR5ZeUWmCsxIgI40LGqSasmsLS4nfIhAAQgnD6BcvuEQwAJQiQxyhBgwhHFjAJU
     iGYlDWkeQg/FPyekImBqc8ZzSUtuNIDYY1bOCjJI5jDG/sYPwfsWL+EBAyfi4oAAOw==
   }
 
-  image create photo fe_icondirdenied_OLD -data {
-    R0lGODlhEAAQAMZiAAAAAMYBAv0AAvcFB/sEB/wEBfwEBvkFCfwIDfoQEvgWGPgeIPkkJFhYWM04OPwvIvtxPI2NjJKSkJKSkeN+fZWVk5WVlJmZmZqampubm52dnZ2d
-    nqCgoKKioaKioqSkpKWlpKioqKmpqKurq62trLCwsbGxsrKysrOzs7W1tLa2t/+oWLm5uru7u7y8vL29vcDAv8HBwcLCw8PDwsjDwsXFxfq3tvu3tvu4t/u4uMfHxsnJ
-    ycrKy8vLzM3Nzc3Nzs/P0NDQ0dPT1NTU1NXV1vzKyv3Ly9fX2NfX2dra29vb293d3t7e397e4N/f3//cqOHh4OLi4efn5+fn6Ofn6ejo6e3t7e7u7u7u8O/v8PHx8vLy
-    8PT09PX19ff3+Pz8+vz8+/39+///////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////yH5BAEKAH8ALAAAAAAQABAAAAeqgH9/AA0AgoeIh4QrTwCGggcECAuKWw0NjI4BApwCCoIAYV9al4wPOUZGOAagYWBeWEuYDzZFRTcFoGBdWVVR
-    RA0OnQIJoFxXUlBJQz40FAwDEIpWU05KQj01MS0mACuKVExIQTwzLywoId6KTUdAOzIuKSUjHuugAD86MOgkIh8Z7ikCoOLECBAdNFgQiMgRhw0YLkhgmMjRhAoTVzhK
-    1BBABG8bOXbcGAgAOw==
-  }
   image create photo fe_icondirdenied -data {
 iVBORw0KGgoAAAANSUhEUgAAABQAAAARCAYAAADdRIy+AAABi2lDQ1BHSU1QIGJ1aWx0LWluIHNSR0IAACiRfZE9SMNAHMVfU7UilQ52EOmQoTpZKCriqFUoQoVQK7Tq
 YHLpFzRpSFJcHAXXgoMfi1UHF2ddHVwFQfADxNHJSdFFSvxfUmgR68FxP97de9y9A4RGhWlWTxzQdNtMJxNiNrcqBl7RhwhCiEOQmWXMSVIKXcfXPXx8vYvxrO7n/hyD
@@ -734,7 +709,12 @@ set fmWin ".cont"
 	set cmenu1 [cmenu new $fmWin.contextMenu -tongue "0.5 0.5 0.5 0" -strokewidth 2 -pad 1m ]
     } else {
 #	set cmenu1 [cmenu new $fm.contextMenu -tongue "0.5 0.5 0.5 0" -strokewidth 2 -pad 1m]
+if {[winfo class $fm] == "Toplevel"} { 
 	set cmenu1 [cmenu new .contextMenu -tongue "0.5 0.5 0.5 0" -strokewidth 2 -pad 1m]
+} else {
+#	set cmenu1 [cmenu new $fm.contextMenu -tongue "0.5 0.5 0.5 0" -strokewidth 2 -pad 1m]
+	set cmenu1 [cmenu new .contextMenu -tongue "0.5 0.5 0.5 0" -strokewidth 2 -pad 1m]
+}
     }
 #    menu .contextMenu -tearoff false
     eval "$cmenu1 config -command {catch {[set cmenu1] destroy};set ::fdmenu 1}"
@@ -750,57 +730,57 @@ set ::cmenudf $cmenu1
       if {$t == "denied"} {
 #        .contextMenu add command -label [mc "No access"] -command {}
 #Добавить в add параметры для config
-	set cmd1 [$cmenu1 add command]
-	$cmd1 config -text [mc "No access"] -command {}
+	set cmd1 [$cmenu1 add command -text [mc "No access"]]
+	$cmd1 config -command {}
 	
       }
-      if {$t == "file"} {
+      if {$t == "file" || [string range $t 0 1] == "f_"} {
 	set renfile [$canCtx create path "[normpath $prename]" ]
 	set addfile [$canCtx create path "$paddfile" -fill black -strokewidth 0]
 	set delfile [$canCtx create path "$pdelfile" -fill black -strokewidth 0]
-        set cmd2 [$cmenu1 add command -height 7m]
+        set cmd2 [$cmenu1 add command -height 7m -text "[mc {Delete file}]"]
 	$cmd2 config -image "$canCtx $delfile"
 	$canCtx delete $delfile
-        eval "$cmd2 config -text {[mc {Delete file}]} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::filedel $fm $s $typefb]; set ::fdmenu 1}"
-	set cmd3 [$cmenu1 add command]
+        eval "$cmd2 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::filedel $fm $s $typefb]; set ::fdmenu 1}"
+	set cmd3 [$cmenu1 add command  -text "[mc {Rename file}]"]
 	$cmd3 config -image "$canCtx $renfile"
 	$canCtx delete $renfile
-        eval "$cmd3 config  -text \"[mc {Rename file}]\" -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::renameobj $fm.tekfolder $typefb  $s $fm]; set ::fdmenu 1}"
-	set cmd7 [$cmenu1 add command]
+        eval "$cmd3 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::renameobj $fm.tekfolder $typefb  $s $fm]; set ::fdmenu 1}"
+	set cmd7 [$cmenu1 add command -text "[mc {Create an empty file}]"]
 	$cmd7 config -image "$canCtx $addfile"
 	$canCtx delete $addfile
-	eval "$cmd7 config  -text {[mc {Create an empty file}]} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir file  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
+	eval "$cmd7 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir file  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
 	set cmd4 [$cmenu1 add separator]
       }
-      if {$t == "directory"} {
+      if {$t == "directory" || $t == "d_directory"} {
 	set deldir [$canCtx create path "$pdeldir" ]
 	set rendir [$canCtx create path "[normpath $prename]" ]
 #        .contextMenu add command -label [mc "Delete directory"] -command [list [namespace current]::filedel $fm $s $typefb]
-	set cmd4 [$cmenu1 add command]
-        eval "$cmd4 config -text {[mc {Delete directory}]} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::filedel $fm $s $typefb]; set ::fdmenu 1}"
+	set cmd4 [$cmenu1 add command -text "[mc {Delete directory}]"]
+        eval "$cmd4 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::filedel $fm $s $typefb]; set ::fdmenu 1}"
 	$cmd4 config -image "$canCtx $deldir"
 	$canCtx delete $deldir
 
 #        .contextMenu add separator
 #        .contextMenu add command -label [mc "Rename directory"] -command [list [namespace current]::renameobj "$fm.tekfolder" $typefb  $s $fm]
-	set cmd5 [$cmenu1 add command]
+	set cmd5 [$cmenu1 add command -text "[mc {Rename directory}]"]
 	$cmd5 config -image "$canCtx $rendir"
 	$canCtx delete $rendir
-	eval "$cmd5 config  -text {[mc {Rename directory}]} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::renameobj $fm.tekfolder $typefb  $s $fm]; set ::fdmenu 1}"
+	eval "$cmd5 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::renameobj $fm.tekfolder $typefb  $s $fm]; set ::fdmenu 1}"
       }
-	set cmd6 [$cmenu1 add command]
-	eval "$cmd6 config  -text {[mc {Create directory}]} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir dir  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
+	set cmd6 [$cmenu1 add command -text "[mc {Create directory}]"]
+	eval "$cmd6 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir dir  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
 	$cmd6 config -image "$canCtx $adddir"
 	$canCtx delete $adddir
 	set cmd7 [$cmenu1 add separator]
 #      .contextMenu add separator
     } else {
 #    .contextMenu add command -label [mc "Create directory"] -command [list [namespace current]::createdir "dir"  $fm.tekfolder $fm $typefb]
-    set cmd6 [$cmenu1 add command]
+    set cmd6 [$cmenu1 add command -text "[mc {Create directory}]"]
 puts "place cmd6=$cmd6 cmenu1=$cmenu1"
     $cmd6 config -image "$canCtx $adddir"
     $canCtx delete $adddir
-    eval "$cmd6 config  -text {[mc {Create directory}]} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir "dir"  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
+    eval "$cmd6 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir "dir"  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
 
     if {$typefb != "dir"} {
 #      .contextMenu add separator
@@ -808,8 +788,8 @@ puts "place cmd6=$cmd6 cmenu1=$cmenu1"
 	set cmd7 [$cmenu1 add separator]
 #      .contextMenu add command -label [mc "Create an empty file"] -command [list [namespace current]::createdir "file"  $fm.tekfolder $fm $typefb]
 	set addfile [$canCtx create path "$paddfile"  -fill black -strokewidth 0]
-	set cmd7 [$cmenu1 add command]
-	eval "$cmd7 config  -text {[mc {Create an empty file}]} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir "file"  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
+	set cmd7 [$cmenu1 add command -text "[mc {Create an empty file}]"]
+	eval "$cmd7 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir "file"  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
 	$cmd7 config -image "$canCtx $addfile"
 	$canCtx delete $addfile
     }
@@ -1041,7 +1021,7 @@ set sm [showSubMenu [$chcas canvas] "submenu" "new" $mtype]
 
 
     set cr0 [$::cmenubut add radio " -variable ::FE::folder(details) -text {Только имена} -value 0"]
-    eval "$cr0 config -command {puts \{Укороченный список\}; \$::FE::folder(w).files.t configure -displaycolumns \{\}; \$::FE::folder(w).files.t column \{#0\} -stretch 1}"
+    eval "$cr0 config -command {\$::FE::folder(w).files.t configure -displaycolumns \{\}; \$::FE::folder(w).files.t column \{#0\} -stretch 1}"
 #    eval "$cr0 config -command {puts \\\"Укороченный список\\\"}"
     set ch1 [$::cmenubut add separator -fillnormal ""]
 
@@ -1087,9 +1067,10 @@ return $::cmenubut
       } else { 
 	    set type [$tree set $row "type"]
       }
+#puts "columnSort type=$type fullpath=[$tree set $row {fullpath}]"
       if {$col == "#0"} {
         lappend data [list [$tree set $row "fullpath"] $row]
-        if {$type == "file"} {
+        if {[string range $type 0 1] == "f_"  || [string range $type 0 1] != "d_"} {
     	    lappend listfile [list [$tree set $row "fullpath"] $row]
         } else {
     	    lappend listdir [list [$tree set $row "fullpath"] $row]
@@ -1097,13 +1078,13 @@ return $::cmenubut
       } else {
         lappend data [list [$tree set $row $col] $row]
 	if {$col == "date"} {
-    	    if {$type == "file"} {
+    	    if {[string range $type 0 1] == "f_"} {
     		lappend listfile [list [$tree set $row "dateorig"] $row]
     	    } else {
     		lappend listdir [list [$tree set $row "dateorig"] $row]
     	    }
 	} else {
-    	    if {$type == "file"} {
+    	    if {[string range $type 0 1] == "f_"} {
     		lappend listfile [list [$tree set $row $col] $row]
     	    } else {
     		lappend listdir [list [$tree set $row $col] $row]
@@ -1205,6 +1186,9 @@ return $::cmenubut
 	{-y "" "" 5}
 	{-relwidth "" "" 1.0}
 	{-relheight "" "" 1.0}
+	{-size "" "" 1}
+	{-date "" "" 0}
+	{-permissions "" "" 0}
     }
     set specs_ORIG {
 	{-typew "" "" "window"}
@@ -1250,6 +1234,13 @@ return $::cmenubut
 	set ::FE::data(sepfolders) $sepfolders
 	set ::FE::data(details) $details
     }
+    if {[trace info variable ::FE::displaycolumns] != ""} {
+	trace vdelete ::FE::displaycolumns w ::FE::trace_columns
+    }
+  set ::FE::displaycolumns(size) $::FE::data(-size)
+  set ::FE::displaycolumns(date) $::FE::data(-date)
+  set ::FE::displaycolumns(permissions) $::FE::data(-permissions)
+
 
     if {$FE::data(-widget) == ""} {
 	set rand [expr int(rand() * 10000)]
@@ -1259,6 +1250,10 @@ return $::cmenubut
     catch {destroy $w}
     set typew $FE::data(-typew)
     set initdir $FE::data(-initialdir)
+    if {$initdir == ""} {
+	set initdir [pwd]
+    }
+    
     if {![file readable "$initdir"]} {
         tk_messageBox -title "Просмотр папки" -icon info -message "Каталог не доступен (initfe):\n$initdir\nПереходим в домашний каталог" -parent .
 	set initdir $::env(HOME)
@@ -1275,9 +1270,8 @@ return $::cmenubut
     set ::FE::folder(typew) $typew
     set ::FE::folder(typefb) $typefb
     set ::FE::folder(w) $w
-    if {[trace info variable ::FE::displaycolumns] == ""} {
-	trace variable ::FE::displaycolumns w ::FE::trace_columns
-    }
+    trace variable ::FE::displaycolumns w ::FE::trace_columns
+
     set ::FE::folder(initialfile) ""
     if {$typefb == "dir"} {
 	set ::FE::folder(sepfolders) 0
@@ -1286,15 +1280,26 @@ return $::cmenubut
 	    if { ![info exists ::FE::folder(sepfolders)]} {
 		set ::FE::folder(sepfolders) 0
 	    }
+	} else {
+		set ::FE::folder(sepfolders) $FE::data(-sepfolders)
+	}
+	if {$FE::data(-foldersfirst) == -1} { 
+	    if { ![info exists ::FE::folder(foldersfirst)]} {
+		set ::FE::folder(foldersfirst) 1
+	    }
+	} else {
+		set ::FE::folder(foldersfirst) $FE::data(-foldersfirst)
 	}
 	if {$FE::data(-details) == -1} {
 	    if {![info exists ::FE::folder(details)]} {
 		set ::FE::folder(details) 0
 	    }
+	} else {
+		set ::FE::folder(details) $FE::data(-details)
 	}
     }
 #    set ::FE::folder(foldersfirst) $FE::data(-foldersfirst)
-    set ::FE::folder(hissencb) $FE::data(-hidden)
+    set ::FE::folder(hiddencb) $FE::data(-hidden)
 #parray ::FE::folder
     if {$FE::folder(history) == ""} {
 	lappend ::FE::folder(history) $initdir
@@ -1310,10 +1315,11 @@ set zz [winfo toplevel $w]
 	raise $w 
 	if {$zz == "."} {
 	    eval "bind $zz <Configure> {catch {lower ._Busy $::FE::folder(w)}}"
-	    bind $::FE::folder(w) <Enter> {event generate ._Busy <ButtonRelease>}
+#	    eval "bind $zz <Configure> {catch {lower [set w]_Busy $::FE::folder(w)}}"
+	    bind $::FE::folder(w) <Enter> {if {[winfo exist ._Busy]} {event generate ._Busy <ButtonRelease>}}
 	} else {
 	    eval "bind $zz <Configure> {lower [set zz]._Busy $::FE::folder(w)}"
-	    bind $::FE::folder(w) <Enter> {event generate [set zz]._Busy <ButtonRelease>}
+	    bind $::FE::folder(w) <Enter> {if {[winfo exist [set zz]._Busy]} {event generate [set zz]._Busy <ButtonRelease>}}
 	}
     } else {
       if {$FE::folder(sepfolders)} {
@@ -1695,7 +1701,6 @@ $f1.lang delete $objru
     if {$typefb == "filesave"} {
 	set ::FE::folder(initialfile) $FE::data(-initialfile)
     }
-    detailedview $w
 #    goupdate $w $typefb
     update
     foreach {op} $listBtn {
@@ -1703,7 +1708,14 @@ $f1.lang delete $objru
 	$data($Btn)  config -width [$data($Btn)  config -height]
 #puts "feimafe=$feimage ooo=$data($Btn) height=[$data($Btn)  config -height]"
     }
-
+if {$::FE::data(-hidden) != $::FE::folder(hiddencb)} {
+$::FE::folder(hiddencbBtn) invoke
+}
+if {$::FE::folder(details) == 0} {
+    $::FE::folder(w).files.t configure -displaycolumns {}; $::FE::folder(w).files.t column {#0} -stretch 1
+} else {
+    ::FE::detailedview $::FE::folder(w)
+}
   }
 
   proc datefmt {str} {
@@ -1942,7 +1954,7 @@ puts "selectobj: exists $w1.butMenu"
     set num [$w selection]
     set titem [$w item $num -value]
 #puts "selectobj: titem=$titem num=$num w=$w full=[$w item $num]"
-    if {$click == 2 && [lindex $titem 1] == "directory"} {
+    if {$click == 2 && ([lindex $titem 1] == "d_directory"  || [lindex $titem 1] == "directory")} {
       #Выбираем имя главного фрейма/окна
       set tekdir "[lindex $titem 0]"
       set ::FE::folder(tek) $tekdir
@@ -1971,7 +1983,7 @@ puts "selectobj: exists $w1.butMenu"
 #		set data(selectFile) ""
 	}
 	$FE::folder(nextBtn) config -state disabled
-    } elseif {$click == 2 && [lindex $titem 1] == "file"} {
+    } elseif {$click == 2 && [string range [lindex $titem 1] 0 1] == "f_"} { 
       set fm [winfo toplevel $w]
       set tekdir "[lindex $titem 0]"
       set ::FE::folder(tek) $tekdir
@@ -1983,7 +1995,7 @@ puts "selectobj: exists $w1.butMenu"
     set ::FE::folder(initialfile) "[file tail $tekdir]"
 #uts "W1=$w1 W=$w"
 
-    if {$click == 2 && [lindex $titem 1] == "file"} {
+    if {$click == 2 && [string range [lindex $titem 1] 0 1] == "f_"} {
 	if {$FE::folder(typew) == "frame"} { 
 	    set fm $FE::folder(w)
 	} else {
@@ -2024,7 +2036,7 @@ puts "selectdir: exists $w1.butMenu"
     set num [$w selection]
     set titem [$w item $num -value]
 #puts "selectdir titem=$titem num=$num w=$w full=[$w item $num]"
-    if {$click == 2 && [lindex $titem 1] == "directory"} {
+    if {$click == 2 && ([lindex $titem 1] == "d_directory" || [lindex $titem 1] == "directory")} {
       #Выбираем имя главного фрейма/окна
       set tekdir "[lindex $titem 0]"
       set ::FE::folder(tek) $tekdir
@@ -2180,7 +2192,7 @@ puts "selectdir: exists $w1.butMenu"
     } else {
 	set wtree $tree
     }
-    if {[$tree set $node type] ne "directory"} {
+    if {[$tree set $node type] ne "d_directory" && [$tree set $node type] ne "directory"} {
       return
     }
     if {![llength $FE::folder(history)]} {
@@ -2198,15 +2210,37 @@ puts "selectdir: exists $w1.butMenu"
       set ::tekPATH $path
       return
     }
+	if {$::FE::folder(hiddencb) > 0} {
+		set pattern "* .*"
+	} else {
+		set pattern "*"
+	}
 
-    set directory_list [lsort -dictionary [glob -nocomplain -types d -directory "$path" "*"]]
-    if {$FE::folder(hiddencb)} {
-      set directory_list1 [lsort -dictionary [glob -nocomplain -types {d hidden} -directory "$path" "*"]]
+#    if {$FE::folder(hiddencb)} {}
+#      set directory_list1 [lsort -dictionary [glob -nocomplain -types {d } -directory "$path" "*"]]
+
+set directory_list1 [list]
+if {0} {
+    if {$FE::folder(hiddencb) > 0} {
+      foreach f1  [lsort [glob -nocomplain -types {d hidden} -directory "$path" "*"]] {
+		if {![file isdirectory [file join $path $f1]]} continue
+		lappend directory_list1 [file join $path $f1]
+      }
+		
+    } else {
+      set directory_list1 [lsort -dictionary [glob -nocomplain -types d  -directory "$path" "*"]]
+    }
+}
+set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $pattern ]]
+
       set ptr [string first "/.. " $directory_list1]
       if {$ptr != -1} {
         append directory_list [string range $directory_list1 [expr $ptr + 3] end ]
+      } else {
+        set directory_list $directory_list1
       }
-    }
+#{    }
+#puts "DIRECTORY_LIST=$directory_list"
     set ::tekPATH $path
     $tree delete [$tree children $node]
     set levelup [file dir $path ]
@@ -2216,14 +2250,19 @@ puts "selectdir: exists $w1.butMenu"
 	$wtree delete [$wtree children $node]
     }
     foreach f [lsort -dictionary $directory_list] {
-      set type [file type "$f"]
+      set typeOrig [file type "$f"]
+#      set type "directory"
+      set type "d_$typeOrig"
       set rr [file readable "$f"]
       if {$rr == 0} {
         set id [$wtree insert $node end -id $ind -image fe_icondirdenied -text [file tail "$f"] \
         -values [list "$f" "denied"]]
       } else {
-        set id [$wtree insert $node end -id $ind -image fe_icondir -text [file tail "$f"] \
-        -values [list "$f" $type]]
+    	if {$typeOrig == "link"} {
+    	    set id [$wtree insert $node end -id $ind -image fe_folder_link -text [file tail "$f"] -values [list "$f" $type]]
+    	} else {
+    	    set id [$wtree insert $node end -id $ind -image fe_icondir -text [file tail "$f"] -values [list "$f" $type]]
+    	}
       }
       incr ind
     }
@@ -2235,17 +2274,42 @@ puts "selectdir: exists $w1.butMenu"
 	incr ind2 -1
 	set mask1 [string range $mask $ind1 $ind2]
 #puts "MASK1=$mask1 MAK=$mask ind1=$ind1 ind2=$ind2"
-
+if {0} {
 	foreach f1 [eval [linsert "$mask1" 0 glob -nocomplain -tails \
-		-directory $path -type {f l c b p}]] {
+		-directory $path -type {f l c b p} ]] {
 		# Links can still be directories. Skip those.
 		if {[file isdirectory [file join $path $f1]]} continue
 		lappend files_list [file join $path $f1]
 	}
-
-
+}
+if {1} {
+    if {$pattern == "*"} {
+	set pattern {f l c b p}
+    } else {
+	set pattern {f l c b p hidden}
+    }
+	if {$FE::folder(hiddencb)} {
+	    foreach f1 [eval [linsert "$mask1" 0 glob -nocomplain -tails \
+		-directory $path -type {f l c b p hidden}]] {
+		# Links can still be directories. Skip those.
+		if {[file isdirectory [file join $path $f1]]} continue
+		lappend files_list [file join $path $f1]
+	    }
+	} 
+	foreach f1 [eval [linsert "$mask1" 0 glob -nocomplain -tails \
+		-directory $path -type {f l c b p} ]] {
+		# Links can still be directories. Skip those.
+		if {[file isdirectory [file join $path $f1]]} continue
+		lappend files_list [file join $path $f1]
+	}
+	
+	
+}
+#puts "FILES_LIST=$files_list"
       foreach f $files_list {
-        set type [file type $f]
+        set typeOrig [file type $f]
+#        set type "file"
+        set type "f_$typeOrig"
         if {$typefb == "fileopen"} {
           #Можно было бы задать -types {f r}, но тогда бы мы не увидели часть файлов в списке (denied)
           set rr [file readable $f]
@@ -2257,8 +2321,11 @@ puts "selectdir: exists $w1.butMenu"
           set id [$tree insert $node end -id $ind -image fe_iconfiledenied -text [file tail $f] \
           -values [list $f "denied"]]
         } else {
-          set id [$tree insert $node end -id $ind -image fe_iconfile -text [file tail $f] \
-          -values [list $f $type]]
+    	    if {$typeOrig == "link"} {
+        	set id [$tree insert $node end -id $ind -image fe_file_link -text [file tail $f] -values [list $f $type]] 
+          } else {
+        	set id [$tree insert $node end -id $ind -image fe_iconfile -text [file tail $f] -values [list $f $type]] 
+          }
         }
         incr ind
         
@@ -2326,23 +2393,6 @@ puts "selectdir: exists $w1.butMenu"
     pack $fm.topName.butPw $fm.topName.butOk -side right -padx 2m -pady {0 2m}
     return $clfr
   }
-  proc page_newdir_OLD {fm typefb}  {
-    set ::newname  [mc "Enter a name for new folder"]
-    ttk::label $fm.lforpas -text [mc "Enter a name for new folder"]  -textvariable ::newname
-
-    #Widget for new Name
-    frame $fm.topName -relief flat -bd 3 -bg chocolate
-    labelframe $fm.topName.labFrPw -borderwidth 4 -labelanchor nw -relief groove -labelwidget $fm.lforpas -foreground black -height 120 -width 200  -bg #eff0f1
-    pack $fm.topName.labFrPw -in $fm.topName  -anchor nw -padx 1mm -pady 1mm -fill both -expand 0
-    entry $fm.topName.labFrPw.entryPw -background snow  -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken
-    pack $fm.topName.labFrPw.entryPw -fill x -expand 1 -padx 1mm -ipady 2 -pady 2mm
-    eval "bind $fm.topName.labFrPw.entryPw <Key-Return> {[namespace current]::readName $fm.topName.labFrPw.entryPw}"
-    ttk::button $fm.topName.labFrPw.butPw  -command {global yespas;set yespas "no"; } -text [mc "Cancel"]
-    eval "ttk::button $fm.topName.labFrPw.butOk  -command {[namespace current]::readName $fm.topName.labFrPw.entryPw} -text [mc Done]"
-    pack $fm.topName.labFrPw.butPw $fm.topName.labFrPw.butOk -pady {0 5} -sid right -padx 5 -pady {0 2mm}
-  }
-  
-  
 
   proc readName ent {
     global widget

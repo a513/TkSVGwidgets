@@ -181,9 +181,9 @@ set fmWin ".cont"
 	toplevel $fmWin -class femenu
 	wm overrideredirect $fmWin 1
 	wm state $fmWin withdraw
-	set cmenu1 [cmenu new $fmWin.contextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m]
+	set cmenu1 [cmenu new $fmWin.contextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m -height 6m]
     } else {
-	set cmenu1 [cmenu new .contextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m]
+	set cmenu1 [cmenu new .contextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m -height 6m]
     }
     eval "$cmenu1 config -command {catch {[set cmenu1] destroy};set ::fdmenu 1}"
     
@@ -196,38 +196,43 @@ set ::cmenudf $cmenu1
 	set renfile [$canCtx create path "$prename" ]
 	set addfile [$canCtx create path "$paddfile" -fill black -strokewidth 0]
 	set delfile [$canCtx create path "$pdelfile" -fill black -strokewidth 0]
-        set cmd2 [$cmenu1 add command -height 7m]
+        set cmd2 [$cmenu1 add command -height 7m -text "Удалить файл"]
 	$cmd2 config -image "$canCtx $delfile"
 	$canCtx delete $delfile
-        eval "$cmd2 config -text \"Удалить файл\" -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Удаляем файл}; set ::fdmenu 1}"
-	set cmd3 [$cmenu1 add command]
+        eval "$cmd2 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Удаляем файл}; set ::fdmenu 1}"
+	set cmd3 [$cmenu1 add command -text "Переименовать файл"]
 	$cmd3 config -image "$canCtx $renfile"
 	$canCtx delete $renfile
-        eval "$cmd3 config  -text \"Переименовать файл\" -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Переименовываем файл}; set ::fdmenu 1}"
-	set cmd7 [$cmenu1 add command]
+        eval "$cmd3 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Переименовываем файл}; set ::fdmenu 1}"
+	set cmd7 [$cmenu1 add command -text {Создать пустой файл}]
 	$cmd7 config -image "$canCtx $addfile"
 	$canCtx delete $addfile
-	eval "$cmd7 config  -text {Создать пустой файл} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Создаем пустой файл}; set ::fdmenu 1}"
+	eval "$cmd7 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Создаем пустой файл}; set ::fdmenu 1}"
 	set cmd4 [$cmenu1 add separator]
       }
       if {$t == "directory"} {
 	set deldir [$canCtx create path "$pdeldir" ]
 	set rendir [$canCtx create path "$prename" ]
-	set cmd4 [$cmenu1 add command]
-        eval "$cmd4 config -text {Удалить каталог} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Удаляем каталог}; set ::fdmenu 1}"
+	set cmd4 [$cmenu1 add command -text {Удалить каталог}]
+        eval "$cmd4 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Удаляем каталог}; set ::fdmenu 1}"
 	$cmd4 config -image "$canCtx $deldir"
 	$canCtx delete $deldir
 
-	set cmd5 [$cmenu1 add command]
-	eval "$cmd5 config  -text {Переименовать каталог} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Переименовываем файл}; set ::fdmenu 1}"
+	set cmd5 [$cmenu1 add command -text {Переименовать каталог}]
+	eval "$cmd5 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Переименовываем файл}; set ::fdmenu 1}"
 	$cmd5 config -image "$canCtx $rendir"
 	$canCtx delete $rendir
       }
-	set cmd6 [$cmenu1 add command]
-	eval "$cmd6 config  -text {Создать каталог} -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Создаем каталог}; set ::fdmenu 1}"
+
+	set cmd6 [$cmenu1 add command -text {Создать каталог} ]
+	$cmd6 config -command {puts CASCADE}
+#$cmenu1 add separator
+	eval "$cmd6 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Создаем каталог}; set ::fdmenu 1}"
 	$cmd6 config -image "$canCtx $adddir"
 	$canCtx delete $adddir
+
 	set cmd7 [$cmenu1 add separator]
+
 
     if {$mtype == 0} {
 	set cmd "bind $fm <ButtonRelease-3> {}; set ::fdmenu 1"
@@ -347,8 +352,6 @@ puts "createConfigMenu START oow=$oow fm=$fm direct=$direct mtype=$mtype"
 #puts "creatConfigMenu end: cmenu=$::cmenubut callout=$mbut"
     return $::cmenubut
 }
-
-
 
 
 #. configure -bg yellow

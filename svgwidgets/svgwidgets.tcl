@@ -4416,9 +4416,10 @@ if {0} {
 	}
 	command {
 #puts "command=$type"	
-    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" $args"  -fontsize $Options(-fontsize)]
+#    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" $args -fontsize $Options(-fontsize)"]
+    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" $args"]
 	    if {[$cbut config -image] == ""} {
-    		$cbut config -image "$wcan $srect"
+#    		$cbut config -image "$wcan $srect"
 	    }
 #    		$cbut config -image "$wcan $srect"
     	    
@@ -4525,7 +4526,11 @@ puts "cmenu finish: uuncnown direction=$direction"
 #Создание прямоугольника над строкой меню
 		    set bcol "#3584e4"
 		    set otag "canvasb[string range $obj 6 end]"
-		    foreach {x0 y0 x1 y1} [$wcan bbox "canvasb[string range $obj 6 end]"] {break}
+		    if {[$obj type] == "rect"} {
+			foreach {x0 y0 x1 y1} [$wcan bbox "$otag rect"] {break}
+		    } else {
+			foreach {x0 y0 x1 y1} [$wcan bbox "canvasb[string range $obj 6 end]"] {break}
+		    }
 			$wcan raise $otag
 		    if {[$obj config -fillenter] != "##"} {
 			set btago "canvasb[string range [set obj] [string first Obj [set obj]] end]"
