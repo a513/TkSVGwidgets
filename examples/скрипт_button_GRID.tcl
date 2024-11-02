@@ -61,7 +61,8 @@ update
 set xa0 [cbutton new $t.frame.lab -type rect  -text "Кнопки rect, round, ellipse, rect" -rx 2m -state disabled -bg snow -fontweight bold]
 
 #set xa1 [cbutton new $t.frame.but1 -type rect  -text Прямоугольник]
-set xa1 [cbutton create Прямоугольник $t.frame.but1 -type rect  -text Прямоугольник -bg [$b1 config -fillnormal]]
+set xa1 [cbutton create Прямоугольник $t.frame.but1 -type rect  -text Прямоугольник -bg [$b1 config -fillnormal] -compound right -ipad "-1m 5m 1m 1m"]
+#$xa1 config -image ::svgwidget::tpblank
 set xa2 [cbutton new $t.frame.but2 -type round  -text Полукруглый]
 [$xa2 canvas] configure -bg [$b1 config -fillnormal]
 set xa3 [cbutton new $t.frame.but3 -type ellipse  -text Эллипс]

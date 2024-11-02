@@ -129,34 +129,37 @@ puts "showSubMenu END: i=$i hcol=$hcol"
     set chsep [$::submenu add finish]
     return $::submenu
 }
-
   proc showContextMenu {w x y rootx rooty fm typefb {mtype 0}} {
+#w - окно, в котором появляется контекстное меню
+puts "showContextMenu w=$w fm=$fm typrfb=$typefb ::tmenu=$::tmenu"
     variable dir
-    set padddir "M 2 2 L 2 14 L 9 14 L 9 13 L 3 13 L 3 8 L 5 8 L 6.9980469 6 L 13 6 L 13 9 L 14 9 L 14 4 L 9.0078125 4 L 7.0078125 2 L 7 2.0078125 L 7 2 L 2 2 z \n
-        M 11 9 L 11 11 L 9 11 L 9 12 L 11 12 L 11 14 L 12 14 L 12 12 L 14 12 L 14 11 L 12 11 L 12 9 L 11 9 z"
-    set pdeldir "M 2 2 L 2 14 L 9 14 L 9 13 L 3 13 L 3 8 L 5 8 L 6.9980469 6 L 13 6 L 13 9 L 14 9 L 14 4 L 9.0078125 4 L 7.0078125 2 L 7 2.0078125 L 7 2 L 2 2 z \n
-        M 11 11 L 11 11 L 9 11 L 9 12 L 14 12 L 14 11 L 12 11 L 11 11 z"
-    set paddfile "M 3.0 11.4375 L 3.0 3.0 L 7.4296875 3.0 L 11.8330078125 3.0 L 14.28515625 5.4521484375 L 16.7109375 7.8779296875 L 16.7109375 9.6708984375 
+    set padddir1 "M 2 2 L 2 14 L 9 14 L 9 13 L 3 13 L 3 8 L 5 8 L 6.9980469 6 L 13 6 L 13 9 L 14 9 L 14 4 L 9.0078125 4 L 7.0078125 2 L 7 2.0078125 L 7 2 L 2 2 Z"
+    set padddir2 "M 11 9 L 11 11 L 9 11 L 9 12 L 11 12 L 11 14 L 12 14 L 12 12 L 14 12 L 14 11 L 12 11 L 12 9 L 11 9 Z"
+    set pdeldir1 "M 2 2 L 2 14 L 9 14 L 9 13 L 3 13 L 3 8 L 5 8 L 6.9980469 6 L 13 6 L 13 9 L 14 9 L 14 4 L 9.0078125 4 L 7.0078125 2 L 7 2.0078125 L 7 2 L 2 2 Z"
+    set pdeldir2 "M 11 11 L 11 11 L 9 11 L 9 12 L 14 12 L 14 11 L 12 11 L 11 11 Z"
+    set paddfile1 "M 3.0 11.4375 L 3.0 3.0 L 7.4296875 3.0 L 11.8330078125 3.0 L 14.28515625 5.4521484375 L 16.7109375 7.8779296875 L 16.7109375 9.6708984375 
 	L 16.7109375 11.4375 L 15.65625 11.4375 L 14.6279296875 11.4375 L 14.548828125 9.9345703125 L 14.4697265625 8.4052734375 
 	L 12.966796875 8.326171875 L 11.4638671875 8.2470703125 L 11.384765625 6.744140625 L 11.3056640625 5.2412109375 L 8.220703125 5.162109375 
 	L 5.109375 5.0830078125 L 5.109375 11.4375 L 5.109375 17.765625 L 9.328125 17.765625 L 13.546875 17.765625 L 13.546875 18.8203125 
-	L 13.546875 19.875 L 8.2734375 19.875 L 3.0 19.875 L 3.0 11.4375 Z
-	M 17.0 13.0 L 17.0 15.0 L 15.0 15.0 L 15.0 16.0 L 17.0 16.0 L 17.0 18.0 L 18.0 18.0 L 18.0 16.0 L 20.0 16.0 L 20.0 15.0 L 18.0 15.0 
-	L 18.0 13.0 L 17.0 13.0 Z"
-    set pdelfile "M 3.0 11.4375 L 3.0 3.0 L 7.4296875 3.0 L 11.8330078125 3.0 L 14.28515625 5.4521484375 L 16.7109375 7.8779296875 L 16.7109375 9.6708984375 
+	L 13.546875 19.875 L 8.2734375 19.875 L 3.0 19.875 L 3.0 11.4375 Z"
+    set paddfile2 "M 17.0 13.0 L 17.0 15.0 L 15.0 15.0 L 15.0 16.0 L 17.0 16.0 L 17.0 18.0 L 18.0 18.0 L 18.0 16.0 L 20.0 16.0 L 20.0 15.0 L 18.0 15.0 L 18.0 13.0 L 17.0 13.0 Z"
+
+    set pdelfile1 "M 3.0 11.4375 L 3.0 3.0 L 7.4296875 3.0 L 11.8330078125 3.0 L 14.28515625 5.4521484375 L 16.7109375 7.8779296875 L 16.7109375 9.6708984375 
 	L 16.7109375 11.4375 L 15.65625 11.4375 L 14.6279296875 11.4375 L 14.548828125 9.9345703125 L 14.4697265625 8.4052734375 
 	L 12.966796875 8.326171875 L 11.4638671875 8.2470703125 L 11.384765625 6.744140625 L 11.3056640625 5.2412109375 L 8.220703125 5.162109375 
 	L 5.109375 5.0830078125 L 5.109375 11.4375 L 5.109375 17.765625 L 9.328125 17.765625 L 13.546875 17.765625 L 13.546875 18.8203125 
-	L 13.546875 19.875 L 8.2734375 19.875 L 3.0 19.875 L 3.0 11.4375 Z
-	M 12.0 13.0 L 12.0 13.0 L 19.5 13.0 L 19.5 15.25 L 12.0 15.25 Z"
-    set prename "M 31.25 57.5 C 31.25 56.875 32.5 56.25 34.125 56.25 C 35.625 56.25 38.25 55.375 39.75 54.25 C 42.375 52.375 42.5 51.625 42.5 31.25 
+	L 13.546875 19.875 L 8.2734375 19.875 L 3.0 19.875 L 3.0 11.4375 Z"
+    set pdelfile2 "M 12.0 13.0 L 12.0 13.0 L 19.5 13.0 L 19.5 15.25 L 12.0 15.25 Z"
+
+    set prename1 "M 31.25 57.5 C 31.25 56.875 32.5 56.25 34.125 56.25 C 35.625 56.25 38.25 55.375 39.75 54.25 C 42.375 52.375 42.5 51.625 42.5 31.25 
 	C 42.5 10.875 42.375 10.125 39.75 8.25 C 38.25 7.125 35.625 6.25 34.125 6.25 C 32.5 6.25 31.25 5.75 31.25 5.0 C 31.25 3.0 37.875 3.5 41.0 5.75 
 	C 43.5 7.5 44.0 7.5 46.5 5.75 C 49.625 3.5 56.25 3.0 56.25 5.0 C 56.25 5.75 55.0 6.25 53.375 6.25 C 48.75 6.25 45.0 9.625 45.0 13.875 L 45.0 17.5 
 	L 53.125 17.5 L 61.25 17.5 L 61.25 31.25 L 61.25 45.0 L 53.125 45.0 L 45.0 45.0 L 45.0 48.625 C 45.0 52.875 48.75 56.25 53.375 56.25 
-	C 55.0 56.25 56.25 56.875 56.25 57.5 C 56.25 59.5 49.625 59.0 46.5 56.75 C 44.0 55.0 43.5 55.0 41.0 56.75 C 37.875 59.0 31.25 59.5 31.25 57.5 Z 
-	M 58.75 31.25 L 58.75 20.0 L 51.875 20.0 L 45.0 20.0 L 45.0 31.25 L 45.0 42.5 L 51.875 42.5 L 58.75 42.5 L 58.75 31.25 Z 
-	M 1.25 31.25 L 1.25 17.5 L 20.0 17.5 C 31.625 17.5 38.75 18.0 38.75 18.75 C 38.75 19.5 32.125 20.0 21.25 20.0 L 3.75 20.0 L 3.75 31.25 
+	C 55.0 56.25 56.25 56.875 56.25 57.5 C 56.25 59.5 49.625 59.0 46.5 56.75 C 44.0 55.0 43.5 55.0 41.0 56.75 C 37.875 59.0 31.25 59.5 31.25 57.5 Z "
+    set prename2 "M 58.75 31.25 L 58.75 20.0 L 51.875 20.0 L 45.0 20.0 L 45.0 31.25 L 45.0 42.5 L 51.875 42.5 L 58.75 42.5 L 58.75 31.25 Z "
+    set prename3 "M 1.25 31.25 L 1.25 17.5 L 20.0 17.5 C 31.625 17.5 38.75 18.0 38.75 18.75 C 38.75 19.5 32.125 20.0 21.25 20.0 L 3.75 20.0 L 3.75 31.25 
 	L 3.75 42.5 L 21.25 42.5 C 32.125 42.5 38.75 43.0 38.75 43.75 C 38.75 44.5 31.625 45.0 20.0 45.0 L 1.25 45.0 L 1.25 31.25 Z"
+
     set t {}
 #puts "showContextMenu: w=$w fm=$fm x=$x y=$y rootx=$rootx rooty=$rooty mtype=$mtype"
     if {$dir == 0} {
@@ -174,7 +177,8 @@ puts "showSubMenu END: i=$i hcol=$hcol"
 #Если контекстное меню не умещается во фрейм, то оно создается в отдельном окне
 #    if {$mtype == 1} {}
 #    if {[expr {($rootx + $m46) >  ($wrootx + $wcont)}]} {}
-    if {[expr {($rootx + $m46) >  ($wrootx + $wcont)}] || $m46 } {
+    if {[expr {($rootx + $m46) >  ($wrootx + $wcont)}] || $::tmenu} {
+# || $m46
 	set mtype 1
 set fmWin ".cont"
 	catch {destroy $fmWin}
@@ -183,53 +187,84 @@ set fmWin ".cont"
 	wm state $fmWin withdraw
 	set cmenu1 [cmenu new $fmWin.contextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m -height 6m]
     } else {
-	set cmenu1 [cmenu new .contextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m -height 6m]
+	set tp [winfo toplevel $w]
+	if {$tp == "."} {
+	    set tp ""
+	}
+	set cmenu1 [cmenu new $tp.contextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m -height 6m]
     }
     eval "$cmenu1 config -command {catch {[set cmenu1] destroy};set ::fdmenu 1}"
     
     set canCtx [$cmenu1 canvas]
-    set adddir [$canCtx create path "$padddir" -fill black -strokewidth 0]
+    set adddir [$canCtx create group]
+    set adddir1 [$canCtx create path "$padddir1" -fill black -strokewidth 0 -parent $adddir]
+    set adddir2 [$canCtx create path "$padddir2" -fill black -strokewidth 0 -parent $adddir]
 set ::cmenudf $cmenu1
 #Добавить команду separator а пока
     set cmd7 [$cmenu1 add separator]
+
       if {$t == "file"} {
-	set renfile [$canCtx create path "$prename" ]
-	set addfile [$canCtx create path "$paddfile" -fill black -strokewidth 0]
-	set delfile [$canCtx create path "$pdelfile" -fill black -strokewidth 0]
-        set cmd2 [$cmenu1 add command -height 7m -text "Удалить файл"]
+	set renfile [$canCtx create group]
+	set renfile1 [$canCtx create path "$prename1" -parent $renfile -stroke black]
+	set renfile2 [$canCtx create path "$prename2" -parent $renfile -stroke black ]
+	set renfile3 [$canCtx create path "$prename3" -parent $renfile -stroke black ]
+
+	set addfile [$canCtx create group]
+	set addfile1 [$canCtx create path "$paddfile1" -fill black -strokewidth 0 -parent $addfile]
+	set addfile2 [$canCtx create path "$paddfile2" -fill black -strokewidth 0 -parent $addfile]
+#set gr [$canCtx create group]
+	set delfile [$canCtx create group]
+	set delfile1 [$canCtx create path "$pdelfile1" -fill black -strokewidth 0 -parent $delfile]
+	set delfile2 [$canCtx create path "$pdelfile2" -fill black -strokewidth 0 -parent $delfile]
+        set cmd2 [$cmenu1 add command -height 7m -text "Удалить файл" -pad "1m 5m 1m 5m" -compound left]
 	$cmd2 config -image "$canCtx $delfile"
+#	$cmd2 config -image "$canCtx $gr"
+#puts "DELFILE canCtx=$canCtx gr=$gr delfile=$delfile"
+puts "DELFILE cmd2=$cmd2 canCtx=$canCtx gr=[$cmd2 config -isvg]"
 	$canCtx delete $delfile
         eval "$cmd2 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Удаляем файл}; set ::fdmenu 1}"
-	set cmd3 [$cmenu1 add command -text "Переименовать файл"]
+	set cmd3 [$cmenu1 add command -text "Переименовать файл" -pad "1m 5m 1m 5m" -compound left]
 	$cmd3 config -image "$canCtx $renfile"
+puts "RenameFILE cmd3=$cmd3 canCtx=$canCtx gr=[$cmd3 config -isvg]"
 	$canCtx delete $renfile
+	set isvg [$cmd3 config -isvg]
+	[$cmd3 canvas] itemconfigure $isvg -strokewidth 2.0
+	
         eval "$cmd3 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Переименовываем файл}; set ::fdmenu 1}"
-	set cmd7 [$cmenu1 add command -text {Создать пустой файл}]
+	set cmd7 [$cmenu1 add command -text {Создать пустой файл} -compound left]
 	$cmd7 config -image "$canCtx $addfile"
-	$canCtx delete $addfile
+#	$canCtx delete $addfile
 	eval "$cmd7 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Создаем пустой файл}; set ::fdmenu 1}"
 	set cmd4 [$cmenu1 add separator]
       }
       if {$t == "directory"} {
-	set deldir [$canCtx create path "$pdeldir" ]
-	set rendir [$canCtx create path "$prename" ]
-	set cmd4 [$cmenu1 add command -text {Удалить каталог}]
+	set deldir [$canCtx create group]
+	set deldir1 [$canCtx create path "$pdeldir1" -parent $deldir]
+	set deldir2 [$canCtx create path "$pdeldir2" -parent $deldir]
+	set rendir [$canCtx create group]
+	set rendir1 [$canCtx create path "$prename1" -parent $rendir -stroke black]
+	set rendir2 [$canCtx create path "$prename2" -parent $rendir -stroke black ]
+	set rendir3 [$canCtx create path "$prename3" -parent $rendir -stroke black ]
+	set cmd4 [$cmenu1 add command -text {Удалить каталог}  -compound left]
         eval "$cmd4 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Удаляем каталог}; set ::fdmenu 1}"
 	$cmd4 config -image "$canCtx $deldir"
 	$canCtx delete $deldir
 
-	set cmd5 [$cmenu1 add command -text {Переименовать каталог}]
-	eval "$cmd5 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Переименовываем файл}; set ::fdmenu 1}"
+	set cmd5 [$cmenu1 add command -text {Переименовать каталог}  -compound left]
+	eval "$cmd5 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Переименовываем каталог}; set ::fdmenu 1}"
 	$cmd5 config -image "$canCtx $rendir"
 	$canCtx delete $rendir
+	set isvg [$cmd5 config -isvg]
+	[$cmd5 canvas] itemconfigure $isvg -strokewidth 2.0
       }
 
-	set cmd6 [$cmenu1 add command -text {Создать каталог} ]
+	set cmd6 [$cmenu1 add command -text {Создать каталог}  -compound left]
 	$cmd6 config -command {puts CASCADE}
 #$cmenu1 add separator
 	eval "$cmd6 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};puts {Создаем каталог}; set ::fdmenu 1}"
-	$cmd6 config -image "$canCtx $adddir"
+	$cmd6 config -isvg "[$cmd6 canvas] $adddir" 
 	$canCtx delete $adddir
+puts "ADDDIR cmd6=$cmd6 canCtx=$canCtx gr=[$cmd6 config -isvg]"
 
 	set cmd7 [$cmenu1 add separator]
 
@@ -245,8 +280,14 @@ set ::cmenudf $cmenu1
     } else {
 	    tk busy hold $fm
     }
-    eval "bind [set fm]_Busy <ButtonRelease> {bind $t <Configure> {}; [set cmenu1] destroy;; set ::fdmenu 1}"
+
+    set topl [winfo toplevel $fm]
+    eval "bind [set fm]_Busy <ButtonRelease> {bind $topl <Configure> {}; [set cmenu1] destroy;; set ::fdmenu 1}"
+    if {$mtype == 1} {
+	eval "bind $topl <Configure> {[set cmenu1] destroy;; set ::fdmenu 1;bind $topl <Configure> {}}"
+    }
 #Ширина
+
     set mbutc [$cmenu1 add finish]
     $mbutc config -fillnormal "#f4f5f5" -stroke gray70
     eval "$mbutc config -command {catch {[set cmenu1] destroy};set ::fdmenu 1}"
@@ -263,9 +304,8 @@ set ::cmenudf $cmenu1
 #    $mbut config -fillnormal "#e0dfde" -stroke gray70
 update
     if {$mtype == 1} {
-	set cmd "bind $t <Configure> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $t <Configure> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
+	set cmd "bind $topl <Configure> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <Configure> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
 	eval $cmd
-
     }
     set ::fdmenu 0
     vwait ::fdmenu
@@ -400,6 +440,3 @@ update
 trace variable rad w displaymenu
 #set rad enter
 set rad release
-if {$::tmenu == 0} {
-    $::osnmenu config -command "bind $t <Configure> {catch {lower $t._Busy $t.ffff}}"
-}

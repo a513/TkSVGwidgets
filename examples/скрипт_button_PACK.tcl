@@ -1,5 +1,7 @@
 package require svgwidgets
 #source "../SVGWIDGETS/svgwidgets.tcl"
+set tkp::pixelalign 1
+set tkp::depixelize 1
 
 proc folderbrown {canv} {
     set grfolder [$canv create group]
@@ -52,6 +54,7 @@ wm state $t withdraw
 wm state $t normal
 
 #####################
+#wm geometry $t 800x600+150+150
 wm geometry $t 798x598+150+150
 wm title $t "tcl/tk svg widgets pack demo"
 
@@ -86,7 +89,7 @@ set grforb1 [[$b1 canvas] gradient create radial -method pad -units bbox -stops 
 $t.frame configure -bg [$t.c cget -bg]
 
 set bg [$b1 config -fillnormal]
-set xa1 [cbutton create Прямоугольник $t.frame.but1 -type rect  -text Прямоугольник -fontweight bold]
+set xa1 [cbutton create Прямоугольник $t.frame.but1 -type rect  -text Прямоугольник -fontweight bold -compound left]
 eval  [subst {$xa1 config -command {puts "Прямоугольник=[set xa1] Левый фрейм=[set b1] градиент=$grforb1"}}]
 #after 0 [subst {$xa1 config -command {puts "[set xa1] [set b1]"}}]
 
@@ -96,7 +99,7 @@ eval  [subst {$xa2 config -command {puts "Полукруглый=[set xa2] Ле�
 #set xa3 [cbutton new $t.frame.but3 -type ellipse  -text Эллипс -fontsize 5m -fontslant italic -bg $bg]
 set xa3 [cbutton new $t.but3 -type ellipse  -text Эллипс -fontsize 5m -fontslant italic -bg $bg]
 eval  [subst {$xa3 config -command {puts "Эллипс=[set xa3] Левый фрейм=[set b1]"}}]
-set xa4 [cbutton new $t.but4 -type rect  -text Закругленный -fontsize 4m -rx 2m -bg $bg -compound none]
+set xa4 [cbutton new $t.but4 -type rect  -text Закругленный -fontsize 4m -rx 2m -bg $bg -compound left]
 eval  [subst {$xa4 config -command {puts "Закругленный=[set xa4] Левый фрейм=[set b1]"}}]
 set img [foldercolor [$xa4 canvas] "blue" ]
 $xa4 config -image "[$xa4 canvas] $img" -ipad "2m 10m  2m 12m"
@@ -140,15 +143,23 @@ $rc6 config -fillnormal cyan
 #puts "Квадрат=$rc6"
 [$rc6 canvas] delete $img
 
+pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
+update
 #Второй способ согласования цветов!!!
 $rc1 pack -in [$clfrv canvas] -padx 1c -pady "1c 0"
 $rc2 pack -in [$clfrv canvas] -padx 1c -pady "2m 0"
 $rc3 pack -in [$clfrv canvas] -padx 1c -pady "2m 0"
 $rc4 pack -in [$clfrv canvas] -padx 1c -pady "2m" -fill both -expand 1
-$rc5 pack -in [$clfrv canvas] -padx 1c -pady "2m 0"
-$rc7 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill x
+$rc5 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill none -expand 1 -anchor n
+$rc7 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill x -expand 1
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "2m 5m" -fill both -expand 1
-pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
-wm geometry $t 800x600+150+150
+#pack [$rc6 canvas] -in [$clfrv canvas] -padx 1c -pady "2m 5m" -fill both -expand 1
+#$rc6 config -width [$rc6 config -width]
+#$clfrv pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
+#lower [$clfrv canvas] [$rc1 canvas]
+pack configure [$rc7 canvas] -expand 0 
+
+update
+#wm geometry $t 800x600+150+150
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}

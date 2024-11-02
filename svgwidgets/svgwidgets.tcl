@@ -1307,7 +1307,9 @@ if {1} {
 		    set isvgold ""
 #    $wcan scale $isvg 0 0 1 1
 		} else {
-		    set value [my copyItem $canv $item 0 0]
+    		    foreach {rx1 ry1 rx2 ry2} [$wcan coords $idr] {break}
+#		    set value [my copyItem $canv $item 0 0]
+		    set value [my copyItem $canv $item $rx1 $ry1]
 
 #puts "ISVG: canv=$canv item=$item value=$value"
     		    set itype [$wcan type $value]
@@ -1798,6 +1800,7 @@ if {[$wcan bbox $isvg] != ""} {
 		if {$tbut != "frame"} {		
     		    set Options($option) $value
 		    if {[info exists idt]} {
+#$wcan itemconfigure  $idt -text $value
 			foreach {xe0 ye0 xe1 ye1} "0 0 0 0" {break}
 			foreach {xe0 ye0 xe1 ye1} [$wcan bbox $idt] {break}
 			$wcan itemconfigure $idt $option $value
@@ -1815,11 +1818,6 @@ if {[$wcan bbox $isvg] != ""} {
 			} else {
 			    set xx1 [expr {$xt1 - $xt0}]
 			    if {$xx1 > $xx}  {
-if {0} {
-#Происходит зацикливание
-				set del [expr {$xx1 - ($xe1 - $xe0)}]
-				my config -width [expr {$xx + $del}]
-}
 			    }
 			}
 ###  COMPOUND ###########
@@ -1833,7 +1831,9 @@ if {0} {
     			    set x2 [expr {$x1 + $x2}]
     			    set y2 [expr {$y1 + $y2}]
 #Посчитать с учётом -ipad
-    			    foreach {xi1 yi1 xi2 yi2} [$wcan bbox $idr] {break}
+#    			    foreach {xi1 yi1 xi2 yi2} [$wcan bbox $idr] {break}
+    			    foreach {xi1 yi1 xi2 yi2} [$wcan coords $idr] {break}
+#puts "COORDS IDR: xi1=$xi1 yi1=$yi1 xi2=$xi2 yi2=$xi2"
 			    set x [expr {$xi2 + $pxl}]
 			    set y [expr { ($y1 + $y2) / 2.0}]
 			    set tanchor  "w"
@@ -1844,9 +1844,11 @@ if {0} {
 				    set tanchor  "w"
 				}
 				right {
-				    set x [expr {$xi2 - $pxr - ($xt1 - $xt0)}]
+#				    set x [expr {$xi2 - $pxr - ($xt1 - $xt0) / 2}]
+				    set x [expr {$xi2 - $pxl}]
 				    set y [expr { $y2 / 2.0}]
-				    set tanchor  "w"
+				    set tanchor  "e"
+#puts "COORDS IDR Right: x=$x y=$y tanchor=$tanchor pxl=$pxl xi2=$xi2"
 				
 				}
 				top {
@@ -1856,8 +1858,10 @@ if {0} {
 				}
 				bottom {
 				    set x [expr { $x2 / 2.0}]
-				    set y [expr { $yi2 - $pyl - ($yt1 - $yt0)}]
-				    set tanchor  "n"
+#				    set y [expr { $yi2 - $pyl - ($yt1 - $yt0)}]
+#				    set tanchor  "n"
+				    set y [expr { $yi2 - $pyl}]
+				    set tanchor  "s"
 #				    puts "bottom"
 				}
 				none {
@@ -2573,7 +2577,9 @@ oo::class create ibutton {
 		    continue
 		}
 		foreach {canv item} $value {break}
-		set value [my copyItem $canv $item 0 0]
+    		foreach {rx1 ry1 rx2 ry2} [$wcan coords $idr] {break}
+#		set value [my copyItem $canv $item 0 0]
+		set value [my copyItem $canv $item $rx1 $ry1]
 		
     		set itype [$wcan type $value]
     		if {[lsearch $svgtype $itype] == -1} {
@@ -2602,8 +2608,10 @@ oo::class create ibutton {
 		eval "$wcan bind $idor <ButtonRelease-1> {[self] release %X %Y}"
 
     		$wcan itemconfigure $idi -state hidden
-    		$wcan raise $isvg $idr
+#    		$wcan raise $isvg $idr
     		$wcan raise $idor
+    		$wcan lower $isvg $idor
+
 	    }
 	    -pad {
 		set lpad [llength $value]
@@ -4521,6 +4529,9 @@ puts "cmenu finish: uuncnown direction=$direction"
 		    set tp [$obj type]
 		    if {$tp != "check" && $tp != "radio"} {
 			$obj config -width [expr {$wx - abs($bx0) - $wstr * 1 }]
+			if {$tp == "rect" && [$obj config -image] != ""} {
+			    $obj config -image [$obj config -image]
+			}
 		    }
 #подвески строк в меню Цвет - #3584e4 синий
 #Создание прямоугольника над строкой меню
@@ -4531,7 +4542,8 @@ puts "cmenu finish: uuncnown direction=$direction"
 		    } else {
 			foreach {x0 y0 x1 y1} [$wcan bbox "canvasb[string range $obj 6 end]"] {break}
 		    }
-			$wcan raise $otag
+		    $wcan raise $otag
+		    $wcan lower "$otag isvg" "$otag idor"
 		    if {[$obj config -fillenter] != "##"} {
 			set btago "canvasb[string range [set obj] [string first Obj [set obj]] end]"
 			set brect [[$obj canvas] create prect 0 [expr {$y0 + 2}] $wmax [expr {$y1 - 2}] -fill {} -fillopacity 0.2 -strokeopacity 0.2 -stroke {} -strokewidth 0 -tags $btago]
