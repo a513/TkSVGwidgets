@@ -32,7 +32,7 @@ proc selectpath {w wplace} {
     if {[tk windowingsystem] == "win32"} {
 #Перекодируем путь из кодировки ОС
 #Для MS Win это скорей всего cp1251
-	set tekdir [encoding convertfrom cp1251 $tekdir ]
+#	set tekdir [encoding convertfrom cp1251 $tekdir ]
 #Заменяем обратную косую в пути на нормальную косую
 	set tekdir [string map {"\\" "/"} $tekdir]
     }

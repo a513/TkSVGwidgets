@@ -544,26 +544,26 @@ proc propfile {obj} {
 	unset upfile
 	file stat $obj pfile
     }
-    if {[winfo exist .fegrid]} {
-	destroy .fegrid
+    if {[winfo exist .feprop]} {
+	destroy .feprop
     }
-    toplevel .fegrid -bg cyan 
-    wm geometry .fegrid 408x168
-    wm iconphoto .fegrid fe_iconview
-    wm title .fegrid "Свойства [file tail $obj]"
+    toplevel .feprop -bg cyan 
+    wm geometry .feprop 408x168
+    wm iconphoto .feprop fe_iconview
+    wm title .feprop "Свойства [file tail $obj]"
     set lbut [list]
     set row 0
     set bb 0
-    set b0 [cbutton new .fegrid.framej -type frame -strokewidth 0 -stroke "" -rx 0 ]
+    set b0 [cbutton new .feprop.frame -type frame -strokewidth 0 -stroke "" -rx 0 ]
     set wcan [$b0 canvas]
     pack $wcan -fill both -expand 1
     lappend lbut $b0
     set g4 [$wcan gradient create linear -method pad -units bbox -stops { { 0.00 #ffffff 1} { 1.00 #dbdbdb 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
     $b0 config -fillnormal $g4
     update
-    wm geometry .fegrid 410x170+100+100
-    wm minsize .fegrid 410 170
-    eval "bind .fegrid <Destroy> {bind .fegrid <Destroy> {}; foreach oo [list $lbut] {\$oo destroy}; destroy .fegrid}"
+    wm geometry .feprop 410x170+100+100
+    wm minsize .feprop 410 170
+    eval "bind .feprop <Destroy> {bind .feprop <Destroy> {}; foreach oo [list $lbut] {\$oo destroy}; destroy .feprop}"
     foreach {x1 y1 x2 y2} [$wcan bbox "[$b0 move 0 0] rect"] {break}
     set x0 [expr {($x1 + $x2) / 2}]
     if {[lsearch [font names] "font_titul"]} {
@@ -573,13 +573,23 @@ proc propfile {obj} {
     }
     if {[info exist upfile]} {
 	set ll [split $upfile "\n"]
-#	set bb [$wcan create text $x0 16 -anchor c -text [lindex $ll 0] -fill black -font font_propb]
-	set bb [$wcan create text $x0 16 -anchor c -text  "Объект:  $obj" -fill black -font font_propb]
+	set bb [$wcan create text 2 10 -anchor nw -text  "Объект:  $obj" -fill black -font font_propb]
 
-	foreach {x1 y1 x2 y2} [$wcan bbox $bb] {break}
+	foreach {x_1 y_1 x2 y2} [$wcan bbox $bb] {break}
 	set ys [expr {$y2 + 4}]
 	set upfile [join [lrange $ll 1 end] "\n"]
-	$wcan create text 2 $ys -anchor nw -text  $upfile -fill black -font font_prop
+	set bb1 [$wcan create text 2 $ys -anchor nw -text  $upfile -fill black -font font_prop]
+	foreach {x0 y0 x1 y1} [$wcan bbox $bb $bb1] {
+	    wm geometry [winfo toplevel $wcan] [expr {$x1 - $x0 + 2}]x[expr {$y1 - $y0}]
+	}
+	foreach {xb0 yb0 xb1 yb1} [$wcan bbox $bb1] {
+	    if {[expr {$x1 - $x0}] > [expr {$xb1 - $xb0}] } {
+		$wcan move $bb1 [expr {(($x1 - $x0) - ($xb1 - $xb0)) / 2.0 }] 0
+	    } else {
+		$wcan move $bb [expr {(($xb1 - $xb0) - ($x2 - $x_1)) / 2.0 }] 0
+	    }
+	}
+	wm resizable [winfo toplevel $wcan] 0 0
 	return 
     }
     $wcan create text $x0 10 -anchor c -text "Сведения" -fill black -font font_titul
@@ -1143,8 +1153,12 @@ return $::cmenubut
     set data {}
     set listfile [list]
     set listdir [list]
-#puts "columnSort: tree=$tree"
-    set w1 [winfo toplevel $tree]
+    if {$::FE::folder(typew) != "frame" } {
+	set w1 [winfo toplevel $tree]
+    } else {
+	set w1 $::FE::folder(w)
+    }
+#puts "columnSort START: tree=$tree col=$col direction=$direction w1=$w1"
     foreach row [$tree children {}] {
       if {"$w1.dirs.t" == $tree} {
 	    set type "directory"
@@ -1215,6 +1229,7 @@ return $::cmenubut
     } else {
       $tree heading $col -image [expr {$direction?"fe_upArrow":"fe_downArrow"}]
     }
+#puts "columnSort END: tree=$tree col=$col direction=$direction"
   }
 
   proc   helptools {fromw tow xtow text anchor} {
@@ -1342,7 +1357,7 @@ return $::cmenubut
         tk_messageBox -title "Просмотр папки" -icon info -message "Каталог не доступен (initfe):\n$initdir\nПереходим в домашний каталог" -parent .
 	set initdir $::env(HOME)
         if {[tk windowingsystem] == "win32"} {
-    	    set initdir [encoding convertfrom cp1251 $initdir ]
+#    	    set initdir [encoding convertfrom cp1251 $initdir ]
     	    set initdir [string map {"\\" "/"} $initdir]
         }
     }
@@ -1524,11 +1539,16 @@ set zz [winfo toplevel $w]
 
     ttk::scrollbar $fm.files.y -orient vertical -command "$fm.files.t yview"
     ttk::scrollbar $fm.files.x -orient horizontal -command "$fm.files.t xview"
+if {0} {
     if {$typefb != "dir"} {
       ttk::treeview $fm.files.t -columns {fullpath type size date dateorig permissions} -displaycolumns {size date permissions} 
     } else {
       ttk::treeview $fm.files.t -columns {fullpath type size permissions} -displaycolumns {permissions} 
     }
+}
+      ttk::treeview $fm.files.t -columns {fullpath type size date dateorig permissions} -displaycolumns {size date permissions} 
+
+
     $fm.files.t configure -xscroll [list [namespace current]::hidescroll $fm.files.x ]
     $fm.files.t configure -yscroll [list [namespace current]::hidescroll $fm.files.y ]
     
@@ -1540,7 +1560,7 @@ set zz [winfo toplevel $w]
 	$fm.files.t heading "#0" -text  [mc {Folders}]
     }
 
-    if {$typefb != "dir"} {
+    if {$typefb != "dir" || $::FE::folder(sepfolders) == 0} {
       eval "$fm.files.t heading size -text {[mc {Size}]} -image fe_upArrow -command {[namespace current]::columnSort $fm.files.t size 0}"
       eval "$fm.files.t heading date -text {[mc {Date}]} -image fe_upArrow -command {[namespace current]::columnSort $fm.files.t date 0}"
       eval "$fm.files.t heading permissions -text {[mc {Permissions}]} -image fe_upArrow -command {[namespace current]::columnSort $fm.files.t permissions 0}"
@@ -1893,7 +1913,7 @@ set w "$::FE::folder(w)"
     if {[tk windowingsystem] == "win32"} {
 #Перекодируем путь из кодировки ОС
 #Для MS Win это скорей всего cp1251
-	set tdir [encoding convertfrom cp1251 $tdir ]
+#	set tdir [encoding convertfrom cp1251 $tdir ]
 #Заменяем обратную косую в пути на нормальную косую
 	set tdir [string map {"\\" "/"} $tdir]
     }
@@ -2159,7 +2179,10 @@ puts "selectdir: exists $w1.butMenu"
         $w1.seldir.entdir configure -state readonly
 
     }
-    [namespace current]::columnSort $w1.files.t $::FE::folder(column) $::FE::folder(direction)
+    if {[$w1.dirs.t heading "#0" -text] != [mc {Folders}]} {
+	[namespace current]::columnSort $w1.files.t $::FE::folder(column) $::FE::folder(direction)
+    }
+    
   }
     proc fedeloo {} {
 #	puts "firstOO = $::FE::folder(firstOO) lastOO = $::FE::folder(lastOO)"    
@@ -2350,6 +2373,19 @@ set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $
     	}
       }
       incr ind
+      if {$::FE::folder(sepfolders) == 0 } {
+        file stat $f fstat
+	set size $fstat(size)
+	set date $fstat(mtime)
+	set uid  $fstat(uid)
+	set mode $fstat(mode)
+	set type $fstat(type)
+        $wtree set $id size $size
+        $wtree set $id date [datefmt $date]
+        $wtree set $id dateorig $date
+        $wtree set $id permissions [modefmt $type $mode]
+      }
+    
     }
     if {$typefb != "dir"} {
 	set files_list [list]
