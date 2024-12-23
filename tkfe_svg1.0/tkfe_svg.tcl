@@ -616,6 +616,21 @@ proc propfile {obj} {
 	incr yt 15
 	incr row
     }
+    if {[tk windowingsystem] == "win32"} {
+	set tc "\x02UTC"
+	set tekpwd [file dirname $obj]
+    	set wobj [string map {"/" "\\"} $obj]
+#    	set wobj [encoding convertfrom cp1251 "$wobj"]
+	set oldpwd [pwd]
+	cd $tekpwd
+	if {![catch {exec cmd.exe /c dir $tc $wobj} stfile]} {
+	    set DirList [split $stfile \n]
+	    set FileCrTime [clock scan [string range [lindex $DirList 8] 0 20] -format "%d.%m.%Y %H:%M" ]
+	    $wcan create text $x0e $yt -anchor e -text  "Дата создания" -fill black -font font_prop
+	    $wcan create text $x0w $yt -anchor w -text  [clock format $FileCrTime] -fill black -font font_prop -tag id_text1
+	}
+	cd $oldpwd
+    }
 }
 
 
