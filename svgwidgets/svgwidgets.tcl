@@ -525,12 +525,14 @@ oo::class create cbutton {
 	eval "$wcan bind $idt <Enter> {[self] enter}"
 	eval "$wcan bind $idt <Leave> {[self] leave}"
     }
-    $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke)
+    $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -strokewidth [winfo fpixels $wcan $Options(-strokewidth)]
     if {$tbut == "ellipse"} {
 	set ry [expr {[winfo fpixels $wcan $Options(-height)] / 2.0}]
 	$wcan itemconfigure $idr -ry $ry
     }
 #    puts "[self]"
+#puts "COORDS 0: idr=$idr [$wcan coords $idr]  strokewidth=[$wcan itemcget $idr -strokewidth]"
+set coordsidr [$wcan coords $idr]
     my config [array get Options]
     if {$tbut == "check"} {
 	if {[info exists Options(-variable)] && [info exists $Options(-variable)]} {
@@ -542,7 +544,8 @@ oo::class create cbutton {
 	eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 #	eval "bind $wcan  <ButtonRelease> {[self] fon}"
     }
-
+$wcan coords $idr "$coordsidr"
+#puts "COORDS 1: SELF=[self]: idr=$idr= [$wcan coords $idr] strokewidth=[$wcan itemcget $idr -strokewidth]"
   }
 
   method canvas {} {
@@ -801,28 +804,28 @@ oo::class create cbutton {
 #from = 1 resize делает пользователь
 #from = 0 resize вызывается событием Configure
     if {$tbut == "frame"}  {
-	set wx [winfo fpixels $wcan $wx]
-	set hy [winfo fpixels $wcan $hy]
 	foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
 #puts "x0=$x0 y0=$y0 x1=$x1 y1=$y1"
 	set swidth [$wcan itemcget $idr -strokewidth]
 	if {$fr == 1} {
-	    set x1 [expr {$wx - $swidth}]
-	    set y1 [expr {$hy - $swidth}]
-#puts "NEW x0=$x0 y0=$y0 x1=$x1 y1=$y1"
+	    set x1 [winfo width $wcan]
+	    set y1 [winfo height $wcan]
 	} else {
-	    set x1 [expr {$x0 + $wx - $swidth}]
-	    set y1 [expr {$y0 + $hy - $swidth}]
+	    set wx [winfo fpixels $wcan $wx]
+	    set hy [winfo fpixels $wcan $hy]
+	    set x1 [expr {$x0 + $wx}]
+	    set y1 [expr {$y0 + $hy}]
 	}
-	my config -width $x1
-	my config -height $y1
-
+	my config -width $x1 -height $y1
+#	my config -height $y1
 	return
     }
     if {$fr == 0} {
 	return
     }
 ##########################
+    set wx [winfo width $wcan]
+    set hy [winfo height $wcan]
     if {![info exist Canv(W)]} {
 	set Canv(W) [winfo width $wcan]
 	set Canv(H) [winfo height $wcan]
@@ -901,18 +904,16 @@ if {0} {
     if {$tbut == "radio" || $tbut == "circle" || $tbut == "check" || $tbut == "square" } {
 	set yold [expr {[winfo fpixels $wcan $hy] / [winfo fpixels $wcan [my config -height] ]}]
 	set wold [expr {([winfo fpixels $wcan $wx] - [winfo fpixels $wcan $hy]) / [winfo fpixels $wcan [my config -width]]}]
+	if {$hy < $wx} {
+	    set wx $hy
+	}
     } else {
 	set wold [expr {[winfo fpixels $wcan $wx] / [winfo fpixels $wcan [my config -width] ]}]
 	set yold [expr {[winfo fpixels $wcan $hy] / [winfo fpixels $wcan [my config -height] ]}]
     }
     set strwidth [winfo fpixels $wcan [my config -strokewidth]]
-    if {$tbut == "square"} {
-	if {$hy < $wx} {
-	    set wx $hy
-	}
-    }
-    my config -width $wx
-    my config -height $hy
+    my config -width $wx  -height $hy
+#    my config -height $hy
 
     if {$tbut == "frame"} {
 	return
@@ -1494,7 +1495,7 @@ if {[$wcan bbox $isvg] != ""} {
     		set Options($option) $value
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set x2 [expr {$x1 + $val}]
-			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth }]"
+			$wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth }]
 		    }
     		    continue
 		} 
@@ -1502,7 +1503,8 @@ if {[$wcan bbox $isvg] != ""} {
 		    if {[info exists idr]} {
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set x2 [expr {$x1 + $val}]
-			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth}]"
+#			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth}]"
+			$wcan coords $idr $x1 $y1 $x2 $y2
 			if {$tbut == "ellipse"} {
 			    set rx [expr {$val / 2.0}]
 			    $wcan itemconfigure $idr -rx $rx
@@ -1544,10 +1546,12 @@ if {[$wcan bbox $isvg] != ""} {
 		} elseif { $tbut == "check" ||  $tbut == "radio"} {
 		    set  Options(-height) $Options($option)
 		    if {[info exists idr]} {
+#puts "WIDTH - COORDS 0: idr=$idr [$wcan coords $idr]  strokewidth=[$wcan itemcget $idr -strokewidth]"
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set x2 [expr {$x1 + $val}]
 			set y2n [expr {$y1 + $val}]
-			$wcan coords $idr "$x1 $y1 $x2 [expr {$y2n - $strwidth * 0}]"
+			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth}] [expr {$y2n - $strwidth}]"
+#puts "WIDTH 1 - COORDS 0: idr=$idr [$wcan coords $idr]  strokewidth=[$wcan itemcget $idr -strokewidth]"
 			if {$tbut == "radio"} {
 			    set rx [expr {$val  / 2.0}]
 			    $wcan itemconfigure $idr -rx $rx
@@ -1597,7 +1601,7 @@ if {[$wcan bbox $isvg] != ""} {
 		    if {[info exists idr]} {
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set y2 [expr {$y1 + $val}]
-			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth}]"
+			$wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2.0}]  [expr {$y2 - $strwidth}]
 		    }
 		    continue
 		} 
@@ -1606,7 +1610,8 @@ if {[$wcan bbox $isvg] != ""} {
 		    if {[info exists idr]} {
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set y2 [expr {$y1 + $val}]
-			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth}]"
+#			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth}]"
+			$wcan coords $idr $x1 $y1 $x2 $y2
 			set y2 [expr {$y1 + $val / 2.0}]
 			foreach {x1 y1} [$wcan coords $idt] {break}
 			if { $tbut == "rect" && $Options(-isvg) != ""} {
@@ -1654,10 +1659,13 @@ if {[$wcan bbox $isvg] != ""} {
 		} elseif { $tbut == "check" ||  $tbut == "radio"} {
 		    set  Options(-width) $Options($option)
 		    if {[info exists idr]} {
+
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
+#puts "HEIGHT - COORDS 0: idr=$idr [$wcan coords $idr]  strokewidth=[$wcan itemcget $idr -strokewidth]"
 			set x2 [expr {$x1 + $val}]
 			set y2n [expr {$y1 + $val}]
-			$wcan coords $idr "$x1 $y1 $x2 [expr {$y2n - $strwidth}]"
+			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth}] [expr {$y2n - $strwidth}]"
+#puts "HEIGHT 1 - COORDS 0: idr=$idr [$wcan coords $idr]  strokewidth=[$wcan itemcget $idr -strokewidth]"
 			if {$tbut == "radio"} {
 			    set rx [expr {$val  / 2.0}]
 			    $wcan itemconfigure $idr -rx $rx
@@ -2936,7 +2944,6 @@ oo::define cbutton {
     eval $copycanitem
 }
 
-
 set methodman {
   method changestrwidth {{strw -1}} {
     if {![info exist idr]} {
@@ -2950,39 +2957,38 @@ set methodman {
     } else {
 	set nst [winfo fpixels $wcan $strw]
     }
+    if {$wclass == "mbutton"} {
+	return
+    }
 #puts "changestrwidth tsw=$tsw nst=$nst"
     if {$tsw == $nst} {
 	return
     }
-#Нв сколько меняем и делим попалам
-    set dst [expr {($nst - $tsw) / 2.0}]
-    foreach {x y w h} [$wcan coords $idr] {break}
-#puts "changestrwidth nst=$nst dst=$dst x=$x y=$y w=$w h=$h"
-    foreach {xo yo wo ho} [$wcan bbox $idr] {break}
-    $wcan itemconfigure $idr -strokewidth $nst
-    update
-    if {$wclass == "mbutton"} {
-	return
-    }
-    if {![winfo exist $wcan]} {return}    
-    foreach {xn yn wn hn} [$wcan bbox $idr] {break}
-#    set dst [expr {($wn - $wo) / 2.0}]
-#puts "changestrwidth tsw=$tsw nst=$nst dst=$dst x=$x y=$y"
+#Восстанавливаем начальные координаты прямоугольника
+    foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
+    set wtstr [$wcan itemcget $idr -strokewidth]
+#puts "changestrwidth nst=$nst x0=$x0 y0=$y0 x1=$x1 y1=$y1 wtstr=$wtstr"
+    set wtstr [expr {$wtstr / 2.0}]
 
-    set x [expr {$x + $dst}]
-    set y [expr {$y + $dst}]
-    set w [expr {$w - $dst}]
-    set h [expr {$h - $dst}]
-#puts "changestrwidth NEW x=$x y=$y w=$w h=$h"
-    $wcan coords $idr  $x $y $w $h
+    set x0 [expr {$x0 - $wtstr}]
+    set y0 [expr {$y0 - $wtstr}]
+    set x1 [expr {$x1 + $wtstr}]
+    set y1 [expr {$y1 + $wtstr}]
+#Вычисляем новые координаты
+    set nst1 [expr {$nst / 2.0}]
+    set x0 [expr {$x0 + $nst1}]
+    set y0 [expr {$y0 + $nst1}]
+    set x1 [expr {$x1 - $nst1}]
+    set y1 [expr {$y1 - $nst1}]
+#Выставляем прямоугольник
+    $wcan coords $idr $x0 $y0 $x1 $y1
     if {[winfo manager $wcan] != ""} {
 	if {!$Options(press)} {
 	    $wcan itemconfigure $idr -strokewidth $nst
-#	     -stroke $Options(-strokenormal)  -fill $Options(-fillnormal)
 	}
     }
   }
-  
+ 
   method manager {type args} {
 #puts "MANAGER wcan=$wcan fr=$fr type=$type args=$args"
     if {$fr == 0} {
