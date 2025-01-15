@@ -1,6 +1,8 @@
 package require svgwidgets
 #source "../SVGWIDGETS/svgwidgets.tcl"
 #package require canvas::gradient
+set tkp::pixelalign 1
+set tkp::depixelize 1
 
 proc folderbrown {canv} {
     set grfolder [$canv create group]
@@ -124,4 +126,7 @@ $mbut config -stroke chocolate
 #.test.c gradient names
 $clfrv config -fillnormal gradient29
 set gradCloud [[$b1 canvas] gradient create linear -method pad -units bbox -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00} ]
+#set gradCloud1 [tkp::gradient create linear -method pad -units bbox -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00} ]
+
 $b1 config -fillnormal gradient45
+

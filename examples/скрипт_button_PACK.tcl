@@ -121,9 +121,13 @@ $clfrv boxtext
 $clfrv config -fontsize 3.5m -fillbox cyan
 
 set bg [$clfrv config -fillnormal]
+
 set rc1 [cbutton new $t.rbut1 -type radio  -text Radio1 -variable vrc1 -value 1 -bg $bg]
 eval  [subst {$rc1 config -command {puts "Radio1=[set rc1] Правый фрейм=[set clfrv]"}}]
 
+pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
+update
+after 30
 #[$rc1 canvas] configure -bg [$clfrv config -fillnormal]
 set rc2 [cbutton new $t.rbut2 -type radio  -text Radio2 -variable vrc1 -value 0 -bg $bg ]
 eval  [subst {$rc2 config -command {puts "Radio2=[set rc2] Правый фрейм=[set clfrv]"}}]
@@ -143,12 +147,13 @@ $rc6 config -fillnormal cyan
 #puts "Квадрат=$rc6"
 [$rc6 canvas] delete $img
 
-pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
+#pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
 update
 #Второй способ согласования цветов!!!
 $rc1 pack -in [$clfrv canvas] -padx 1c -pady "1c 0"
-$rc2 pack -in [$clfrv canvas] -padx 1c -pady "2m 0"
+$rc2 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill both -expand 1
 $rc3 pack -in [$clfrv canvas] -padx 1c -pady "2m 0"
+[$rc3 canvas] delete fon
 $rc4 pack -in [$clfrv canvas] -padx 1c -pady "2m" -fill both -expand 1
 $rc5 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill none -expand 1 -anchor n
 $rc7 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill x -expand 1
