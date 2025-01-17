@@ -2,6 +2,31 @@ package require svgwidgets
 package require canvas::gradient
 
 proc exitarm {t} {
+	if {$t == "."} {
+	    set t1 ""
+	} else {
+	    set t1 $t
+	}
+	set erlib [mbutton new "$t1.message" -type yesno  -fillnormal white -text "Вы действительно\nхотите выйти?" -textanchor n -strokewidth 3]
+	$erlib config -fillnormal gradient4
+	set herlib [expr {int([winfo fpixels "$t1.message" [$erlib config -height]])}]
+	set werlib [expr {int([winfo fpixels "$t1.message" [$erlib config -width]])}]
+
+#Главное окно неизменяемое
+	wm resizable $t 0 0
+	tk busy hold $t
+	set werlib [expr {[winfo width $t] / 2 - $werlib / 2}]
+	set herlib [expr {[winfo height $t] / 4 }]
+#	eval bind . <Configure> \{raise $t1.message $t1._Busy\}
+	set rr [$erlib place -in $t -x $werlib -y $herlib]
+	if {[tk busy status $t]} {
+	    tk busy forget $t
+	}
+#	bind . <Configure> {}
+	if {$rr != "yes"} {
+	    wm resizable $t 1 1
+	    return
+	}
 #Подчищаем за собою
 	foreach {oo} [info class instances cbutton] {
 	    $oo destroy
@@ -80,6 +105,7 @@ destroy $t
 toplevel $t
 wm state $t withdraw
 wm state $t normal
+wm protocol $t WM_DELETE_WINDOW {exitarm $t }
 wm title $t "tcl/tk pack gradient and opacity demo"
 
 wm geometry $t 798x500+150+150

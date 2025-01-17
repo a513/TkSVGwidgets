@@ -3,6 +3,32 @@ package require svgwidgets
 #canvas::gradient .c -direction x -colr1 yellow -color2 blue
 package require canvas::gradient
 proc exitarm {t} {
+	if {$t == "."} {
+	    set t1 ""
+	} else {
+	    set t1 $t
+	}
+	set erlib [mbutton new "$t1.message" -type yesno  -fillnormal white -text "Вы действительно\nхотите выйти?" -textanchor n -strokewidth 3]
+	$erlib config -fillnormal gradient4
+	set herlib [expr {int([winfo fpixels "$t1.message" [$erlib config -height]])}]
+	set werlib [expr {int([winfo fpixels "$t1.message" [$erlib config -width]])}]
+
+#Главное окно неизменяемое
+	wm resizable $t 0 0
+	tk busy hold $t
+	set werlib [expr {[winfo width $t] / 2 - $werlib / 2}]
+	set herlib [expr {[winfo height $t] / 4 }]
+#	eval bind . <Configure> \{raise $t1.message $t1._Busy\}
+	set rr [$erlib place -in $t -x $werlib -y $herlib]
+	if {[tk busy status $t]} {
+	    tk busy forget $t
+	}
+#	bind . <Configure> {}
+	if {$rr != "yes"} {
+	    wm resizable $t 1 1
+	    return
+	}
+
 	foreach {oo} [info class instances cbutton] {
 	    $oo destroy
 	}
@@ -29,6 +55,8 @@ destroy $t
 toplevel $t
 wm state $t withdraw
 wm state $t normal
+wm protocol $t WM_DELETE_WINDOW {exitarm $t }
+
 wm title $t "tcl/tk pack gradient demo"
 
 wm geometry $t 800x600+150+150
@@ -101,7 +129,7 @@ set xa2 [cbutton new $t.butup -type round  -text {Обновить окно} -co
 $xa2 config -command "$b1 fon;$clfrv fon;$went fon;$xa2 fon;lower [$clfrv canvas] [$rc1 canvas]"
 [$xa2 canvas] configure -bg [$b1 config -fillnormal]
 $xa2 place -in $t.c -x 2m -y 2m
-$xa2 invoke
+
 puts "frame=$b1 clframe=$clfrv  entry=$went but=$xa2"
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 #Обновить окно
