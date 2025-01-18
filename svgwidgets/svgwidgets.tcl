@@ -827,6 +827,7 @@ $wcan coords $idr "$coordsidr"
     set wx [winfo width $wcan]
     set hy [winfo height $wcan]
     if {![info exist Canv(W)]} {
+
 	set Canv(W) [winfo width $wcan]
 	set Canv(H) [winfo height $wcan]
 	set Canv(X) [winfo rootx $wcan]
@@ -1504,7 +1505,7 @@ if {[$wcan bbox $isvg] != ""} {
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set x2 [expr {$x1 + $val}]
 #			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth}]"
-			$wcan coords $idr $x1 $y1 $x2 $y2
+			$wcan coords $idr $x1 $y1  [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth }]
 			if {$tbut == "ellipse"} {
 			    set rx [expr {$val / 2.0}]
 			    $wcan itemconfigure $idr -rx $rx
@@ -1611,7 +1612,7 @@ if {[$wcan bbox $isvg] != ""} {
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set y2 [expr {$y1 + $val}]
 #			$wcan coords $idr "$x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth}]"
-			$wcan coords $idr $x1 $y1 $x2 $y2
+			$wcan coords $idr $x1 $y1  [expr {$x2 - $strwidth / 2.0}]  [expr {$y2 - $strwidth}]
 			set y2 [expr {$y1 + $val / 2.0}]
 			foreach {x1 y1} [$wcan coords $idt] {break}
 			if { $tbut == "rect" && $Options(-isvg) != ""} {
