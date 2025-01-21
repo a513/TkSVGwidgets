@@ -2040,11 +2040,12 @@ oo::class create ibutton {
 	set Options(-height) [lindex $args $ind]
     }
     if {![winfo exists $wcan]} {
-	tkp::canvas $wcan -bd 0 -highlightthickness 0
+	tkp::canvas $wcan -bd 0 -highlightthickness 0 
 	set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 	set cwidth [winfo fpixels $wcan $Options(-width)]
 	set cheight [winfo fpixels $wcan $Options(-height)] 
-	$wcan configure -width [expr {$strwidth * 2.0 + $cwidth}] -height [expr {$strwidth * 2.0 + $cheight}]
+#	$wcan configure -width [expr {$strwidth * 2.0 + $cwidth}] -height [expr {$strwidth * 2.0 + $cheight}]
+	$wcan configure -width $cwidth -height $cheight
 	set clw [winfo class [winfo parent $wcan]]
 	if { [catch {[winfo parent $wcan] cget -background} xcolor] == 0 } {
     	    $wcan configure -background $xcolor
@@ -2059,8 +2060,8 @@ oo::class create ibutton {
     		$wcan configure -background $bgc
 	    }
         }
-        set x0 [expr {$strwidth / 2}]
-        set y0 [expr {$strwidth / 2}]
+        set x0 0
+        set y0 0
 
         set fr 1
         append canvasb "fr"
@@ -2068,12 +2069,12 @@ oo::class create ibutton {
 	set ind [lsearch $args "-x"]
 	if {$ind > -1} {
 	    incr ind
-	    set x0 [lindex $args $ind]
+	    set x0 [winfo fpixels $wcan [lindex $args $ind]]
 	}
 	set ind [lsearch $args "-y"]
 	if {$ind > -1} {
 	    incr ind
-	    set y0 [lindex $args $ind]
+	    set y0 [winfo fpixels $wcan [lindex $args $ind]]
 	}
     }
     array set font [font actual systemSystemFont]
@@ -2086,8 +2087,6 @@ oo::class create ibutton {
 #    set Options(-tintcolor) skyblue
     set Options(-tintcolor) chocolate
 #puts "[self] mcoords x0=$x0 y0=$y0"
-    set x0 [winfo fpixels $wcan $x0]
-    set y0 [winfo fpixels $wcan $y0]
 #puts "[self] 1 mcoords x0=$x0 y0=$y0"
 
     set defx [winfo pixels $w 5m]
@@ -2127,14 +2126,15 @@ oo::class create ibutton {
 
     
     set sw [winfo fpixels $wcan $Options(-strokewidth)]
-    set wr [expr {[winfo fpixels $wcan $Options(-width)] - 0 * $sw}]
-    set hr [expr {[winfo fpixels $wcan $Options(-height)] - 0 * $sw}]
+    set wr [winfo fpixels $wcan $Options(-width)]
+    set hr [winfo fpixels $wcan $Options(-height)]
 
     set x2 [expr {$x1 + $wr }]
     set y2 [expr {$y1 + $hr }]
 
     set idr [$wcan create prect $x1 $y1 $x2 $y2 -strokelinecap butt -stroke {} -strokewidth 0]
     my changestrwidth
+
     foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
     set btag "canvasb[string range [self] [string first Obj [self]] end]"
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -strokelinejoin $Options(-strokelinejoin) -stroke $Options(-stroke)  -rx $Options(-rx) -tags [list Rectangle obj $canvasb $btag [linsert $btag end rect] utag$idr] -fill {}
@@ -2156,7 +2156,8 @@ oo::class create ibutton {
 #Если не менять размеры и координаты прямоугольника, то закомментировать
 #    $wcan coords $idr $ibox
     
-    foreach {x1 y1 x2 y2} $ibox {break}
+#    foreach {x1 y1 x2 y2} $ibox {break}
+    foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
     set x [expr {$x2 + $onemm2px}]
     set y [expr { ($y1 + $y2) / 2.0}]
 
@@ -2310,7 +2311,6 @@ oo::class create ibutton {
   }
   method resize {wx hy {from 1}} {
     set onemm2px [winfo pixels $wcan 1m]
-#puts "cbutton resize: fr=$fr wx=$wx hy=$hy"
     if {$fr == 0} {
 	return
     }
@@ -2337,7 +2337,7 @@ oo::class create ibutton {
     set hlast $hyc
     set nwidth [expr {[winfo fpixels $wcan $wx] - ($x2t - $x1t)}]
 
-    set nheight [expr {[winfo fpixels $wcan $hy] - $strwidth * 1 }]
+    set nheight [winfo fpixels $wcan $hy]
 
 #puts "my config -height $nheight -width $nwidth"
     my config -width $nwidth
@@ -2722,14 +2722,14 @@ if {0} {
 
 	    }
 	    -width {
+
     		set Options($option) $value
 		set val [winfo fpixels $wcan $value]
 		set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 		if {[info exists idi]} {
 		    foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
-		    set x2 [expr {$x1 + $val - $strwidth * 2}]
-if {$x1 > 0 && $x2 > 0 && $x2 > $x1} {
-		    $wcan coords $idr "$x1 $y1 $x2 $y2"
+		    set x2 [expr {$x1 + $val}]
+		    $wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2}] $y2
     		    if {[info exists Options(-isvg)]} {
     			set old $Options(-isvg)
     			my config -image "$wcan $Options(-isvg)"
@@ -2747,17 +2747,17 @@ if {$x1 > 0 && $x2 > 0 && $x2 > $x1} {
 		    set x [expr {$x2 + $onemm2px}]
 		    set y [expr { ($y1 + $y2) / 2.0}]
 		    $wcan coords $idt "$x $y"
-}
 		}
 	    }
 	    -height {
+
     		set Options($option) $value
 		set val [winfo fpixels $wcan $value]
 		set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 		if {[info exists idi]} {
 		    foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
-		    set y2 [expr {$y1 + $val - $strwidth}]
-		    $wcan coords $idr "$x1 $y1 $x2 $y2"
+		    set y2 [expr {$y1 + $val}]
+		    $wcan coords $idr $x1 $y1 $x2 [expr {$y2 - $strwidth / 2}]
     		    if {[info exists Options(-isvg)]} {
     			set old $Options(-isvg)
     			my config [list -image "$wcan $Options(-isvg)"]
@@ -2983,7 +2983,7 @@ set methodman {
     set y1 [expr {$y1 - $nst1}]
 #Выставляем прямоугольник
     $wcan coords $idr $x0 $y0 $x1 $y1
-    if {[winfo manager $wcan] != ""} {
+    if {[winfo manager $wcan] != "UXTY"} {
 	if {!$Options(press)} {
 	    $wcan itemconfigure $idr -strokewidth $nst
 	}
