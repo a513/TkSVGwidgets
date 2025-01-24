@@ -134,3 +134,5 @@ puts "frame=$b1 clframe=$clfrv  entry=$went but=$xa2"
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 #Обновить окно
 #$b1 fon;$clfrv fon;$went fon
+update
+$xa2 invoke

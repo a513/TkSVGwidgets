@@ -108,7 +108,7 @@ wm state $t normal
 wm protocol $t WM_DELETE_WINDOW {exitarm $t }
 wm title $t "tcl/tk pack gradient and opacity demo"
 
-wm geometry $t 798x500+150+150
+wm geometry $t 800x600+150+150
 
 tkp::canvas $t.c -bg yellow
 #Уствновить gradient
@@ -198,7 +198,7 @@ lower [$::b1 canvas] [$::xa1 canvas]
 #raise [$::xa3 canvas]
 lower [$::clfrv canvas] [$::rc1 canvas]
 raise [$went canvas ]  $t.c
-update
-wm geometry $t 800x600+150+150
-update
 puts "::rc1=$::rc1"
+update
+$bel invoke
+

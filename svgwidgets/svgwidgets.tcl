@@ -803,6 +803,7 @@ $wcan coords $idr "$coordsidr"
   method resize {wx hy {from 1}} {
 #from = 1 resize делает пользователь
 #from = 0 resize вызывается событием Configure
+#puts "SELF=[self] TBUT=$tbut wx=$wx hy=$hy W=[winfo width $wcan] H=[winfo height $wcan]"
     if {$tbut == "frame"}  {
 	foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
 #puts "x0=$x0 y0=$y0 x1=$x1 y1=$y1"
@@ -817,26 +818,27 @@ $wcan coords $idr "$coordsidr"
 	    set y1 [expr {$y0 + $hy}]
 	}
 	my config -width $x1 -height $y1
-#	my config -height $y1
 	return
     }
     if {$fr == 0} {
 	return
     }
-##########################
     set wx [winfo width $wcan]
     set hy [winfo height $wcan]
-    if {![info exist Canv(W)]} {
 
-	set Canv(W) [winfo width $wcan]
-	set Canv(H) [winfo height $wcan]
+set swidth [winfo fpixels $wcan [my config -strokewidth]]
+if {$hy <= [expr {$swidth * 2.0}] || $wx <= [expr {$swidth * 2.0}]} {
+	    return
+}
+
+    if {![info exist Canv(W)]} {
+	set Canv(W) [winfo pixels $wcan [my config -width]]
+	set Canv(H) [winfo pixels $wcan [my config -height]]
 	set Canv(X) [winfo rootx $wcan]
 	set Canv(Y) [winfo rooty $wcan]
 	set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
 	set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
 	set Canv(xscale) 1
-
-	return
     }
 if {$Options(-text) != ""} {
       if {[catch {$wcan itemcget $idt -fontsize} result] == 0} {
@@ -844,7 +846,6 @@ if {$Options(-text) != ""} {
             set FontS($u,fontsize) $result
       }
 }
-
 if {0} {
    foreach id "[$wcan find withtag canvasb] [$wcan find withtag canvasi] [$wcan find withtag boxText]" {
       set type [$wcan type $id]
@@ -914,7 +915,6 @@ if {0} {
     }
     set strwidth [winfo fpixels $wcan [my config -strokewidth]]
     my config -width $wx  -height $hy
-#    my config -height $hy
 
     if {$tbut == "frame"} {
 	return
@@ -963,9 +963,9 @@ if {0} {
 	}
     }
 }
+
   }
 
-  
   method config args {
     set svgtype [list circle ellipse group path  pline polyline ppolygon prect ptext]
 #pimage - это делается отдельно
@@ -1368,6 +1368,9 @@ if {[$wcan bbox $isvg] != ""} {
 }
 #puts "scalex=$scalex scaley=$scaley"
 #Изменение размеров - ширины и высоты
+		if {[$wcan itemcget $isvg -matrix] == ""} {
+		    $wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+		}
 		foreach {width height xy} [$wcan itemcget $isvg -matrix] {
 		    foreach {w1 w0} $width {
 			set w1 [expr {$w1 * $scalex}]
@@ -1381,6 +1384,9 @@ if {[$wcan bbox $isvg] != ""} {
     		foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 
 #Перемещение по x и y
+		if {[$wcan itemcget $isvg -matrix] == ""} {
+		    $wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+		}
 		foreach {width height xy} [$wcan itemcget $isvg -matrix] {
 		    foreach {x y} $xy {
 			set x [expr {$x + $rx1 - $snx1 + $pxl }]
@@ -2189,9 +2195,8 @@ oo::class create ibutton {
 	$wcan itemconfigure $idt -text $Options(-text)
     }
 
-#    puts "[self]"
-
     my config [array get Options]
+
     if {$fr == 1} {
 	set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 	foreach {x1 y1 x2 y2} [$wcan bbox $btag] {break}
@@ -2201,8 +2206,10 @@ oo::class create ibutton {
     if {$fr == 1} {
 	eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
     }
-    set $Options(-image) $imageOrig
-    my config -image $Options(-image)
+
+#    set $Options(-image) $imageOrig
+#    my config -image $Options(-image)
+
   }
 
   method canvas {} {
@@ -2321,17 +2328,19 @@ oo::class create ibutton {
 	return
     }
 
-    foreach {x1 y1 x2 y2} [$wcan bbox "$btag text"] {break}
     set strwidth [winfo fpixels $wcan [my config -strokewidth]]
+
     set wold [expr {$wxc / $wlast}]
 #puts "WXC=$wxc WLAST=$wlast HYC=$hyc"
     set wlast $wxc
     set nfont [expr {[winfo fpixels $wcan $Options(-fontsize)] * $wold}]
 
-    foreach {x1 y1 x2 y2} [$wcan bbox "$btag rect"] {break}
     foreach {x1t y1t x2t y2t} [$wcan bbox "$btag text"] {break}
     if {![info exists x1t]} {
 	foreach {x1t y1t x2t y2t} "0 0 0 0" {break}
+    }
+    if {[expr {$wxc - ($x2t - $x1t) }] < [expr {$strwidth * 2.0}] || $hyc < [expr {$strwidth * 2.0}] } {
+	return
     }
     set yold [expr {$hyc / $hlast}] 
     set hlast $hyc
@@ -2441,7 +2450,6 @@ oo::class create ibutton {
 #puts "Error args length: $args"
       error "use is: <object> config ?-option value?...\nargs=$args" 
     }
-    
     foreach {option value} $args {
         switch $option {
 	    -background -
@@ -2553,7 +2561,6 @@ oo::class create ibutton {
 	    }
 	    -isvg -
 	    -image {
-#puts "IMAGE START: value=$value"
     		if {$value == ""} {
 		    set value "::svgwidget::tpblank"
     		}
@@ -2575,11 +2582,12 @@ oo::class create ibutton {
 		    }
 #puts "IMAGE START: value=$$value END"
 		    continue 
-		}
+		} 
 #Проверяем, что это картинка SVG
 		if {[llength $value] != 2} {
     		    error "for svg image ($value): -image \"<canvas> <tagORidItem>\""
 		}
+		set Options(-image) "$value"
 		if {![info exists idr]} {
     		    puts "Not idr: -isvg Options(-isvg)=\"$value\""
     		    set Options($option) "$value"
@@ -2651,10 +2659,8 @@ oo::class create ibutton {
 		}
 		if {[info exists idi]} {
 		    if {[info exists Options(-isvg)]} {
-#puts "-pad: Options(-isvg)=$Options(-isvg) pad=Options(-pad) idr=$idr"
 			set isvg $Options(-isvg)
 			if {[$wcan bbox $isvg] != ""} {
-
 			    set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
     			    set isvg $Options(-isvg)
 #puts "ibutton: -isvg ok isvg=$isvg idr=$idr"
@@ -2669,11 +2675,13 @@ if {0} {
 			    set pyl [winfo fpixels $wcan $pyl]
     			    set pyr [winfo fpixels $wcan $pyr]
 
-    			    set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl) - $strwidth * 1.0 * 0) / ($sx2 - $sx1 - $strwidth * 1.0 * 0)}]
-    			    set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl) - $strwidth * 1.0 * 0) / ($sy2 - $sy1 - $strwidth * 1.0 * 0)}]
-
+    			    set scalex [expr {($rx2 - $rx1 - ($pxr + $pxl) ) / ($sx2 - $sx1)}]
+    			    set scaley [expr {($ry2 - $ry1 - ($pyr + $pyl) ) / ($sy2 - $sy1)}]
 #Изменение размеров - ширины и высоты
 #    			$wcan scale $isvg 0 0 $scalex $scaley
+			    if {[$wcan itemcget $isvg -matrix] == ""} {
+				$wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+			    }
 			    foreach {width height xy} [$wcan itemcget $isvg -matrix] {
 				foreach {w1 w0} $width {
 				    set w1 [expr {$w1 * $scalex}]
@@ -2686,10 +2694,13 @@ if {0} {
 			    if {[$wcan bbox $isvg] != ""} {
     				foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 #Перемещение по x и y
+			    if {[$wcan itemcget $isvg -matrix] == ""} {
+				$wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+			    }
 				foreach {width height xy} [$wcan itemcget $isvg -matrix] {
 				    foreach {x y} $xy {
-					set x [expr {$x + $rx1 - $snx1 + $pxl + $strwidth * 1 * 0.5 * 0}]
-					set y [expr {$y + $ry1 - $sny1 + $pyl + $strwidth * 1 * 0.5 * 0}]
+					set x [expr {$x + $rx1 - $snx1 + $pxl }]
+					set y [expr {$y + $ry1 - $sny1 + $pyl }]
 				    }
 			
 				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
@@ -2719,7 +2730,6 @@ if {0} {
 			$wcan itemconfigure $idi -height [expr {$him - ($pyl + $pyr)}]
     		    }
 		}
-
 	    }
 	    -width {
 
@@ -5028,9 +5038,11 @@ oo::class create cframe {
 #puts "x0=$x0 y0=$y0 x1=$x1 y1=$y1"
     set swidth [$wcan itemcget $idr -strokewidth]
     if {$fr == 1} {
+	if {$hy1 <= [expr {$swidth * 2.0}] || $wx1 <= [expr {$swidth * 2.0}]} {
+	    return
+	}
 	set x1 [expr {$wx - $swidth}]
 	set y1 [expr {$hy - $swidth}]
-#puts "NEW x0=$x0 y0=$y0 x1=$x1 y1=$y1"
     } else {
 	set x1 [expr {$x0 + $wx - $swidth * 0}]
 	set y1 [expr {$y0 + $hy - $swidth * 0}]
@@ -5038,7 +5050,6 @@ oo::class create cframe {
 
     $wcan coords $idr $x0 $y0 $x1 $y1
     if {$fr == 0 && ($tbut == "centry" || $tbut == "ccombo")} {
-puts "RESIZE CFRAME tbut=$tbut"    
 	place configure $wentry -width [expr {$wx - $onemm2px * 2}] -height [expr {$hy - $onemm2px * 2 }]
 	return
     }
