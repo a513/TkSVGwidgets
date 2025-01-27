@@ -3044,12 +3044,12 @@ set methodman {
     if { $man == ""} {
 	return ""
     }
-    set pars [$man info [$wcan]]
+    set pars [$man info $wcan]
     set lwin ""
     set ind [lsearch $pars "-in"]
     if {$ind > -1} {
 	incr ind
-	set lwin [lindex $args $ind]
+	set lwin [lindex $pars $ind]
     }
     return $lwin
   }
