@@ -361,7 +361,10 @@ oo::class create cbutton {
 	    set Options(-fillpress) "##"
 	}
 	default {
-    	    error "Unknown type=$type..." 
+	    if {$fr == 1} {
+		destroy $wcan
+	    }
+    	    error "Unknown type=$type: must be rect, round. ellipse, square, circle, check, radio, frame"
 	}
     
     } 
@@ -3465,7 +3468,10 @@ oo::class create mbutton {
 	    set Options(-text) "Callout\n Up"
 	}
 	default {
-    	    error "mbutton: Unknown type=$type..." 
+	    if {$fr == 1} {
+		destroy $wcan
+	    }
+    	    error "mbutton: Unknown type=$type: must be msg, yesno, left, right, down, up"
 	}
     
     } 
@@ -3535,7 +3541,10 @@ oo::class create mbutton {
 		set yt [expr { $y1 + $rx + $htongue}]
 	    }
 	default {
-    	    error "mbutton 1: Unknown type=$type..." 
+	    if {$fr == 1} {
+		destroy $wcan
+	    }
+    	    error "mbutton 1: Unknown type=$type: must be msg, yesno, left, right, down, up"
 	} 
     }   
 #puts "TYPE=$type x1=$x1 y1=$y1 x2=$x2 y2=$y2"
