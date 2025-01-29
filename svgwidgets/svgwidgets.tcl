@@ -4897,8 +4897,10 @@ oo::class create cframe {
 	    set  Options(-fontsize) 0
 	}
 	default {
-	    set Options(-text) ""
-	    set  Options(-fontsize) 0
+	    if {$fr == 1} {
+		destroy $wcan
+	    }
+    	    error "mbutton: Unknown type=$type: must be clframe, ccombo, centry, frame"
 	}
     }
     my config $args
@@ -5142,7 +5144,7 @@ if {0} {
     set yScaleW [expr {($BBox(y2) - $BBox(y1) + $dh) * 1.0 / ($BBox(y2) - $BBox(y1))}]
 
     set x1 [winfo width $wcan]
-    set y1 [winfo height $wcan]
+set y1 [winfo height $wcan]
     set x [winfo rootx $wcan]
     set y [winfo rooty $wcan]
 
