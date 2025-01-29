@@ -581,10 +581,10 @@ $wcan coords $idr "$coordsidr"
 	normal -
 	disabled -
 	hidden {
-	    $wcan itemconfigure $btab -state $stat
+	    $wcan itemconfigure $btag -state $stat
 	}
 	default {
-	    error "Bad state=$stat"
+	    error "Bad state=$stat: must be normal, disabled, hidden"
 	}
     }
   }
@@ -1482,12 +1482,10 @@ if {[$wcan bbox $isvg] != ""} {
 			set  Options($option) $value
 			if {[info exists idr]} {
 			    $wcan itemconfigure $btag -state $value
-#			    $wcan itemconfigure $idr -state $value
-#			    $wcan itemconfigure $idt -state $value
 			}
 		    }
 		    default {
-			error "Bad state=$value"
+			error "Bad state=$value: must be normal, disabled, hidden"
 		    }
 		}
 	    }
@@ -2555,7 +2553,7 @@ oo::class create ibutton {
 			}
 		    }
 		    default {
-			error "Bad state=$value"
+			error "Bad value=$value: must be normal, disabled, hidden"
 		    }
 		}
 	    }
@@ -3855,7 +3853,7 @@ oo::class create mbutton {
 	    my config -state $stat
 	}
 	default {
-	    error "Bad state=$stat"
+	    error "Bad state=$stat: must be normal, disabled, hidden"
 	}
     }
   }
@@ -4089,7 +4087,7 @@ oo::class create mbutton {
 			}
 		    }
 		    default {
-			error "Bad state=$value"
+			error "Bad state=$value: must be normal, disabled, hidden"
 		    }
 		}
 	    }
@@ -4759,7 +4757,7 @@ if {$fr == 1}  {
 			}
 		    }
 		    default {
-			error "Bad state=$value"
+			error "Bad state=$value: must be normal, disabled, hidden"
 		    }
 		}
 	    }
@@ -5509,7 +5507,7 @@ if {[$wcan bbox $id] != ""} {
 			    }
 			}
 			default {
-			    error "Bad state=$value"
+			    error "Bad state=$value: must be normal, disabled, hidden"
 			}
 		    }
 		} else {
@@ -5541,7 +5539,7 @@ if {[$wcan bbox $id] != ""} {
 			    }
 			}
 			default {
-			    error "cframe: Bad state=$value"
+			    error "Bad state=$value: must be normal, disabled, hidden"
 			}
 		    }
 		}
