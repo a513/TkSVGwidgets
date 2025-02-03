@@ -3090,6 +3090,7 @@ if {1} {
     $wcan lower $fon
     update
 #    raise $wcan 
+	raise $wcan 
 if {1} {
     set cc [my slaves]
 #puts "islocate $cc"
@@ -3102,7 +3103,6 @@ if {1} {
 	}
     }
 }
-	raise $wcan 
  }
   
   method place {args} {

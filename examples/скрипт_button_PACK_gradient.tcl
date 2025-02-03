@@ -125,14 +125,14 @@ $rc5 pack -in [$clfrv canvas] -padx 1c -pady "5m 0" -fill none -expand 1
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
 
 #Кнопка обновления фона фреймов
-set xa2 [cbutton new $t.butup -type round  -text {Обновить окно} -command "$b1 fon;$clfrv fon;$went fon"]
-$xa2 config -command "$b1 fon;$clfrv fon;$went fon;$xa2 fon;lower [$clfrv canvas] [$rc1 canvas]"
-[$xa2 canvas] configure -bg [$b1 config -fillnormal]
-$xa2 place -in $t.c -x 2m -y 2m
+set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "$b1 fon;$clfrv fon;$went fon"]
+$xaup config -command "$b1 fon;$clfrv fon;$went fon;$xaup fon"
 
-puts "frame=$b1 clframe=$clfrv  entry=$went but=$xa2"
+[$xaup canvas] configure -bg [$b1 config -fillnormal]
+$xaup place -in $t.c -x 2m -y 2m
+
+puts "frame=$b1 clframe=$clfrv  entry=$went but=$xaup"
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 #Обновить окно
-#$b1 fon;$clfrv fon;$went fon
 update
-$xa2 invoke
+$xaup invoke

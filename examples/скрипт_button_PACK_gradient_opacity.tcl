@@ -48,24 +48,10 @@ proc exitarm {t} {
 
 proc updatewin {went clfrv } {
 #    puts "Updatewin ::b1=$::b1 ::xa1=$::xa1"
-	lower [$::xa3 canvas]
     $::xa3  fon
-	lower [$::b1 canvas]
     $::b1 fon
-	lower [$clfrv canvas]
     $clfrv fon
-	lower [$went canvas]
     $went fon
-#Прозрачный эллипс
-#    $::xa3  fon
-    lower [$::b1 canvas] [$::xa1 canvas]
-#puts "updatewin ::rc1=$::rc1"
-    lower [$clfrv canvas] [$::rc1 canvas]
-if {0} {
-    if {$::winop} {
-	opacity $went $clfrv
-    }
-}
 }
 
 proc opacity {frame1 frame2} {
@@ -74,22 +60,22 @@ updatewin $::b1 $::clfrv
     set ::winop 1
     set op 1
     foreach w1 "$::bb $::uu $::ww" {
-	lower [$w1 canvas]
-update
+#	lower [$w1 canvas]
+#update
 	$w1 fon
     }
 
 
     foreach w1 "$::xa1 $::xa2 $::xa3 $::xa4" {
-	lower [$w1 canvas]
-update
+#	lower [$w1 canvas]
+#update
 	$w1 fon
     }
 #    lower [$::b1 canvas] [$::xa1 canvas]
 puts "opacity ::rc1=$::rc1"
     foreach w1 "$::rc1 $::rc2 $::rc3 $::rc4 $::rc5 $::rc6" {
-	lower [$w1 canvas]
-update
+#	lower [$w1 canvas]
+#update
 	$w1 fon
 
     }
@@ -134,7 +120,7 @@ set ::xa3 [cbutton new $t.but3 -type ellipse  -text Эллипс -fontweight bol
 set ::xa4 [cbutton new $t.but4 -type rect  -text {ВЫХОД (Закругленный)} -rx 2m -command "exitarm $t" -textfill red -fontweight bold -fontsize 4m]
 [$::xa4 canvas] configure -bg [$::b1 config -fillnormal]
 $::xa4 config  -textstroke black -textstrokewidth 0.7
-$::b1 pack -in $t.c -fill both -expand 0 -padx 5m -pady 5m -side left -anchor nw
+$::b1 pack -in $t.c -fill both -expand 1 -padx 5m -pady 5m -side left -anchor nw
 #$::b1 pack -in $t.c -fill y -expand 1 -padx 5m -pady 5m -side left -anchor nw
 update
 pack [$::xa1 canvas] -in $t.frame -padx 5m -pady "5m 0" -fill both -expand 1
@@ -194,9 +180,8 @@ set ::uu $upwin
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 #Обновить окно
 $::b1 fon;$::clfrv fon;$went fon
-lower [$::b1 canvas] [$::xa1 canvas]
-#raise [$::xa3 canvas]
-lower [$::clfrv canvas] [$::rc1 canvas]
+#lower [$::b1 canvas] [$::xa1 canvas]
+#lower [$::clfrv canvas] [$::rc1 canvas]
 raise [$went canvas ]  $t.c
 puts "::rc1=$::rc1"
 update
