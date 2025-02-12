@@ -154,7 +154,7 @@ if {0} {
     }
 }
 
-wm title $t "tcl/tk pack demo"
+wm title $t "demoPackSVGwithImageMesFromMenu"
 
 #Если хотим иметь окно 400x400
 $t configure -height 440 -width 440
@@ -216,4 +216,5 @@ $t configure -height 450 -width 450
 set minw [winfo width $t]
 set minh [winfo height $t]
 wm minsize $t $minw $minh
+
 

@@ -930,13 +930,17 @@ if {0} {
 	}
 	my config -rx $rx
     }
-    foreach {x1 xh y1 y2} [my config -ipad] {break} 
+#    foreach {x1 xh y1 y2} [my config -ipad] {break} 
+    lassign [my config -ipad] x1 xh y1 y2
+if {1} {
     if {$tbut == "square" } {
 	set wold $yold
 	set ipad [expr {[winfo fpixels $wcan $x1] * $wold}]
     } else {
 	set ipad [expr {[winfo fpixels $wcan $x1]}]
     }
+}
+    set ipad [expr {[winfo fpixels $wcan $x1] * $wold}]
     append ipad " [expr {[winfo fpixels $wcan $xh] * $wold }]"
     append ipad " [expr {[winfo fpixels $wcan $y1] * $yold}]"
     append ipad " [expr {[winfo fpixels $wcan $y2] * $yold}]"
@@ -1027,6 +1031,11 @@ if {0} {
 		    if { $tbut == "rect" && $Options(-isvg) == "" &&  $Options(-image) == "" && $Options(-text) != ""} {
     			my config -text $Options(-text)
     		    }
+		    if {$Options(-isvg) != ""} {
+    			my config -image "$wcan $Options(-isvg)"
+		    } elseif {[info exists idi]} {
+    			my config -image $Options(-image)
+		    }
     		}
     	    }
 	    -rotate {
@@ -1416,13 +1425,18 @@ if {[$wcan bbox $isvg] != ""} {
 		    }
 		}
 			if {$tbut != "square" && $tbut != "circle"} {
+
 			    set x [expr {$ix2 + $pxl}]
 			    set y [expr { ($ry1 + $ry2) / 2.0}]
 			    set tanchor  "w"
 			    switch $Options(-compound)  {
 				left {
-				    set x [expr {$ix2 + $pxl}]
 				    foreach {x1 y1 x2 y2} [$wcan bbox $idr] {break}
+				    lassign [$wcan itemcget $isvg -matrix] width height xy
+				    lassign $xy dxi dyi
+				    set dxi [expr {$x1 + $pxl + 2}]
+				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$dxi $dyi"]
+				    set x [expr {$ix2 + $pxl}]
 				    set y [expr { ($y1 + $y2) / 2.0}]
 
 				    set tanchor  "w"
@@ -1430,21 +1444,28 @@ if {[$wcan bbox $isvg] != ""} {
 				    set dx 0
 				}
 				right {
-				    puts "right 1"
-				
+				    lassign [$wcan itemcget $isvg -matrix] width height xy
+				    lassign $xy dxi dyi
+				    foreach {x1 y1 x2 y2} [$wcan bbox $idr] {break}
+				    set dxi [expr {$x2 - $x1 - ($pxl + $pxr)}]
+				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$dxi $dyi"]
+				    foreach {ix1 iy1 ix2 iy2} [$wcan bbox $Options(-isvg)] {break}
+				    set x [expr {$ix1 - $pxl}]
+				    set y [expr { ($y1 + $y2) / 2.0}]
+				    set tanchor  "e"
+				    set dy 0
+				    set dx 0
 				}
 				top {
-#				    set x [expr {$xi2 + $pxl}]
 				    set x [expr { ($rx1 + $rx2) / 2.0}]
-#ВРЕМЕННО
-#				    set y [expr { $iy2 + $pyl   }]
 				    set y [expr { $iy2 + $pyl * 0  }]
 				    set tanchor  "n"
 				    set dx 0 
-#			    set dy [expr {($yt2 - $yt1) / 2.0 - $pyr * 0 } ]
 				}
 				bottom {
-				    puts "bottom 1"
+				    set x [expr { ($rx1 + $rx2) / 2.0}]
+				    set y [expr { 0 + $pyl * 1.0 }]
+				    set tanchor  "n"
 				}
 				none {
 				    foreach {x1 y1 x2 y2} [$wcan bbox $idr] {break}
@@ -1471,6 +1492,13 @@ if {[$wcan bbox $isvg] != ""} {
 				    set dy [expr {$iy2 + $pyl - $yt1}]
 				    $wcan move $idt $dx $dy
 				    ::svgwidget::idrotate2angle $wcan $idt $Options(-rotate)
+				}
+				if {$Options(-compound) == "bottom"} {
+				    lassign [$wcan bbox $idr] x1 y1 x2 y2
+				    set dxi [expr {$x2 - $x1 - ($pxl + $pxr)}]
+				    lassign   [$wcan bbox $idt] xt1 yt1 xt2 yt2				    
+				    set dyi [expr {$yt2 - $yt1 + $pyl}]
+				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$dxi $dyi"]
 				}
     				    $wcan raise $idt $idr
 			    }
@@ -4892,6 +4920,7 @@ oo::class create cframe {
 		set  Options(-fontsize) 1m
 	    }
 	}
+	roundframe -
 	frame {
 	    set Options(-text) ""
 	    set  Options(-fontsize) 0
