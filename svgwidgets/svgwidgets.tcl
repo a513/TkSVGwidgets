@@ -1756,7 +1756,7 @@ if {[$wcan bbox $isvg] != ""} {
 		    global [string range $value 0 $ind1-1]
 		}
 		if {[trace info variable $value] == ""} {
-		    trace variable $value w ::svgwidget::trace_rb
+		    trace add variable $value write ::svgwidget::trace_rb
 		}
 
     		set Options($option) $value
@@ -2861,7 +2861,7 @@ if {0} {
   }
 }
 #################### Подмешиваемые классы
-set copycanitem {
+set ::copycanitem {
   method copyItem {canv item x0 y0} {
     set command ""
     lappend command $wcan create
@@ -2978,13 +2978,13 @@ set copycanitem {
 
 }
 oo::define ibutton {
-    eval $copycanitem
+    eval $::copycanitem
 }
 oo::define cbutton {
-    eval $copycanitem
+    eval $::copycanitem
 }
 
-set methodman {
+set ::methodman {
   method changestrwidth {{strw -1}} {
     if {![info exist idr]} {
 	return
@@ -3165,13 +3165,13 @@ if {1} {
 
 }
 oo::define ibutton {
-    eval $methodman
+    eval $::methodman
 }
 oo::define cbutton {
-    eval $methodman
+    eval $::methodman
 }
 
-set methshowmenu {
+set ::methshowmenu {
 
   method showmenu {} {
 #Виджет кнопки меню
@@ -3368,10 +3368,10 @@ set methshowmenu {
   
 }
 oo::define ibutton {
-    eval $methshowmenu
+    eval $::methshowmenu
 }
 oo::define cbutton {
-    eval $methshowmenu
+    eval $::methshowmenu
 }
 oo::class create mbutton {
 #iidt - текст
@@ -5615,13 +5615,13 @@ if {[$wcan bbox $id] != ""} {
 }
 
 oo::define mbutton {
-    eval $methodman
+    eval $::methodman
 }
 oo::define cframe {
-    eval $methodman
+    eval $::methodman
 }
 oo::define cmenu {
-    eval $methodman
+    eval $::methodman
 }
 
 package provide svgwidgets 0.3.3
