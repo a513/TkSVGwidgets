@@ -5,7 +5,7 @@
 #  Copyright (c) 2020 Vladimir Orlov
 # email: vorlov@lissi.ru
 
-package require Tk 8.6.0
+package require Tk 8.6.0 9
 package require svgwidgets
 
 package provide tkfe_svg 1.0
@@ -84,7 +84,7 @@ if {![info exist ::FE::folder]} {
 
   ttk::style configure Treeview  -background snow  -padding 0
 #   -arrowsize 20
-  ttk::style configure TCheckbutton  -background snow  -padding {1mm 0 0 0}
+  ttk::style configure TCheckbutton  -background snow  -padding {1m 0 0 0}
 
 ##############Image fsdialog#################################
 # Images for the configuration menu
@@ -1095,7 +1095,7 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
 #puts "showConfigMenu 1_2"
     set ch1 [$::cmenubut add check -text {Папки вверху} -variable  ::FE::folder(foldersfirst)]
 #    set ::FE::folder(foldersfirst) 0
-    $ch1 config -command "[namespace current]::columnSort \$::FE::folder(w).files.t \$FE::folder(column) \$FE::folder(direction)"
+    $ch1 config -command "[namespace current]::columnSort \$::FE::folder(w).files.t \$::FE::folder(column) \$::FE::folder(direction)"
 
 #    eval "variable foldersfirst;$ch1 config -command {puts \\\"Папки вверну foldersfirst=\$foldersfirst \\\"}"
 #puts "createConfigMenu 1_3"
@@ -1332,12 +1332,12 @@ return $::cmenubut
     tclParseConfigSpec ::FE::data $specs "" [lindex $args 0]
 #    tclParseConfigSpec ::FE::data [subst "$specs"] "" [lindex $args 0]
 #parray ::FE::data
-    if {$FE::data(-typew) == "window"} {
-	if {$FE::data(-width) == -10} {
-	    set FE::data(-width) $few
+    if { $::FE::data(-typew) == "window" } {
+	if {$::FE::data(-width) == -10} {
+	    set ::FE::data(-width) $few
 	}
-	if {$FE::data(-height) == -10} {
-	    set FE::data(-height) $feh
+	if {$::FE::data(-height) == -10} {
+	    set ::FE::data(-height) $feh
 	}
     }
     if {[info exist foldersfirst]} {
@@ -1349,21 +1349,25 @@ return $::cmenubut
 	set ::FE::data(details) $details
     }
     if {[trace info variable ::FE::displaycolumns] != ""} {
-	trace vdelete ::FE::displaycolumns w ::FE::trace_columns
+	if {$::tcl_version >= 9} {
+	    trace remove variable ::FE::displaycolumns write ::FE::trace_columns
+	} else {
+	    trace vdelete ::FE::displaycolumns w ::FE::trace_columns
+	}
     }
   set ::FE::displaycolumns(size) $::FE::data(-size)
   set ::FE::displaycolumns(date) $::FE::data(-date)
   set ::FE::displaycolumns(permissions) $::FE::data(-permissions)
 
 
-    if {$FE::data(-widget) == ""} {
+    if {$::FE::data(-widget) == ""} {
 	set rand [expr int(rand() * 10000)]
 	set ::FE::data(-widget) ".fe$rand"
     }
-    set w $FE::data(-widget)
+    set w $::FE::data(-widget)
     catch {destroy $w}
-    set typew $FE::data(-typew)
-    set initdir $FE::data(-initialdir)
+    set typew $::FE::data(-typew)
+    set initdir $::FE::data(-initialdir)
     if {$initdir == ""} {
 	set initdir [pwd]
     }
@@ -1376,46 +1380,46 @@ return $::cmenubut
     	    set initdir [string map {"\\" "/"} $initdir]
         }
     }
-    if {$FE::data(-filetypes) == ""} {
+    if {$::FE::data(-filetypes) == ""} {
 	set msk {{"All files" "*"}}
     } else {
-	set msk $FE::data(-filetypes)
+	set msk $::FE::data(-filetypes)
     }
     set ::FE::folder(typew) $typew
     set ::FE::folder(typefb) $typefb
     set ::FE::folder(w) $w
-    trace variable ::FE::displaycolumns w ::FE::trace_columns
+    trace add variable ::FE::displaycolumns write ::FE::trace_columns
 
     set ::FE::folder(initialfile) ""
     if {$typefb == "dir"} {
 	set ::FE::folder(sepfolders) 0
     } else {
-	if {$FE::data(-sepfolders) == -1} { 
+	if {$::FE::data(-sepfolders) == -1} { 
 	    if { ![info exists ::FE::folder(sepfolders)]} {
 		set ::FE::folder(sepfolders) 0
 	    }
 	} else {
-		set ::FE::folder(sepfolders) $FE::data(-sepfolders)
+		set ::FE::folder(sepfolders) $::FE::data(-sepfolders)
 	}
-	if {$FE::data(-foldersfirst) == -1} { 
+	if {$::FE::data(-foldersfirst) == -1} { 
 	    if { ![info exists ::FE::folder(foldersfirst)]} {
 		set ::FE::folder(foldersfirst) 1
 	    }
 	} else {
-		set ::FE::folder(foldersfirst) $FE::data(-foldersfirst)
+		set ::FE::folder(foldersfirst) $::FE::data(-foldersfirst)
 	}
-	if {$FE::data(-details) == -1} {
+	if {$::FE::data(-details) == -1} {
 	    if {![info exists ::FE::folder(details)]} {
 		set ::FE::folder(details) 0
 	    }
 	} else {
-		set ::FE::folder(details) $FE::data(-details)
+		set ::FE::folder(details) $::FE::data(-details)
 	}
     }
-#    set ::FE::folder(foldersfirst) $FE::data(-foldersfirst)
-    set ::FE::folder(hiddencb) $FE::data(-hidden)
+#    set ::FE::folder(foldersfirst) $::FE::data(-foldersfirst)
+    set ::FE::folder(hiddencb) $::FE::data(-hidden)
 #parray ::FE::folder
-    if {$FE::folder(history) == ""} {
+    if {$::FE::folder(history) == ""} {
 	lappend ::FE::folder(history) $initdir
 	set ::FE::folder(histpos) 0
     }
@@ -1436,7 +1440,7 @@ set zz [winfo toplevel $w]
 	    bind $::FE::folder(w) <Enter> {if {[winfo exist [set zz]._Busy]} {event generate [set zz]._Busy <ButtonRelease>}}
 	}
     } else {
-      if {$FE::folder(sepfolders)} {
+      if {$::FE::folder(sepfolders)} {
         set tw [expr {$::scrwidth + 100}] 
       } else {
         set tw $::scrwidth
@@ -1481,10 +1485,10 @@ set zz [winfo toplevel $w]
       wm geometry $w $geometr
       bind $w <Destroy> {if {"%W" == $::FE::folder(w)} {::FE::fecancel $::FE::folder(typew) $::FE::folder(w) $::FE::folder(typefb) $::FE::folder(otv)}}
       bind $w <Configure> {if {"%W" == $::FE::folder(w) && [winfo exist $::FE::folder(w).contextMenu]} {lower $::FE::folder(w)._Busy $::FE::folder(w).contextMenu}}
-      if {$FE::data(-width) > 0 && $FE::data(-height) > 0} {
-    	    set geom $FE::data(-width)
+      if {$::FE::data(-width) > 0 && $::FE::data(-height) > 0} {
+    	    set geom $::FE::data(-width)
     	    append geom "x"
-    	    append geom $FE::data(-height)
+    	    append geom $::FE::data(-height)
     	    wm geometry $w $geom
       } elseif {[info exists ::Fegeo]} {
 	    wm geometry $w $::Fegeo
@@ -1499,15 +1503,15 @@ set zz [winfo toplevel $w]
 #Окно не может перекрываться (yes)
 #      wm attributes $w -topmost yes   ;# stays on top - needed for Linux
       if {$typefb == "dir"} {
-        if {$FE::data(-title) != ""} {
-    	    wm title $w [mc "$FE::data(-title)"]
+        if {$::FE::data(-title) != ""} {
+    	    wm title $w [mc "$::FE::data(-title)"]
         } else {
     	    wm title $w [mc "Choose directory"]
         }
         wm iconphoto $w fe_icondir
       } else {
-        if {$FE::data(-title) != ""} {
-    	    wm title $w [mc "$FE::data(-title)"]
+        if {$::FE::data(-title) != ""} {
+    	    wm title $w [mc "$::FE::data(-title)"]
         } else {
     	    wm title $w [mc "Choose file"]
 	}
@@ -1515,7 +1519,7 @@ set zz [winfo toplevel $w]
       }
     }
     set fm "$w"
-    set f3 [panedwindow $w.f3 -orient horizontal -sashwidth 2mm]
+    set f3 [panedwindow $w.f3 -orient horizontal -sashwidth 2m]
 #  -background red
 
 	array set fontinfo [font actual [[label $f3.dummy] cget -font]]
@@ -1549,7 +1553,7 @@ set zz [winfo toplevel $w]
     set ::FE::folder(panedwindow) $f3
     set ::FE::folder(panedir) $fm.dirs
     set ::FE::folder(panefile) $fm.files
-#    eval "$FE::folder(panedwindow) forget 0"
+#    eval "$::FE::folder(panedwindow) forget 0"
     $f3 forget $fm.dirs
 
     ttk::scrollbar $fm.files.y -orient vertical -command "$fm.files.t yview"
@@ -1598,15 +1602,15 @@ if {0} {
 
 #    eval "ttk::button $fm.buts.cancel -text [mc {Cancel}]  -command {[namespace current]::fecancel $typew $fm $typefb $otv}"
     set cbut [eval "cbutton new $fm.buts.cancel -type round  -text [mc Cancel]   -command {[namespace current]::fecancel $typew $fm $typefb $otv}"]
-    pack $fm.buts.ok $fm.buts.cancel -side right -padx 1mm
-#    $fm.buts.cancelack  -side right  -padx 1mm
+    pack $fm.buts.ok $fm.buts.cancel -side right -padx 1m
+#    $fm.buts.cancelack  -side right  -padx 1m
 
-    pack $fm.buts -side bottom -fill x -padx 1mm -pady 1mm
+    pack $fm.buts -side bottom -fill x -padx 1m -pady 1m
     pack [ttk::separator $fm.sepbut] -side bottom -fill x -expand 0 -pady 0
 
     frame $fm.titul  -relief flat -bg white
-    if {$FE::data(-title) != ""} {
-    	set ltit [mc "$FE::data(-title)"]
+    if {$::FE::data(-title) != ""} {
+    	set ltit [mc "$::FE::data(-title)"]
     } else {
 	if {$typefb == "dir"} {
     	    set ltit [mc "Choose folder"]
@@ -1703,8 +1707,8 @@ $f1.lang delete $objru
     set ftd [ttk::frame $fm.tekfolder]
     label $fm.tekfolder.lab -text "[mc {Current directory}]:" -bd 0 -anchor nw -font TkTextFont -background "#bbf9fe"
 #  -font fontfe
-    set dirlist [lindex $FE::folder(history) 0]
-    foreach d $FE::folder(history) {
+    set dirlist [lindex $::FE::folder(history) 0]
+    foreach d $::FE::folder(history) {
         if {[lsearch -exact $dirlist $d] == -1} {
     	    lappend dirlist $d
         }
@@ -1795,9 +1799,9 @@ $f1.lang delete $objru
     $::objNewdir boxtext
 
 
-#puts "initfe: ::FE::folder(sepfolders)=$FE::folder(sepfolders) initdir=$initdir"
+#puts "initfe: ::FE::folder(sepfolders)=$::FE::folder(sepfolders) initdir=$initdir"
     set ::FE::folder(tek) $initdir
-    lappend ::FE::folder(history) $FE::folder(tek)
+    lappend ::FE::folder(history) $::FE::folder(tek)
     incr [namespace current]::folder(histpos)
     gosepfolders $fm $typew $typefb
     goupdate $w $typefb
@@ -1807,7 +1811,7 @@ $f1.lang delete $objru
     	tk busy hold [winfo parent $w]
 	after 20
     }
-    if {!$FE::folder(details) } {  
+    if {!$::FE::folder(details) } {  
 	$fm.files.t configure -displaycolumns {}; $fm.files.t column {#0} -stretch 1 
     }
     if {$typew == "frame"} {
@@ -1815,11 +1819,11 @@ $f1.lang delete $objru
 	$w configure -relief groove -borderwidth 3 -highlightbackground sienna \
 	    -highlightcolor chocolate  -highlightthickness 3
 #Размещение фреймаа с проводником по одноиу из методов pack/grid/place
-	place $w -in [winfo parent $w] -x $FE::data(-x) -y $FE::data(-y) -relwidth $FE::data(-relwidth) -relheight $FE::data(-relheight) -width $FE::data(-width) -height $FE::data(-height)
+	place $w -in [winfo parent $w] -x $::FE::data(-x) -y $::FE::data(-y) -relwidth $::FE::data(-relwidth) -relheight $::FE::data(-relheight) -width $::FE::data(-width) -height $::FE::data(-height)
 
     }
     if {$typefb == "filesave"} {
-	set ::FE::folder(initialfile) $FE::data(-initialfile)
+	set ::FE::folder(initialfile) $::FE::data(-initialfile)
     }
 #    goupdate $w $typefb
     update
@@ -1856,7 +1860,7 @@ if {$::FE::folder(details) == 0} {
   proc detailedview {w} {
     set w "$::FE::folder(w).files.t"
     set dcol ""
-    foreach col $FE::folder(displaycolumns) {
+    foreach col $::FE::folder(displaycolumns) {
 #	if {[subst $[subst ::FE::displaycolumns\($col\)]]}  {}
 	if {$::FE::displaycolumns($col) == 1}  {
 	    append dcol " $col"
@@ -1885,13 +1889,13 @@ set w "$::FE::folder(w)"
 	set w1 [winfo toplevel $w]
     }
     if {!$::FE::folder(sepfolders)} {
-#	eval "$FE::folder(panedwindow) forget 0"
-	eval "$FE::folder(panedwindow) forget $FE::folder(panedir)"
+#	eval "$::FE::folder(panedwindow) forget 0"
+	eval "$::FE::folder(panedwindow) forget $::FE::folder(panedir)"
 	$w1.files.t heading "#0" -text "[mc {Folders and files}]"
 #puts "gosepfolders 0 ::FE::folder(sepfolders)=$::FE::folder(sepfolders)"
     } else {
-#	eval "$FE::folder(panedwindow) insert 0 $FE::folder(panedir)"
-	eval "$FE::folder(panedwindow) add $FE::folder(panedir) -before $FE::folder(panefile)"
+#	eval "$::FE::folder(panedwindow) insert 0 $::FE::folder(panedir)"
+	eval "$::FE::folder(panedwindow) add $::FE::folder(panedir) -before $::FE::folder(panefile)"
 	$w1.files.t heading "#0" -text  [mc {Files}]
 #puts "gosepfolders 1 ::FE::folder(sepfolders)=$::FE::folder(sepfolders)"
     }
@@ -1900,7 +1904,7 @@ set w "$::FE::folder(w)"
   }
  
   proc goup {w typefb} {
-    set tdir $FE::folder(tek)
+    set tdir $::FE::folder(tek)
     if {$tdir == [file dirname $tdir ]} {
 	return
     }
@@ -1916,10 +1920,10 @@ set w "$::FE::folder(w)"
 
     populateRoots "$w" "$tdir" $typefb
     set ::FE::folder(tek) $tdir
-    lappend ::FE::folder(history) $FE::folder(tek)
+    lappend ::FE::folder(history) $::FE::folder(tek)
     incr ::FE::folder(histpos)
-#    $FE::folder(prevBtn) state !disabled
-    $FE::folder(prevBtn) config -state normal
+#    $::FE::folder(prevBtn) state !disabled
+    $::FE::folder(prevBtn) config -state normal
     [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
   }
 
@@ -1932,11 +1936,11 @@ set w "$::FE::folder(w)"
 #Заменяем обратную косую в пути на нормальную косую
 	set tdir [string map {"\\" "/"} $tdir]
     }
-    if {$tdir ==  $FE::folder(tek)} {
+    if {$tdir ==  $::FE::folder(tek)} {
 	return
     } 
-    set ::FE::folder(prev) $FE::folder(tek)
-    $FE::folder(prevBtn) config -state normal
+    set ::FE::folder(prev) $::FE::folder(tek)
+    $::FE::folder(prevBtn) config -state normal
 
     set rr [file readable "$tdir"]
     if {$rr == 0} {
@@ -1949,7 +1953,7 @@ set w "$::FE::folder(w)"
 
     populateRoots "$w" "$tdir" $typefb
     set ::FE::folder(tek) $tdir
-    lappend ::FE::folder(history) $FE::folder(tek)
+    lappend ::FE::folder(history) $::FE::folder(tek)
     incr ::FE::folder(histpos)
 #    [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
     columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
@@ -1959,7 +1963,7 @@ set w "$::FE::folder(w)"
   proc goupdate {w typefb} {
 #    set ::SelDir ""
 #    set ::SelFil ""
-    set tdir [lindex $FE::folder(history) $FE::folder(histpos)]
+    set tdir [lindex $::FE::folder(history) $::FE::folder(histpos)]
 if {1} {
     if {$typefb != "filesave"} {
 	set ::FE::folder(initialfile) ""
@@ -1972,17 +1976,17 @@ if {1} {
 
   proc goprev {w typefb} {
     incr ::FE::folder(histpos) -1
-    set tdir [lindex $FE::folder(history) $FE::folder(histpos)]
+    set tdir [lindex $::FE::folder(history) $::FE::folder(histpos)]
     if {$typefb != "filesave"} {
 	set ::FE::folder(initialfile) ""
     }
     populateRoots "$w" "$tdir" $typefb
     set ::FE::folder(tek) $tdir
-#    $FE::folder(nextBtn) state !disabled
-    $FE::folder(nextBtn) config -state normal
-    if {$FE::folder(histpos) == 0} {
-#	$FE::folder(prevBtn) state disabled
-	$FE::folder(prevBtn) config -state disabled
+#    $::FE::folder(nextBtn) state !disabled
+    $::FE::folder(nextBtn) config -state normal
+    if {$::FE::folder(histpos) == 0} {
+#	$::FE::folder(prevBtn) state disabled
+	$::FE::folder(prevBtn) config -state disabled
     }
     [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
   }
@@ -1998,16 +2002,16 @@ if {1} {
 
   proc gohiddencb {fm typew typefb otv} {
 # -variable ::FE::folder(hiddencb)
-    set ::FE::folder(hiddencb) [expr {1 - $FE::folder(hiddencb)}]
+    set ::FE::folder(hiddencb) [expr {1 - $::FE::folder(hiddencb)}]
 
     [namespace current]::selectobj $fm.files.t $typew $typefb 3 $otv
     place forget $fm.helpview; 
-    if {$FE::folder(hiddencb)} {
-#	$FE::folder(hiddencbBtn) configure -image eye_nohidden
-	$FE::folder(hiddencbBtn) config -image eye_nohidden
+    if {$::FE::folder(hiddencb)} {
+#	$::FE::folder(hiddencbBtn) configure -image eye_nohidden
+	$::FE::folder(hiddencbBtn) config -image eye_nohidden
     } else { 
-#	$FE::folder(hiddencbBtn) configure -image fe_hiddencb
-	$FE::folder(hiddencbBtn) config -image fe_hiddencb
+#	$::FE::folder(hiddencbBtn) configure -image fe_hiddencb
+	$::FE::folder(hiddencbBtn) config -image fe_hiddencb
     }
   }
   proc gohelphiddencb {fm f1} {
@@ -2020,25 +2024,25 @@ if {1} {
   
   proc gonext {w typefb} {
     incr ::FE::folder(histpos)
-    set tdir [lindex $FE::folder(history) $FE::folder(histpos)]
+    set tdir [lindex $::FE::folder(history) $::FE::folder(histpos)]
     if {$typefb != "filesave"} {
 	set ::FE::folder(initialfile) ""
     }
     populateRoots "$w" "$tdir" $typefb
     set ::FE::folder(tek) $tdir
-#    $FE::folder(prevBtn) state !disabled
-    $FE::folder(prevBtn) config -state normal
+#    $::FE::folder(prevBtn) state !disabled
+    $::FE::folder(prevBtn) config -state normal
 
-    if {$FE::folder(histpos) >= [llength $FE::folder(history)] - 1} {
-#	$FE::folder(nextBtn) state disabled
-	$FE::folder(nextBtn) config -state disabled
+    if {$::FE::folder(histpos) >= [llength $::FE::folder(history)] - 1} {
+#	$::FE::folder(nextBtn) state disabled
+	$::FE::folder(nextBtn) config -state disabled
     }
     [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
   }
 
   proc selectobj {w typew typefb click otv} {
-    if {$FE::folder(typew) == "frame"} { 
-	set w1 $FE::folder(w)
+    if {$::FE::folder(typew) == "frame"} { 
+	set w1 $::FE::folder(w)
     } else {
 	set w1 [winfo toplevel $w]
     }
@@ -2050,13 +2054,13 @@ if {1} {
 puts "selectobj: exists $w1.butMenu"
 	return
     }
-    if {$FE::folder(typew) == "frame"} { 
-	set w1 $FE::folder(w)
+    if {$::FE::folder(typew) == "frame"} { 
+	set w1 $::FE::folder(w)
     } else {
 	set w1 [winfo toplevel $w]
     }
     if {$click == 3} {
-      set tekdir $FE::folder(tek)
+      set tekdir $::FE::folder(tek)
       if {$typefb != "dir"} {
         set mask [$w1.filter.entdir get]
       } else {
@@ -2065,10 +2069,10 @@ puts "selectobj: exists $w1.butMenu"
       set dir "$tekdir"
         populateTree $typefb $mask $w [$w insert {} end -text "$dir" \
         -values [list "$dir" directory]]
-      lappend ::FE::folder(history) $FE::folder(tek)
+      lappend ::FE::folder(history) $::FE::folder(tek)
       if {[incr ::FE::folder(histpos)]} {
-#	    $FE::folder(prevBtn) state !disabled
-	    $FE::folder(prevBtn) config -state normal
+#	    $::FE::folder(prevBtn) state !disabled
+	    $::FE::folder(prevBtn) config -state normal
       }
     }
     set num [$w selection]
@@ -2087,22 +2091,22 @@ puts "selectobj: exists $w1.butMenu"
       set dir "$tekdir"
 #puts "selectobj dir=$dir"
       populateTree $typefb $mask $w [$w insert {} end -text "$dir" -values [list "$dir" directory]]
-      set ::FE::folder(history) [lrange $FE::folder(history) 0 $FE::folder(histpos)]
-      lappend ::FE::folder(history) $FE::folder(tek)
-      set ldir [lindex $FE::folder(history) 0]
-      foreach d $FE::folder(history) {
+      set ::FE::folder(history) [lrange $::FE::folder(history) 0 $::FE::folder(histpos)]
+      lappend ::FE::folder(history) $::FE::folder(tek)
+      set ldir [lindex $::FE::folder(history) 0]
+      foreach d $::FE::folder(history) {
         if {[lsearch -exact $ldir $d] == -1} {
     	    lappend ldir $d
         }
       }
       $w1.tekfolder.ldir configure -value $ldir
 	if {[incr ::FE::folder(histpos)]} {
-#		$FE::folder(prevBtn) state !disabled
-		$FE::folder(prevBtn) config -state normal
+#		$::FE::folder(prevBtn) state !disabled
+		$::FE::folder(prevBtn) config -state normal
 
 #		set data(selectFile) ""
 	}
-	$FE::folder(nextBtn) config -state disabled
+	$::FE::folder(nextBtn) config -state disabled
     } elseif {$click == 2 && [string range [lindex $titem 1] 0 1] == "f_"} { 
       set fm [winfo toplevel $w]
       set tekdir "[lindex $titem 0]"
@@ -2116,8 +2120,8 @@ puts "selectobj: exists $w1.butMenu"
 #uts "W1=$w1 W=$w"
 
     if {$click == 2 && [string range [lindex $titem 1] 0 1] == "f_"} {
-	if {$FE::folder(typew) == "frame"} { 
-	    set fm $FE::folder(w)
+	if {$::FE::folder(typew) == "frame"} { 
+	    set fm $::FE::folder(w)
 	} else {
 	    set fm [winfo toplevel $w]
 	}
@@ -2133,8 +2137,8 @@ puts "selectobj: exists $w1.butMenu"
   }
 
   proc selectdir {w typew typefb click otv} {
-    if {$FE::folder(typew) == "frame"} { 
-	set w1 $FE::folder(w)
+    if {$::FE::folder(typew) == "frame"} { 
+	set w1 $::FE::folder(w)
     } else {
 	set w1 [winfo toplevel $w]
     }
@@ -2145,11 +2149,11 @@ puts "selectdir: exists $w1.butMenu"
 	return
     }
 
-    if {!$FE::folder(sepfolders)} {
+    if {!$::FE::folder(sepfolders)} {
 	return
     }
-    if {$FE::folder(typew) == "frame"} { 
-	set w1 $FE::folder(w)
+    if {$::FE::folder(typew) == "frame"} { 
+	set w1 $::FE::folder(w)
     } else {
 	set w1 [winfo toplevel $w]
     }
@@ -2169,21 +2173,21 @@ puts "selectdir: exists $w1.butMenu"
       set dir "$tekdir"
 #puts "selectdir dir=$dir"
       populateTree $typefb $mask $w1.files.t [$w1.files.t insert {} end -text "$dir" -values [list "$dir" directory]]
-      set ::FE::folder(history) [lrange $FE::folder(history) 0 $FE::folder(histpos)]
-      lappend ::FE::folder(history) $FE::folder(tek)
-      set ldir [lindex $FE::folder(history) 0]
-      foreach d $FE::folder(history) {
+      set ::FE::folder(history) [lrange $::FE::folder(history) 0 $::FE::folder(histpos)]
+      lappend ::FE::folder(history) $::FE::folder(tek)
+      set ldir [lindex $::FE::folder(history) 0]
+      foreach d $::FE::folder(history) {
         if {[lsearch -exact $ldir $d] == -1} {
     	    lappend ldir $d
         }
       }
       $w1.tekfolder.ldir configure -value $ldir
 	if {[incr ::FE::folder(histpos)]} {
-#		$FE::folder(prevBtn) state !disabled
-	    $FE::folder(prevBtn) config -state normal
+#		$::FE::folder(prevBtn) state !disabled
+	    $::FE::folder(prevBtn) config -state normal
 	}
-#	$FE::folder(nextBtn) state disabled
-	$FE::folder(nextBtn) config -state disabled
+#	$::FE::folder(nextBtn) state disabled
+	$::FE::folder(nextBtn) config -state disabled
     } else {
       set tekdir "[lindex $titem 0]"
     }
@@ -2241,13 +2245,13 @@ puts "selectdir: exists $w1.butMenu"
         $w.tekfolder.ldir configure -state normal
         set ret [$w.tekfolder.ldir get]
         $w.tekfolder.ldir configure -state readonly
-#        set ret [file join  $FE::folder(tek) $FE::folder(initialfile)]
+#        set ret [file join  $::FE::folder(tek) $::FE::folder(initialfile)]
 #puts "fereturn DIR ret=$ret"
       } elseif {$typefb == "filesave"} {
-        if {$FE::folder(initialfile) == ""} {
+        if {$::FE::folder(initialfile) == ""} {
     	    return
         }
-        set ret [file join  $FE::folder(tek) $FE::folder(initialfile)]
+        set ret [file join  $::FE::folder(tek) $::FE::folder(initialfile)]
       } else {
         return
       }
@@ -2292,7 +2296,7 @@ puts "selectdir: exists $w1.butMenu"
     set w1 [winfo toplevel $tree]
 #puts "populateRoots tree=$tree dir=$dir typefb=$typefb"
     if {$typefb != "dir"} {
-      set mask $FE::folder(filter)
+      set mask $::FE::folder(filter)
     } else {
       set mask "*"
     }
@@ -2305,12 +2309,12 @@ puts "selectdir: exists $w1.butMenu"
   ## Code to populate a node of the tree
   proc populateTree {typefb mask tree node} {
     $tree delete [$tree children $node]
-    if {$FE::folder(typew) == "frame"} { 
-	set w1 $FE::folder(w)
+    if {$::FE::folder(typew) == "frame"} { 
+	set w1 $::FE::folder(w)
     } else {
-	set w1 [winfo toplevel $FE::folder(w)]
+	set w1 [winfo toplevel $::FE::folder(w)]
     }
-    if {$FE::folder(sepfolders)} {
+    if {$::FE::folder(sepfolders)} {
 	set wtree "$w1.dirs.t"
     } else {
 	set wtree $tree
@@ -2318,8 +2322,8 @@ puts "selectdir: exists $w1.butMenu"
     if {[$tree set $node type] ne "d_directory" && [$tree set $node type] ne "directory"} {
       return
     }
-    if {![llength $FE::folder(history)]} {
-	set path $FE::folder(tek)
+    if {![llength $::FE::folder(history)]} {
+	set path $::FE::folder(tek)
     } else {
 	set path "[$tree set $node fullpath]"
     }
@@ -2339,12 +2343,12 @@ puts "selectdir: exists $w1.butMenu"
 		set pattern "*"
 	}
 
-#    if {$FE::folder(hiddencb)} {}
+#    if {$::FE::folder(hiddencb)} {}
 #      set directory_list1 [lsort -dictionary [glob -nocomplain -types {d } -directory "$path" "*"]]
 
 set directory_list1 [list]
 if {0} {
-    if {$FE::folder(hiddencb) > 0} {
+    if {$::FE::folder(hiddencb) > 0} {
       foreach f1  [lsort [glob -nocomplain -types {d hidden} -directory "$path" "*"]] {
 		if {![file isdirectory [file join $path $f1]]} continue
 		lappend directory_list1 [file join $path $f1]
@@ -2369,7 +2373,7 @@ set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $
     set levelup [file dir $path ]
     set type [file type $levelup]
     set ind 0
-    if {$FE::folder(sepfolders)} {
+    if {$::FE::folder(sepfolders)} {
 	$wtree delete [$wtree children $node]
     }
     foreach f [lsort -dictionary $directory_list] {
@@ -2424,7 +2428,7 @@ if {1} {
     } else {
 	set pattern {f l c b p hidden}
     }
-	if {$FE::folder(hiddencb)} {
+	if {$::FE::folder(hiddencb)} {
 	    foreach f1 [eval [linsert "$mask1" 0 glob -nocomplain -tails \
 		-directory $path -type {f l c b p hidden}]] {
 		# Links can still be directories. Skip those.
@@ -2510,7 +2514,7 @@ if {1} {
 #    set g1 [$fm.topName gradient create linear -stops {{0 "#bababa"} {1 "#454545"}} -lineartransition {0 0 0 1}]
 
     entry $fm.topName.entryPw -background snow  -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow
-    pack $fm.topName.entryPw -fill x -expand 1 -padx 3mm -ipady 2 -pady {6m 2m}
+    pack $fm.topName.entryPw -fill x -expand 1 -padx 3m -ipady 2 -pady {6m 2m}
     eval "bind $fm.topName.entryPw <Key-Return> {[namespace current]::readName $fm.topName.entryPw}"
 #    ttk::button $fm.topName.butPw  -command {global yespas;set yespas "no"; } -text [mc "Cancel"]
     set cbut [cbutton new $fm.topName.butPw -type ellipse  -text [mc Cancel]  -fillnormal red  -command {global yespas;set yespas "no"; }]
@@ -2598,7 +2602,7 @@ if {1} {
     	    tk_messageBox -title [mc "Create directory"] -icon info -message "Каталог создать не удалось\n$er" -parent $w
 	    return
 	}
-	lappend ::FE::folder(history) [file join $FE::folder(tek) $newdir]
+	lappend ::FE::folder(history) [file join $::FE::folder(tek) $newdir]
 	gonext $fm $typefb
     } else {
         if {[catch {set fd [open $newd w]} er]} {
@@ -2686,12 +2690,12 @@ update
     initfe filesave $rr $args
     set cmd [subst "vwait ::FE::$rr"]
     eval $cmd
-    set ret [subst "FE::$rr"]
+    set ret [subst "::FE::$rr"]
     set retok [subst $$ret]
     unset $rr
-    if {$FE::folder(typew) == "frame"} {
-	if {[winfo exist $FE::folder(w)]} {
-	    set w [winfo toplevel $FE::folder(w)]
+    if {$::FE::folder(typew) == "frame"} {
+	if {[winfo exist $::FE::folder(w)]} {
+	    set w [winfo toplevel $::FE::folder(w)]
 	    all_busy_forget [winfo toplevel $w]
 	}
     }
@@ -2705,15 +2709,15 @@ update
     variable $rr
     initfe fileopen $rr $args
     set cmd [subst "vwait ::FE::$rr"]
-    set w [winfo toplevel $FE::folder(w)]
+    set w [winfo toplevel $::FE::folder(w)]
     eval $cmd
-    set ret [subst "FE::$rr"]
+    set ret [subst "::FE::$rr"]
     set retok [subst $$ret]
     unset $rr
-    if {$FE::folder(typew) == "frame"} {
+    if {$::FE::folder(typew) == "frame"} {
 	all_busy_forget $w
     }
-puts "FE::folder(typew)=$FE::folder(typew) w=$w"
+puts "::FE::folder(typew)=$::FE::folder(typew) w=$w"
     return "$retok"
   }
   proc fe_choosedir {args} {
@@ -2724,12 +2728,12 @@ puts "FE::folder(typew)=$FE::folder(typew) w=$w"
     variable $rr
     initfe dir $rr $args
     set cmd [subst "vwait ::FE::$rr"]
-    set w [winfo toplevel $FE::folder(w)]
+    set w [winfo toplevel $::FE::folder(w)]
     eval $cmd
-    set ret [subst "FE::$rr"]
+    set ret [subst "::FE::$rr"]
     set retok [subst $$ret]
     unset $rr
-    if {$FE::folder(typew) == "frame"} {
+    if {$::FE::folder(typew) == "frame"} {
 	all_busy_forget [winfo toplevel  $w]
     }
     return "$retok"

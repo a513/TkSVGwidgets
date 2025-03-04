@@ -62,7 +62,7 @@ variable t
 set t ".test"
 destroy $t
 toplevel $t
-
+set gr1 -1
 
 wm state $t withdraw
 wm state $t normal

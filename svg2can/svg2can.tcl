@@ -201,7 +201,7 @@ proc svg2can::cache_free {key} {
 	    }
 	    gradient {
 #		::tkp::gradient delete $token
-		${svg2can::priv(wcan)} gradient delete $token
+		${::svg2can::priv(wcan)} gradient delete $token
 
 	    }
 	}
@@ -916,7 +916,7 @@ if {$value == ""} {
     if {$ind > 0} {
 	if {[lindex $opts $ind] == "currentColor"} {
 puts "ParsePathEx: -fill =currentColor. Replase???"
-	    set color $svg2can::curColor([lindex [array name svg2can::curColor] 0])
+	    set color $::svg2can::curColor([lindex [array name svg2can::curColor] 0])
 	    set opts [lreplace $opts $ind $ind $color]
 	}
     }
@@ -1339,7 +1339,7 @@ proc svg2can::ParseTextAttr {xmllist xVar yVar baselineShiftVar} {
     if {$ind > 0} {
 	if {[lindex $opts $ind] == "currentColor"} {
 puts "ParseTextAttr: -fill =currentColor. Replase???"
-	    set color $svg2can::curColor([lindex [array name svg2can::curColor] 0])
+	    set color $::svg2can::curColor([lindex [array name svg2can::curColor] 0])
 	    set opts [lreplace $opts $ind $ind $color]
 	}
     }
@@ -1473,10 +1473,10 @@ if {0} {
 	set hrefstops [::tkp::gradient cget $hreftoken -stops]
 	foreach {x1 y1 x2 y2} [::tkp::gradient cget $hreftoken -lineartransition] { break }	
 }
-	set units  [${svg2can::priv(wcan)} gradient cget $hreftoken -units]
-	set method [${svg2can::priv(wcan)} gradient cget $hreftoken -method]
-	set hrefstops [${svg2can::priv(wcan)} gradient cget $hreftoken -stops]
-	foreach {x1 y1 x2 y2} [${svg2can::priv(wcan)} gradient cget $hreftoken -lineartransition] { break }	
+	set units  [${::svg2can::priv(wcan)} gradient cget $hreftoken -units]
+	set method [${::svg2can::priv(wcan)} gradient cget $hreftoken -method]
+	set hrefstops [${::svg2can::priv(wcan)} gradient cget $hreftoken -stops]
+	foreach {x1 y1 x2 y2} [${::svg2can::priv(wcan)} gradient cget $hreftoken -lineartransition] { break }	
 }
     }    
 
@@ -1512,7 +1512,7 @@ if {0} {
     }
 #puts "CreateLinearGradient start"
 #    set token [::tkp::gradient create linear -method $method -units $units -lineartransition [list $x1 $y1 $x2 $y2] -stops $stops]
-    set token [${svg2can::priv(wcan)} gradient create linear -method $method -units $units -lineartransition [list $x1 $y1 $x2 $y2] -stops $stops]
+    set token [${::svg2can::priv(wcan)} gradient create linear -method $method -units $units -lineartransition [list $x1 $y1 $x2 $y2] -stops $stops]
 #puts "CreateLinearGradient end=$token"
     set gradientIDToToken($id) $token
     cache_add gradient $token
@@ -1555,11 +1555,11 @@ if {0} {
 	set transL [::tkp::gradient cget $hreftoken -radialtransition]
 }
 #puts "CreateRadialGradient start hreftoken=$hreftoken"
-	set units  [${svg2can::priv(wcan)} gradient cget $hreftoken -units]
-	set method [${svg2can::priv(wcan)} gradient cget $hreftoken -method]
-	set hrefstops [${svg2can::priv(wcan)} gradient cget $hreftoken -stops]
-#	set transL [${svg2can::priv(wcan)} gradient cget $hreftoken -radialtransition]
-if {![catch {${svg2can::priv(wcan)} gradient cget $hreftoken -radialtransition} transL]} {
+	set units  [${::svg2can::priv(wcan)} gradient cget $hreftoken -units]
+	set method [${::svg2can::priv(wcan)} gradient cget $hreftoken -method]
+	set hrefstops [${::svg2can::priv(wcan)} gradient cget $hreftoken -stops]
+#	set transL [${::svg2can::priv(wcan)} gradient cget $hreftoken -radialtransition]
+if {![catch {${::svg2can::priv(wcan)} gradient cget $hreftoken -radialtransition} transL]} {
 	set cx [lindex $transL 0]
 	set cy [lindex $transL 1]
 	if {[llength $transL] > 2} {
@@ -1603,7 +1603,7 @@ if {![catch {${svg2can::priv(wcan)} gradient cget $hreftoken -radialtransition} 
     }
 #puts "CreateRadialGradient start"
 #    set token [::tkp::gradient create radial -method $method -units $units -radialtransition [list $cx $cy $r $fx $fy] -stops $stops]
-    set token [${svg2can::priv(wcan)} gradient create radial -method $method -units $units -radialtransition [list $cx $cy $r $fx $fy] -stops $stops]
+    set token [${::svg2can::priv(wcan)} gradient create radial -method $method -units $units -radialtransition [list $cx $cy $r $fx $fy] -stops $stops]
 #puts "CreateRadialGradient end=$token"
     set gradientIDToToken($id) $token
     cache_add gradient $token
@@ -1637,7 +1637,7 @@ proc svg2can::ParseGradientStops {xmllist} {
 			set opts [StopsStyleToStopSpec [StyleAttrToList $value]]
 		    }
 		    class {
-#puts "svg2can::ParseGradientStops: class - key=$key value=\"$value\" opts=$opts color=$svg2can::curColor([string trim $value])"
+#puts "svg2can::ParseGradientStops: class - key=$key value=\"$value\" opts=$opts color=$::svg2can::curColor([string trim $value])"
 			set valcl [string trim $value]
 			if {[info exist curColor($valcl)]} {
 			    set curc $curColor($valcl)
@@ -1656,7 +1656,7 @@ proc svg2can::ParseGradientStops {xmllist} {
 		}
 	    } elseif {$color  == "currentColor"} {
 		if {[array size svg2can::curColor] == 1} {
-		    set color $svg2can::curColor([array name svg2can::curColor])
+		    set color $::svg2can::curColor([array name svg2can::curColor])
 		    set inds [lsearch -exact $opts "color"]
 		    incr inds
 		    if {[lindex $opts $inds] == "currentColor"} {
@@ -1667,7 +1667,7 @@ proc svg2can::ParseGradientStops {xmllist} {
 		    incr inds
 		    if {[lindex $opts $inds] == "currentColor"} {
 puts "svg2can::ParseGradientStops: color=currentColor. Replase???"
-			set color $svg2can::curColor([lindex [array name svg2can::curColor] 0])
+			set color $::svg2can::curColor([lindex [array name svg2can::curColor] 0])
 			set opts [lreplace $opts $inds $inds $color]
 		    }
 	    }
@@ -2589,7 +2589,7 @@ proc svg2can::_DrawSVG {fileName w} {
 #Add V. Orlov
 #viewBox!!!
 proc svg2can::ParseViewBox {xmllist} {
-    set svg2can::viewBox ""
+    set ::svg2can::viewBox ""
     if {[gettag $xmllist] == "svg"} {
 	set attr [getattr $xmllist]
 	set idx [lsearch -exact $attr "viewBox"]
@@ -2597,7 +2597,7 @@ proc svg2can::ParseViewBox {xmllist} {
 	    incr idx
 	    foreach {x0 y0 width height} "[string map {"," " "} [lindex $attr $idx]]" {break}
 #puts "svg2can::SVGFileToCanvas:viewBox = $x0 $y0 $width $height"    
-	    set svg2can::viewBox [list $x0 $y0 $width $height]
+	    set ::svg2can::viewBox [list $x0 $y0 $width $height]
 	}
     }
 }
@@ -2607,12 +2607,12 @@ proc svg2can::SVGFileToCanvas {w filePath} {
 	return -coge error "Bad type canvas. The canvas type must be PathCanvas."
     }
     foreach name [array name svg2can::curColor] {
-	unset svg2can::curColor($name)
+	unset ::svg2can::curColor($name)
     }
-    set svg2can::curColor() red
-#    array unset svg2can::curColor
+    set ::svg2can::curColor() red
+#    array unset ::svg2can::curColor
 
-    set svg2can::priv(wcan) $w
+    set ::svg2can::priv(wcan) $w
     # Opens the data file.
     if {[catch {open $filePath r} fd]} {
 	set tail [file tail $filePath]
@@ -2632,17 +2632,17 @@ proc svg2can::SVGFileToCanvas {w filePath} {
       -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
       -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
 #puts "cmdList=$cmdList"    
-    set gr [${svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
+    set gr [${::svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
 
     foreach cmd $cmdList {
 #puts "cmd=$cmd"
 	append cmd " -parent [set gr]"
-	eval ${svg2can::priv(wcan)} $cmd 
+	eval ${::svg2can::priv(wcan)} $cmd 
     }
     close $fd
 #Очищаем массив с именами gradient-ов
     foreach nam [array names svg2can::gradientIDToToken ] {
-	unset svg2can::gradientIDToToken($nam)
+	unset ::svg2can::gradientIDToToken($nam)
     }
     return $gr
 }
@@ -2653,11 +2653,11 @@ proc svg2can::SVGXmlToCanvas {w xml} {
 	return -coge error "Bad type canvas. The canvas type must be PathCanvas."
     }
     foreach name [array name svg2can::curColor] {
-	unset svg2can::curColor($name)
+	unset ::svg2can::curColor($name)
     }
-    set svg2can::curColor() red
+    set ::svg2can::curColor() red
 
-    set svg2can::priv(wcan) $w
+    set ::svg2can::priv(wcan) $w
 #puts "xml=$xml"    
     set xmllist [tinydom::documentElement [tinydom::parse $xml]]
 #puts "svg2can::SVGXmlToCanvas:xmllist=$xmllist"    
@@ -2668,16 +2668,16 @@ proc svg2can::SVGXmlToCanvas {w xml} {
       -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
       -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
 #puts "cmdList=$cmdList"    
-    set gr [${svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
+    set gr [${::svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
 
     foreach cmd $cmdList {
 #puts "cmd=$cmd"
 	append cmd " -parent [set gr]"
-	eval ${svg2can::priv(wcan)} $cmd 
+	eval ${::svg2can::priv(wcan)} $cmd 
     }
 #Очищаем массив с именами gradient-ов
     foreach nam [array names svg2can::gradientIDToToken ] {
-	unset svg2can::gradientIDToToken($nam)
+	unset ::svg2can::gradientIDToToken($nam)
     }
     return $gr
 }
@@ -2685,11 +2685,11 @@ proc svg2can::SVGXmlToCanvas {w xml} {
 proc svg2can::SVGFileToCmds {w filePath} {
 #puts "SVGFileToCmds: file=$filePath"    
     foreach name [array name svg2can::curColor] {
-	unset svg2can::curColor($name)
+	unset ::svg2can::curColor($name)
     }
-    set svg2can::curColor() red
+    set ::svg2can::curColor() red
 
-    set svg2can::priv(wcan) $w
+    set ::svg2can::priv(wcan) $w
     # Opens the data file.
     if {[catch {open $filePath r} fd]} {
 	set tail [file tail $filePath]
