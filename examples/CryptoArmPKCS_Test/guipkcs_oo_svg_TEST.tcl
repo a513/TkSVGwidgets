@@ -506,7 +506,7 @@ ttk::style configure TFrame -background white
 global myDir
 set mydir [file dirname [info script]]
 set dd [encoding dirs]
-encoding dirs [list $dd $mydir]
+encoding dirs "$dd $mydir"
 set myDir $mydir
 set ::px2mm [winfo fpixels . 1m]
 set ::signedCert ""
@@ -1784,10 +1784,11 @@ if {0} {
   if {$tcltls32 == ""} {
     package require tls
   }
-  load $tclpkcs11 Tclpkcs11
   load $lcc Lcc
   load $lrnd Lrnd
 }
+  load $tclpkcs11 Tclpkcs11
+
   source $alloids
 }
 #Грузим криптобиблиотеки
@@ -10063,14 +10064,14 @@ proc cmdbrowser {} {
         set mestok "Заблокирован USER-PIN.\nПопробуйте его разблокировать, перейдя\nна страницу\n\"Конфигурирование токена\""
       }
     }
-#    if {$::pkcs11_status != -1} {}
+    if {$::pkcs11_status != -1} {
         for {set i 0} {$i < 13} {incr i} {
-#puts "cmdBrowser fillnormal=WHITE"
+puts "cmdBrowser fillnormal=WHITE"
           .st.fr1.fra82.b$i configure -state normal
           $::fra82b([set i]) config  -state normal
           $::fra82b([set i]) config  -fillnormal white -fillenter "#d9e8f6"
         }
-#{    } 
+    } 
     if {$::pkcs11_status == 1} {
 	foreach j [list 1 3 5 7 12] {
 	    $::fra82b([set j]) config -fillnormal $::gfilnorm -fillenter $::gfilent -fillpress $::gfilpres
@@ -10572,7 +10573,7 @@ proc ::updatetok {} {
     return 0
   }
   if {[string range $::tcl_platform(machine) 0 2] != "arm"} {
-    ::pki::pkcs11::closesession  $::handle
+catch {    ::pki::pkcs11::closesession  $::handle}
   }
   #Список найденных токенов в слотах и сертификатов
   set ::slotid_tek -1
