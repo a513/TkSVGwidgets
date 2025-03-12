@@ -1767,7 +1767,6 @@ proc setCryptoLib { } {
     	    set tclpkcs11 [file join $myDir "tclpkcs11.p11"]
     	    set lcc [file join $myDir "Lcc.p12"]
     	    set lrnd [file join $myDir "Lrnd.p12"]
-set ::tcl_platform(bits) 64
     	    if {$::tcl_platform(bits) == 32} {
     		set tcltls32 [file join $myDir "tcltls32.so"]
 		load $tcltls32 Tls
@@ -1780,13 +1779,11 @@ set ::tcl_platform(bits) 64
       }
     }
   }
-if {0} {
   if {$tcltls32 == ""} {
     package require tls
   }
   load $lcc Lcc
   load $lrnd Lrnd
-}
   load $tclpkcs11 Tclpkcs11
 
   source $alloids
@@ -10573,7 +10570,7 @@ proc ::updatetok {} {
     return 0
   }
   if {[string range $::tcl_platform(machine) 0 2] != "arm"} {
-catch {    ::pki::pkcs11::closesession  $::handle}
+    ::pki::pkcs11::closesession  $::handle
   }
   #Список найденных токенов в слотах и сертификатов
   set ::slotid_tek -1
