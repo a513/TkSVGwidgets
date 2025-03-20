@@ -1,16 +1,27 @@
-#  Copyright (c) 2023-2024  Orlov Vladimir
+#  Copyright (c) 2023-2025  Orlov Vladimir
 #  
 #  This file is distributed under BSD style license.
 #
+if {[catch {package require tko}]} {
+    package require tkpath
+}
 
-package require tkpath
 package require treectrl
 
 namespace eval ::svgwidget {
     set treemenu [list ]
-image create photo ::svgwidget::tpblank \
-  -data {R0lGODlhFAAUAIAAAAAAAP///yH5BAkAAAAALAAAAAAUABQAAAIRhI+py+0Po5y02ouz3rz7rxUAOw==} \
-  -gamma {1.0} -height {0}  -width {0}
+    image create photo ::svgwidget::tpblank \
+	-data {R0lGODlhFAAUAIAAAAAAAP///yH5BAkAAAAALAAAAAAUABQAAAIRhI+py+0Po5y02ouz3rz7rxUAOw==} \
+	-gamma {1.0} -height {0}  -width {0}
+
+    if {[catch {package present tko}]}  {
+	set matrix "::tkp::matrix"
+	set tkpath "::tkp::canvas"
+    } {
+#Используется пакет tko
+	set matrix "::tko::matrix"
+	set tkpath "::tko::path"
+    }
 
 #Контроль изменения переменной в radio-кнопке
 proc trace_rb {var ind op} {
@@ -54,7 +65,11 @@ proc trace_rb {var ind op} {
 }
 #Вернуть объект в исходное (угол поворота 0)
 proc id2angleZero {w id } {
-    set m [list {1.0 0.0} {-0.0 1.0} {0.0 0.0}]
+    if { [set [namespace current]::matrix] == "::tkp::matrix"} {
+	set m [list {1.0 0.0} {-0.0 1.0} {0.0 0.0}]
+    } else {
+	set m [list 1.0 0.0 -0.0 1.0 0.0 0.0]
+    }
     $w itemconfigure $id -m $m
 }
 
@@ -78,14 +93,16 @@ proc idrotateAddAngle {w id deg {retm 0}} {
 #puts "rotateid2angle id=$id deg=$deg phi=$phi"
     foreach {xr yr} [::svgwidget::id2center $w $id] {break}
 #С КООРДИНАТАМИ ЛЕВОООГО ВЕРХНЕГО УГЛА
-    set m1 [::tkp::matrix rotate $phi $xr $yr]
+#    set m1 [::tkp::matrix rotate $phi $xr $yr]
+    set m1 [[set [namespace current]::matrix] rotate $phi $xr $yr]
 	if {$retm != 0} {
 	    return $m1
 	}
 #Читаем что было
     set mOrig [$w itemcget $id -m]
     if {$mOrig != ""} {
-	    set m1 [::tkp::matrix mult $mOrig $m1]
+#	    set m1 [::tkp::matrix mult $mOrig $m1]
+	    set m1 [[set [namespace current]::matrix] mult $mOrig $m1]
     }
     $w itemconfigure $id -m $m1
     return
@@ -100,7 +117,12 @@ proc idrotate2angle {w id deg {retm 0}} {
     }
     foreach {xr yr} [::svgwidget::id2center $w $id] {break}
 #С КООРДИНАТАМИ ЛЕВОООГО ВЕРХНЕГО УГЛА
-    set m1 [::tkp::matrix rotate $phi $xr $yr]
+#    set m1 [::tkp::matrix rotate $phi $xr $yr]
+    if {$::svgwidget::tkpath == "::tkp::canvas"} {
+	set m1 [[set [namespace current]::matrix] rotate $phi $xr $yr]
+    } else {
+	set m1 [[set [namespace current]::matrix] rotate $deg $xr $yr]    
+    }
 	if {$retm != 0} {
 	    return $m1
 	}
@@ -144,6 +166,13 @@ if {[info class instances ::oo::class ::cbutton] != ""} {
 }
 
 oo::class create cbutton {
+  variable tkpath
+  variable ptext
+  variable pline
+  variable prect
+  variable ppolygon
+  variable pimage
+  variable matrix
   variable Canv
 #idt - текст
 #idr - прямоугольник вокруг кнопки
@@ -168,6 +197,25 @@ oo::class create cbutton {
 #fr - 1 кнопки создаются на внутреннем холсте для внешнего фрейма
   variable fr
   constructor {w {args "-text cbutton"}} {
+    if {[catch {package present tko}]}  {
+#Используется пакет tkpath
+	set tkpath "::tkp::canvas"
+	set ptext "ptext"
+	set pline "pline"
+	set prect "prect"
+	set ppolygon "ppolygon"
+	set pimage "pimage"
+	set matrix "::tkp::matrix"
+    } else {
+#Используется пакет tko
+	set tkpath "::tko::path"
+	set ptext "text"
+	set pline "line"
+	set prect "rect"
+	set ppolygon "polygon"
+	set pimage "image"
+	set matrix "::tko::matrix"
+    }
     set wcan $w
     set lmenu [list ]
     set type "rect"
@@ -203,7 +251,9 @@ oo::class create cbutton {
     }
     
     if {![winfo exists $wcan]} {
-	tkp::canvas $wcan -bd 0 -highlightthickness 0
+	[set tkpath] $wcan -bd 0 -highlightthickness 0
+#	tkp::canvas $wcan -bd 0 -highlightthickness 0
+
 	set cwidth [winfo fpixels $wcan $Options(-width)]
 	set cheight [winfo fpixels $wcan $Options(-height)] 
 	set clw [winfo class [winfo parent $wcan]]
@@ -384,7 +434,7 @@ oo::class create cbutton {
 	    round -
 	    ellipse {
 		set fontsize [winfo fpixels $wcan $Options(-fontsize)]
-		set idt [$w create ptext 3 3 -text "$Options(-text)" -fontfamily $Options(-fontfamily) -fontsize $fontsize -fill $Options(-textfill) -fontweight $Options(-fontweight)]
+		set idt [$w create [set ptext] 3 3 -text "$Options(-text)" -fontfamily $Options(-fontfamily) -fontsize $fontsize -fill $Options(-textfill) -fontweight $Options(-fontweight)]
 		set ww [winfo fpixels $wcan $Options(-width)]
 		set hw [winfo fpixels $wcan $Options(-height)]
 
@@ -473,7 +523,7 @@ oo::class create cbutton {
 	set cw [winfo fpixels $wcan $Options(-width)]
     }
 #puts "ch=$ch cw=$cw ycoords=$ycoords xc0=$xc0 yc0=$yc0 strwidth=$strwidth"
-    set idr [$wcan create prect $x1 $y1 [expr {$x1 + $cw}] [expr {$y1 + $ch}] -stroke {} -strokewidth 0] 
+    set idr [$wcan create [set prect] $x1 $y1 [expr {$x1 + $cw}] [expr {$y1 + $ch}] -stroke {} -strokewidth 0] 
     my changestrwidth
     foreach {xr1 yr1 wrr hrr} [$wcan coords $idr] {break}
     set xr2 [expr {$x1 + $wrr}]
@@ -496,7 +546,7 @@ oo::class create cbutton {
 	$wcan itemconfigure $idm -tags [list mark obj $canvasb $btag [linsert $btag end mark] utag$idm]
     }
     if {$type == "radio"} {
-	set idm [$wcan create prect [expr {$xr1 + $wrr / 4}] [expr {$yr1 + $wrr / 4}] [expr {$xr2 - $wrr / 4}] [expr {$yr2 - $wrr / 4}]  -strokewidth 0 -stroke ""]
+	set idm [$wcan create [set prect] [expr {$xr1 + $wrr / 4}] [expr {$yr1 + $wrr / 4}] [expr {$xr2 - $wrr / 4}] [expr {$yr2 - $wrr / 4}]  -strokewidth 0 -stroke ""]
 	$wcan itemconfigure $idm -rx [expr {$wrr / 4}] 
 	$wcan itemconfigure $idm -tags [list mark obj $canvasb $btag [linsert $btag end mark] utag$idm]
     }
@@ -512,12 +562,12 @@ oo::class create cbutton {
 	set anc w 
     }
     set fontsize [winfo fpixels $wcan $Options(-fontsize)]
-    set idt [$w create ptext $x $y -textanchor $anc -text "$Options(-text)" -fontfamily $Options(-fontfamily) -fontsize $fontsize -fill $Options(-textfill) -fontweight $Options(-fontweight)]
+    set idt [$w create [set ptext] $x $y -textanchor $anc -text "$Options(-text)" -fontfamily $Options(-fontfamily) -fontsize $fontsize -fill $Options(-textfill) -fontweight $Options(-fontweight)]
     $wcan itemconfigure $idt -tags [list text obj $canvasb $btag [linsert $btag end text] utag$idt]
 
     set idt utag$idt
 
-    set idor [$wcan create prect [$wcan coords $idr] -strokewidth 0 -stroke {} -rx $Options(-rx) -fillopacity 0 -strokeopacity 0 -fill red -tags [list idor obj $canvasb $btag [linsert $btag end idor]]]
+    set idor [$wcan create [set prect] [$wcan coords $idr] -strokewidth 0 -stroke {} -rx $Options(-rx) -fillopacity 0 -strokeopacity 0 -fill red -tags [list idor obj $canvasb $btag [linsert $btag end idor]]]
 
     eval "$wcan bind $idor <Enter> {[self] enter}"
     eval "$wcan bind $idor <Leave> {[self] leave}"
@@ -963,7 +1013,7 @@ if {0} {
 		set u $idt
     		set fsize [expr {$result * $Canv(xscale)}]
     		if {$fsize != $result} {
-        	    $wcan itemconfig $idt -fontsize $fsize
+        	    $wcan itemconfigure $idt -fontsize $fsize
     		}
     	    }
 	    catch {unset FontS}
@@ -974,7 +1024,12 @@ if {0} {
   }
 
   method config args {
-    set svgtype [list circle ellipse group path  pline polyline ppolygon prect ptext]
+    if {$tkpath == "::tkp::canvas"} {
+	set svgtype [list circle ellipse group path pline polyline ppolygon prect ptext]
+    } else {
+	set svgtype [list circle ellipse group path line polyline polygon rect text]    
+    }
+
 #pimage - это делается отдельно
     if {[llength $args] == 1} {
 	set args [lindex "$args" 0]
@@ -1175,10 +1230,10 @@ if {1} {
 
 #Создаём image!!!
 			if {$tbut != "square"} {
-			    set idi [$wcan create pimage [expr {$x1 + $pxl}] [expr {$y1 + $pyl}] -image $Options(-image) -tintcolor $Options(-tintcolor) -tintamount 0.0  \
+			    set idi [$wcan create [set pimage] [expr {$x1 + $pxl}] [expr {$y1 + $pyl}] -image $Options(-image) -tintcolor $Options(-tintcolor) -tintamount 0.0  \
 				-width $pwidth -height $pheight -anchor nw]
 			} else {
-			    set idi [$wcan create pimage [expr {$x1 + $pxl}] [expr {$y1 + $pyl}] -image $Options(-image) -tintcolor $Options(-tintcolor) -tintamount 0.0  \
+			    set idi [$wcan create [set pimage] [expr {$x1 + $pxl}] [expr {$y1 + $pyl}] -image $Options(-image) -tintcolor $Options(-tintcolor) -tintamount 0.0  \
 				-width [expr {($x2 - $x1) - ($pxl + $pxr)}] -height [expr {($y2 - $y1) - ($pyl + $pyr)}] -anchor nw]
 			}
 
@@ -1198,7 +1253,7 @@ if {1} {
 			    $wcan itemconfigure $idi $option $value -width [expr {($x2 - $x1) - ($pxl + $pxr)}]  -height [expr {($y2 - $y1) - ($pyl + $pyr)}]  -srcregion [list 0 0 $w $h] -state normal
 			}
 			foreach {cxi cyi} [$wcan coords $idi] {break}
-			$wcan coord $idi [expr {$x1 + $pxl}] [expr {$y1 + $pyl}]
+			$wcan coords $idi [expr {$x1 + $pxl}] [expr {$y1 + $pyl}]
 			if {$tbut != "square"} {
 			    foreach {xi1 yi1 xi2 yi2} [$wcan bbox $idi] {break}
 			} else {
@@ -1290,7 +1345,6 @@ if {1} {
 #    		    puts "-isvg not rect"
     		    continue
     		}
-
     		if {$value == ""} {
     		    if {[info exists Options(-isvg)]} {
 			if {$Options(-isvg) != ""} {
@@ -1381,31 +1435,54 @@ if {[$wcan bbox $isvg] != ""} {
 #puts "scalex=$scalex scaley=$scaley"
 #Изменение размеров - ширины и высоты
 		if {[$wcan itemcget $isvg -matrix] == ""} {
-		    $wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+		    if {$tkpath == "::tkp::canvas"} {
+			$wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+		    } else {
+			$wcan itemconfigure $isvg -matrix "1 0 0 1 0 0"
+		    }
 		}
-		foreach {width height xy} [$wcan itemcget $isvg -matrix] {
-		    foreach {w1 w0} $width {
-			set w1 [expr {$w1 * $scalex}]
-		    }
-		    foreach {h0 h1} $height {
-			set h1 [expr {$h1 * $scaley}]
-		    }
-		    $wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
+		lassign [$wcan itemcget $isvg -matrix]  w1 w0 h0 h1 x y
+		set typec 0
+		if {$h1 == ""} {
+		    lassign "$h0" x y 
+		    lassign "$w0" h0 h1 
+		    lassign "$w1" w1 w0 
+    		    set typec 1
+		} 
+		set w1 [expr {$w1 * $scalex}]
+		set h1 [expr {$h1 * $scaley}]
+		if {$typec == 1} {
+		    $wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$x $y"]
+		} else {
+		    $wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $x $y"		
 		}
 if {[$wcan bbox $isvg] != ""} {
     		foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 
 #Перемещение по x и y
 		if {[$wcan itemcget $isvg -matrix] == ""} {
-		    $wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
-		}
-		foreach {width height xy} [$wcan itemcget $isvg -matrix] {
-		    foreach {x y} $xy {
-			set x [expr {$x + $rx1 - $snx1 + $pxl }]
-			set y [expr {$y + $ry1 - $sny1 + $pyl}]
+		    if {$tkpath == "::tkp::canvas"} {
+			$wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+		    } else {
+			$wcan itemconfigure $isvg -matrix "1 0 0 1 0 0"
 		    }
-		    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
 		}
+		lassign [$wcan itemcget $isvg -matrix]  w1 w0 h0 h1 x y
+		set typec 0
+		if {$h1 == ""} {
+		    lassign "$h0" x y 
+		    lassign "$w0" h0 h1 
+		    lassign "$w1" w1 w0 
+    		    set typec 1
+		} 
+		set x [expr {$x + $rx1 - $snx1 + $pxl }]
+		set y [expr {$y + $ry1 - $sny1 + $pyl}]
+		if {$typec == 1} {
+		    $wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$x $y"]
+		} else {
+		    $wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $x $y"		
+		}
+
 }
 }
     		if {$isvgold != "" } {
@@ -1432,10 +1509,22 @@ if {[$wcan bbox $isvg] != ""} {
 			    switch $Options(-compound)  {
 				left {
 				    foreach {x1 y1 x2 y2} [$wcan bbox $idr] {break}
-				    lassign [$wcan itemcget $isvg -matrix] width height xy
-				    lassign $xy dxi dyi
+				    lassign [$wcan itemcget $isvg -matrix]  w1 w0 h0 h1 dxi dyi
+				    set typec 0
+				    if {$h1 == ""} {
+					lassign "$h0" dxi dyi
+					lassign "$w0" h0 h1 
+					lassign "$w1" w1 w0 
+    					set typec 1
+				    } 
 				    set dxi [expr {$x1 + $pxl + 2}]
-				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$dxi $dyi"]
+
+				    if {$typec == 1} {
+					$wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$dxi $dyi"]
+				    } else {
+					$wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $dxi $dyi"		
+				    }
+
 				    set x [expr {$ix2 + $pxl}]
 				    set y [expr { ($y1 + $y2) / 2.0}]
 
@@ -1444,11 +1533,23 @@ if {[$wcan bbox $isvg] != ""} {
 				    set dx 0
 				}
 				right {
-				    lassign [$wcan itemcget $isvg -matrix] width height xy
-				    lassign $xy dxi dyi
+				    lassign [$wcan itemcget $isvg -matrix]  w1 w0 h0 h1 dxi dyi
+				    set typec 0
+				    if {$h1 == ""} {
+					lassign "$h0" dxi dyi
+					lassign "$w0" h0 h1 
+					lassign "$w1" w1 w0 
+    					set typec 1
+				    } 
+
 				    foreach {x1 y1 x2 y2} [$wcan bbox $idr] {break}
 				    set dxi [expr {$x2 - $x1 - ($pxl + $pxr)}]
-				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$dxi $dyi"]
+				    if {$typec == 1} {
+					$wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$dxi $dyi"]
+				    } else {
+					$wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $dxi $dyi"		
+				    }
+
 				    foreach {ix1 iy1 ix2 iy2} [$wcan bbox $Options(-isvg)] {break}
 				    set x [expr {$ix1 - $pxl}]
 				    set y [expr { ($y1 + $y2) / 2.0}]
@@ -1498,7 +1599,11 @@ if {[$wcan bbox $isvg] != ""} {
 				    set dxi [expr {$x2 - $x1 - ($pxl + $pxr)}]
 				    lassign   [$wcan bbox $idt] xt1 yt1 xt2 yt2				    
 				    set dyi [expr {$yt2 - $yt1 + $pyl}]
-				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$dxi $dyi"]
+				    if {$typec == 1} {
+					$wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$dxi $dyi"]
+				    } else {
+					$wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $dxi $dyi"		
+				    }
 				}
     				    $wcan raise $idt $idr
 			    }
@@ -2016,6 +2121,14 @@ if {[$wcan bbox $isvg] != ""} {
 }
 
 oo::class create ibutton {
+  variable tkpath
+  variable ptext
+  variable pline
+  variable prect
+  variable ppolygon
+  variable pimage
+  variable matrix
+
 #iidt - текст
 #idr - прямоугольник вокруг картинки
 #idor - прозрачный прямоугольник вокруг картинки
@@ -2039,6 +2152,26 @@ oo::class create ibutton {
   variable wpad
   
   constructor {w args} {
+    if {[catch {package present tko}]}  {
+#Используется пакет tkpath
+	set tkpath "::tkp::canvas"
+	set ptext "ptext"
+	set pline "pline"
+	set prect "prect"
+	set ppolygon "ppolygon"
+	set pimage "pimage"
+	set matrix "::tkp::matrix"
+    } else {
+#Используется пакет tko
+	set tkpath "::tko::path"
+	set ptext "text"
+	set pline "line"
+	set prect "rect"
+	set ppolygon "polygon"
+	set pimage "image"
+	set matrix "::tko::matrix"
+    }
+
     catch {unset Options}
     set wpad 0
     set x0 0
@@ -2075,7 +2208,9 @@ oo::class create ibutton {
 	set Options(-height) [lindex $args $ind]
     }
     if {![winfo exists $wcan]} {
-	tkp::canvas $wcan -bd 0 -highlightthickness 0 
+#	tkp::canvas $wcan -bd 0 -highlightthickness 0 
+	[set tkpath] $wcan -bd 0 -highlightthickness 0 
+
 	set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 	set cwidth [winfo fpixels $wcan $Options(-width)]
 	set cheight [winfo fpixels $wcan $Options(-height)] 
@@ -2167,7 +2302,7 @@ oo::class create ibutton {
     set x2 [expr {$x1 + $wr }]
     set y2 [expr {$y1 + $hr }]
 
-    set idr [$wcan create prect $x1 $y1 $x2 $y2 -strokelinecap butt -stroke {} -strokewidth 0]
+    set idr [$wcan create [set prect] $x1 $y1 $x2 $y2 -strokelinecap butt -stroke {} -strokewidth 0]
     my changestrwidth
 
     foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
@@ -2181,7 +2316,7 @@ oo::class create ibutton {
     set anc w 
 
     set imageOrig $Options(-image)
-    set idi [$wcan create pimage [expr {$x1 + $pxl }] [expr {$y1 + $pyl }] -image "::svgwidget::tpblank" -tintcolor $Options(-tintcolor) -tintamount 0.0  \
+    set idi [$wcan create [set pimage] [expr {$x1 + $pxl }] [expr {$y1 + $pyl }] -image "::svgwidget::tpblank" -tintcolor $Options(-tintcolor) -tintamount 0.0  \
 	-width [expr {$wr - ($pxl + $pxr) }] -height [expr {$hr - ($pyl + $pyr) }] -anchor nw]
 
     $wcan itemconfigure $idi -tags [list image obj canvasi $btag [linsert $btag end image] utag$idi]
@@ -2197,7 +2332,7 @@ oo::class create ibutton {
     set y [expr { ($y1 + $y2) / 2.0}]
 
     
-    set idt [$w create ptext $x $y -textanchor $anc -text $Options(-text) -fontfamily $Options(-fontfamily) -fontsize [winfo fpixels $wcan $Options(-fontsize)]]
+    set idt [$w create [set ptext] $x $y -textanchor $anc -text $Options(-text) -fontfamily $Options(-fontfamily) -fontsize [winfo fpixels $wcan $Options(-fontsize)]]
     $wcan itemconfigure $idt -tags [list text obj $canvasb $btag [linsert $btag end text] utag$idt]
     set idt utag$idt
 
@@ -2321,7 +2456,7 @@ oo::class create ibutton {
     if {$Options(-help) != "" && $fr == 0} {
 	    set twomm2px [winfo pixels $wcan 2m]
 	    foreach {x0r y0r x1r y1r} [$wcan coords $idr] {break}
-	    set idh [$wcan create ptext $x0r [expr {$y0r - $twomm2px * 2}] -textanchor nw -text $Options(-help)]
+	    set idh [$wcan create [set ptext] $x0r [expr {$y0r - $twomm2px * 2}] -textanchor nw -text $Options(-help)]
 	    update
     }
   }
@@ -2461,7 +2596,12 @@ oo::class create ibutton {
 	my release 0 0
   }
   method config args {
-    set svgtype [list circle ellipse group path  pline polyline ppolygon prect ptext]
+    if {$tkpath == "::tkp::canvas"} {
+	set svgtype [list circle ellipse group path pline polyline ppolygon prect ptext]
+    } else {
+	set svgtype [list circle ellipse group path line polyline polygon rect text]    
+    }
+
     variable Options
     if {[llength $args] == 1} {
 	set args [lindex "$args" 0]
@@ -2647,7 +2787,7 @@ oo::class create ibutton {
 		}
 #Плюха в винде: тодщина строки в svg и обрамления вместо нуля остается фактически равной одному, поэтому далается пустая заливка
 #		set idor [$wcan create prect [$wcan bbox $value] -strokewidth 0 -stroke {} -fillopacity 0 -strokeopacity 0 -fill red -tags [list isvg obj $canvasb $btag [linsert $btag end isvg]]]
-		set idor [$wcan create prect [$wcan coords $idr] -strokewidth 0 -stroke {} -fillopacity 0 -strokeopacity 0 -fill red -tags [list isvg obj $canvasb $btag [linsert $btag end isvg]]]
+		set idor [$wcan create [set prect] [$wcan coords $idr] -strokewidth 0 -stroke {} -fillopacity 0 -strokeopacity 0 -fill red -tags [list isvg obj $canvasb $btag [linsert $btag end isvg]]]
 		eval "$wcan bind $idor <Enter> {[self] enter}"
 		eval "$wcan bind $idor <Leave> {[self] leave}"
 		eval "$wcan bind $idor <ButtonPress-1> {[self] press}"
@@ -2709,8 +2849,29 @@ if {0} {
 #Изменение размеров - ширины и высоты
 #    			$wcan scale $isvg 0 0 $scalex $scaley
 			    if {[$wcan itemcget $isvg -matrix] == ""} {
-				$wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+				if {$tkpath == "::tkp::canvas"} {
+				    $wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+				} else {
+				    $wcan itemconfigure $isvg -matrix "1 0 0 1 0 0"
+				}
 			    }
+			    lassign [$wcan itemcget $isvg -matrix]  w1 w0 h0 h1 x y
+			    set typec 0
+			    if {$h1 == ""} {
+				lassign "$h0" x y 
+				lassign "$w0" h0 h1 
+				lassign "$w1" w1 w0 
+    				set typec 1
+			    } 
+			    set w1 [expr {$w1 * $scalex}]
+			    set h1 [expr {$h1 * $scaley}]
+			    if {$typec == 1} {
+				$wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$x $y"]
+			    } else {
+				$wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $x $y"		
+			    }
+
+if {0} {
 			    foreach {width height xy} [$wcan itemcget $isvg -matrix] {
 				foreach {w1 w0} $width {
 				    set w1 [expr {$w1 * $scalex}]
@@ -2720,12 +2881,33 @@ if {0} {
 				}
 				$wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
 			    }
+}			    
 			    if {[$wcan bbox $isvg] != ""} {
     				foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 #Перемещение по x и y
-			    if {[$wcan itemcget $isvg -matrix] == ""} {
-				$wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
-			    }
+				if {[$wcan itemcget $isvg -matrix] == ""} {
+				    if {$tkpath == "::tkp::canvas"} {
+					$wcan itemconfigure $isvg -matrix "{1 0} {0 1} {0 0}"
+				    } else {
+					$wcan itemconfigure $isvg -matrix "1 0 0 1 0 0"
+				    }
+				}
+				lassign [$wcan itemcget $isvg -matrix]  w1 w0 h0 h1 x y
+				set typec 0
+				if {$h1 == ""} {
+				    lassign "$h0" x y 
+				    lassign "$w0" h0 h1 
+				    lassign "$w1" w1 w0 
+    				    set typec 1
+				} 
+				set x [expr {$x + $rx1 - $snx1 + $pxl }]
+				set y [expr {$y + $ry1 - $sny1 + $pyl }]
+				if {$typec == 1} {
+				    $wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$x $y"]
+				} else {
+				    $wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $x $y"		
+				}
+if {0} {
 				foreach {width height xy} [$wcan itemcget $isvg -matrix] {
 				    foreach {x y} $xy {
 					set x [expr {$x + $rx1 - $snx1 + $pxl }]
@@ -2734,6 +2916,7 @@ if {0} {
 			
 				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
 				}
+}
 			    }
 			}
 		    } else {
@@ -2914,7 +3097,14 @@ set ::copycanitem {
     foreach {x1 y1 x2 y2} [$wcan bbox $grnew] {break}
     set dx0 [expr {$x0 - $x1 }]
     set dy0 [expr {$y0 - $y1 }]
-    $wcan itemconfigure $copytag -m [list {1 0} {0 1} "[set dx0] [set dy0]"]
+    if {$tkpath == "::tkp::canvas"} {
+	$wcan itemconfigure $copytag -m [list {1 0} {0 1} "[set dx0] [set dy0]"]
+    } else {
+	$wcan itemconfigure $copytag -m "1 0 0 1 [set dx0] [set dy0]"
+    }
+
+
+#    $wcan itemconfigure $copytag -m [list {1 0} {0 1} "[set dx0] [set dy0]"]
 #    $wcan move $copytag $dx0 $dy0
 
     return $grnew
@@ -2970,7 +3160,12 @@ set ::copycanitem {
     foreach {x1 y1 x2 y2} [$wcan bbox $grnew] {break}
     set dx0 [expr {$x0 - $x1 }]
     set dy0 [expr {$y0 - $y1 }]
-    $wcan itemconfigure $grnew -m [list {1 0} {0 1} "[set dx0] [set dy0]"]
+#    $wcan itemconfigure $grnew -m [list {1 0} {0 1} "[set dx0] [set dy0]"]
+    if {$tkpath == "::tkp::canvas"} {
+	$wcan itemconfigure $grnew -m [list {1 0} {0 1} "[set dx0] [set dy0]"]
+    } else {
+	$wcan itemconfigure $grnew -m "1 0 0 1 [set dx0] [set dy0]"
+    }
 #    $wcan move $grnew $dx0 $dy0
 
     return $grnew
@@ -3374,6 +3569,13 @@ oo::define cbutton {
     eval $::methshowmenu
 }
 oo::class create mbutton {
+  variable tkpath
+  variable ptext
+  variable pline
+  variable prect
+  variable ppolygon
+  variable matrix
+  variable pimage
 #iidt - текст
 #idr - прямоугольник вокруг кнопки
 #idm - маркер radio/check button
@@ -3399,6 +3601,26 @@ oo::class create mbutton {
   variable fr
   
   constructor {w {args "-text mbutton"}} {
+    if {[catch {package present tko}]}  {
+#Используется пакет tkpath
+	set tkpath "::tkp::canvas"
+	set ptext "ptext"
+	set pline "pline"
+	set prect "prect"
+	set ppolygon "ppolygon"
+	set matrix "::tkp::matrix"
+	set pimage "pimage"
+    } else {
+#Используется пакет tko
+	set tkpath "::tko::path"
+	set ptext "text"
+	set pline "line"
+	set prect "rect"
+	set ppolygon "polygon"
+	set matrix "::tko::matrix"
+	set pimage "image"
+    }
+
     set wcan $w
     set type "msg"
     set ind [lsearch $args "-type"]
@@ -3429,7 +3651,8 @@ oo::class create mbutton {
 	set Options(-strokewidth) [lindex $args $ind]
     }
     if {![winfo exists $wcan]} {
-	tkp::canvas $wcan -bd 0 -highlightt 0
+#	tkp::canvas $wcan -bd 0 -highlightt 0
+	[set tkpath] $wcan -bd 0 -highlightthickness 0
 	set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 	set cwidth [winfo fpixels $wcan $Options(-width)]
 	set cheight [winfo fpixels $wcan $Options(-height)] 
@@ -3610,7 +3833,7 @@ oo::class create mbutton {
 	    set yr2 [winfo pixels $wcan [my config -height]]
 	}
 
-	set idtyn [$w create ptext $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	set idtyn [$w create [set ptext] $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	set boxyn [$wcan bbox $idtyn]
 	foreach {tx1 ty1 tx2 ty2} $boxyn {break}
 	$wcan delete $idtyn
@@ -3641,7 +3864,7 @@ oo::class create mbutton {
 	    set yr2 [winfo pixels $wcan [my config -height]]
 	}
 
-	set idtyn [$w create ptext $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	set idtyn [$w create [set ptext] $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	set boxyn [$wcan bbox $idtyn]
 	foreach {tx1 ty1 tx2 ty2} $boxyn {break}
 	$wcan delete $idtyn
@@ -3686,7 +3909,9 @@ oo::class create mbutton {
 	set cmd "variable $Options(-variable);$Options(-command);set $Options(-variable) yes"
 	my config -command $cmd
     }
-    $wcan raise $idor $idt
+    if {$::svgwidget::tkpath == "::tkp::canvas"} {
+	$wcan raise $idor $idt
+    }
 #    puts "[self]"
   }
   
@@ -4013,7 +4238,7 @@ oo::class create mbutton {
     $can delete "boxText $btag" 
     set i 0
     foreach {txt}  "$ltext" {
-	set tekb [$can create ptext $xt $ystr -text "$txt" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
+	set tekb [$can create [set ptext] $xt $ystr -text "$txt" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
 
 	foreach {x0  y0 x1 y1} [$can bbox $tekb] {break}
 	set ystr $y1
@@ -4325,6 +4550,14 @@ oo::class create mbutton {
 }
 
 oo::class create cmenu {
+  variable tkpath
+  variable ptext
+  variable pline
+  variable prect
+  variable ppolygon
+  variable pimage
+  variable matrix
+
   variable wcan
   variable Options
   variable listmenu
@@ -4339,8 +4572,28 @@ oo::class create cmenu {
   variable fr
 
   constructor {w {args ""}} {
+    if {[catch {package present tko}]}  {
+#Используется пакет tkpath
+	set tkpath "::tkp::canvas"
+	set ptext "ptext"
+	set pline "pline"
+	set prect "prect"
+	set ppolygon "ppolygon"
+	set pimage "pimage"
+	set matrix "::tkp::matrix"
+    } {
+#Используется пакет tko
+	set tkpath "::tko::path"
+	set ptext "text"
+	set pline "line"
+	set prect "rect"
+	set ppolygon "polygon"
+	set pimage "image"
+	set matrix "::tko::matrix"
+    }
+
     if {[winfo exists $w]} {
-	if {[winfo class $w] != "PathCanvas"} {
+	if {[winfo class $w] != "PathCanvas" && [winfo class $w] != "TkoPath"} {
 #	error "cmenu cmenu $w already exist"
 	    puts "class create cmenu: cmenu $w already exist"
 	    destroy $w
@@ -4351,7 +4604,8 @@ oo::class create cmenu {
     set fr 0
     if {![winfo exists $wcan]} {
 	set fr 1
-	tkp::canvas $wcan -bd 0 -highlightt 0
+#	tkp::canvas $wcan -bd 0 -highlightt 0
+	[set tkpath] $wcan -bd 0 -highlightthickness 0
     }
     set wclass "cmenu"
     catch {unset Options}
@@ -4430,7 +4684,7 @@ if {0} {
 #set m2 0
 #    set xc [winfo fpixels $wcan 3m]
 #puts "add type=$type args=$args m2=$m2 xc=$xc yc=$yc"
-    set srect [$wcan create prect 0 0 10 10 -stroke ""]
+    set srect [$wcan create [set prect] 0 0 10 10 -stroke ""]
     if {[llength $args] == 1} {
 	set args [lindex "$args" 0]
     }
@@ -4598,7 +4852,7 @@ puts "cmenu finish: uuncnown direction=$direction"
 		    $wcan lower "$otag isvg" "$otag idor"
 		    if {[$obj config -fillenter] != "##"} {
 			set btago "canvasb[string range [set obj] [string first Obj [set obj]] end]"
-			set brect [[$obj canvas] create prect 0 [expr {$y0 + 2}] $wmax [expr {$y1 - 2}] -fill {} -fillopacity 0.2 -strokeopacity 0.2 -stroke {} -strokewidth 0 -tags $btago]
+			set brect [[$obj canvas] create [set prect] 0 [expr {$y0 + 2}] $wmax [expr {$y1 - 2}] -fill {} -fillopacity 0.2 -strokeopacity 0.2 -stroke {} -strokewidth 0 -tags $btago]
 #Курсор на строке, вне ее, щелчек по кнопке
 			if {$tp != "check" && $tp != "radio"} {
 			    eval "[$obj canvas] bind [set brect] <Enter> {[$obj canvas] itemconfigure [set brect] -fill [set bcol] -stroke [set bcol];[set obj] enter}"
@@ -4818,6 +5072,14 @@ if {$fr == 1}  {
 }
 
 oo::class create cframe {
+  variable tkpath
+  variable ptext
+  variable pline
+  variable prect
+  variable ppolygon
+  variable pimage
+  variable matrix
+
   variable wcan
   variable wentry
   variable Options
@@ -4841,6 +5103,26 @@ oo::class create cframe {
   variable relwdt
 
   constructor {w {args ""}} {
+    if {[catch {package present tko}]}  {
+#Используется пакет tkpath
+	set tkpath "::tkp::canvas"
+	set ptext "ptext"
+	set pline "pline"
+	set prect "prect"
+	set ppolygon "ppolygon"
+	set pimage "pimage"
+	set matrix "::tkp::matrix"
+    } {
+#Используется пакет tko
+	set tkpath "::tko::path"
+	set ptext "text"
+	set pline "line"
+	set prect "rect"
+	set ppolygon "polygon"
+	set pimage "image"
+	set matrix "::tko::matrix"
+    }
+
     set wcan $w
     set fr 0
     set wclass "cframe"
@@ -4854,7 +5136,8 @@ oo::class create cframe {
     }
 
     if {![winfo exists $wcan]} {
-	tkp::canvas $wcan -bd 0 -highlightthickness 0
+#	tkp::canvas $wcan -bd 0 -highlightthickness 0
+	[set tkpath] $wcan -bd 0 -highlightthickness 0
 	$wcan configure -bg [[winfo parent $wcan] cget -bg]
 	set fr 1
     } else {
@@ -4946,7 +5229,7 @@ oo::class create cframe {
     switch $type {
 	clframe {
 	    set fontsize [winfo fpixels $wcan $Options(-fontsize)]
-	    set idt [$wcan create ptext 0 0 -textanchor nw -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) ]
+	    set idt [$wcan create [set ptext] 0 0 -textanchor nw -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) ]
 	    foreach {xy0 yt0 xt1 yt1} [$wcan bbox $idt] {break}
 	    $wcan delete $idt
 	    if {[info exist yt1]} {
@@ -5017,9 +5300,9 @@ oo::class create cframe {
     }
 #puts "ch=$ch cw=$cw ycoords=$ycoords xc0=$xc0 yc0=$yc0 strwidth=$strwidth"
     if {$fr == 1 || $tbut == "clframe" } {
-	set idr [$wcan create prect [expr {$xc0 + $strwidth * 0}] [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch - $ycoords}]] 
+	set idr [$wcan create [set prect] [expr {$xc0 + $strwidth * 0}] [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch - $ycoords}]] 
     } else {
-	set idr [$wcan create prect [expr {$xc0 + $strwidth * 0}] [expr {$yc0 - $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch + $ycoords}]] 
+	set idr [$wcan create [set prect] [expr {$xc0 + $strwidth * 0}] [expr {$yc0 - $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch + $ycoords}]] 
     }
 
     set btag "canvasb[string range [self] [string first Obj [self]] end]"
@@ -5035,7 +5318,7 @@ oo::class create cframe {
     set idr "utag$idr"
 #Заголовок
     if {$tbut == "clframe"} {
-	set idt [$wcan create ptext [expr {$xc0 + ($cw - $strwidth * 2) / 2.0}] [expr {$yc0 + 1}] -textanchor n -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) -tags [list Text obj $canvasb "$btag"]]
+	set idt [$wcan create [set ptext] [expr {$xc0 + ($cw - $strwidth * 2) / 2.0}] [expr {$yc0 + 1}] -textanchor n -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) -tags [list Text obj $canvasb "$btag"]]
     }
     if {$fr == 1} {
 	if {$tbut == "frame"} {
@@ -5254,12 +5537,14 @@ if {[$wcan bbox $id] != ""} {
       
       if {[catch {$wcan itemcget $id -strokewidth} result]==0} {
 	set stw [$wcan itemcget $id -strokewidth]
-        $wcan itemconfig $id -strokewidth [expr {$stw * $yScale * $xScale}]
+        $wcan itemconfigure $id -strokewidth [expr {$stw * $yScale * $xScale}]
       }
 
-      if {$type != "pimage" && $type != "polyline" && $type != "path"} {
+#      if {$type != "pimage" && $type != "polyline" && $type != "path"} { }
+      if {$type != [set pimage] && $type != "polyline" && $type != "path"} {
 	    $wcan scale $id $xOrigin $yOrigin $xScale $yScale
-	    if {$type == "ptext"} {
+#	    if {$type == "ptext"} { }
+	    if {$type == [set ptext]} {
     		$wcan coords $id [$wcan coords $id]
     	    }
       } elseif {$type == "polyline" || $type == "path"} {
@@ -5276,7 +5561,8 @@ if {[$wcan bbox $id] != ""} {
 	    $wcan itemconfigure $id -endarrow $et -endarrowlength [expr {$al * $xScale}] -endarrowwidth [expr {$aw * $yScale}]
       }
 #Добавить в tksvgpaint
-      if {$type == "prect"} {
+#      if {$type == "prect"} { }
+      if {$type == [set prect]} {
 	set rx [$wcan itemcget $id -rx]
 	set ry [$wcan itemcget $id -ry]
 	$wcan itemconfigure $id -rx [expr {$rx * $xScale}] -ry [expr {$ry * $yScale}]
@@ -5297,7 +5583,8 @@ if {[$wcan bbox $id] != ""} {
 	    }
 	}
       }
-      if {$type == "pimage"} {
+#      if {$type == "pimage"} { }
+      if {$type == [set pimage]} {
 #puts "PIMAGE id=$id"
 	set name [$wcan itemcget $id  -image]
 	set anch [$wcan itemcget $id  -anchor]
@@ -5361,7 +5648,7 @@ if {[$wcan bbox $id] != ""} {
 	set u $id
         set fsize [expr {$FontS($u,fontsize)*$Canv(xscale)}]
         if {$fsize != $result} {
-            $wcan itemconfig $id -fontsize $fsize
+            $wcan itemconfigure $id -fontsize $fsize
         }
       }
    }
@@ -5381,7 +5668,7 @@ if {[$wcan bbox $id] != ""} {
 
     foreach {xt0 yt0 xt1 yt1} [$wcan bbox $idt] {break}
     if {[info exist yt1]} {
-	set bidt [$wcan create prect $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags [list Rectangle boxtext $canvasb $btag] -stroke ""] 
+	set bidt [$wcan create [set prect] $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags [list Rectangle boxtext $canvasb $btag] -stroke ""] 
 	$wcan lower $bidt $idt
     }
   }

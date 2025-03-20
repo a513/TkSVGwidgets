@@ -2,7 +2,7 @@ package require Tk
 package require textutil
 package require http
 package require ip
-#package require svgwidgets
+package require svgwidgets
 package require svg2can
 package require tkfe_svg 1.0
 
@@ -931,7 +931,11 @@ proc tickerA {w deg step tim x y} {
             }
             set phi [expr 2*$deg*3.14159/360.0]
                 set a "c"
+	    if {$::svgwidget::tkpath == "::tkp::canvas"} {
                 set m [::tkp::matrix rotate $phi $x $y]
+            } else {
+                set m [::tko::matrix rotate $deg $x $y]
+            }
                 $w itemconfigure $a -m $m
                 update
             
@@ -956,7 +960,7 @@ proc animateImage {w pim x0 y0 delta {a "c"}} {
     set y $y0
     set t "SVG"
     if {[$w find withtag $a] == ""} {
-	$w create pimage $x $y -image $pim -anchor $a -tags $a
+	$w create [set ::svg2can::pimage] $x $y -image $pim -anchor $a -tags $a
     } else {
 	foreach {x0 y0} [$w coords $a] {break}
     }
@@ -1486,7 +1490,11 @@ proc changecolorpress1 {tekbut} {
 }
 proc wrapunwrap {labgl} {
   set tekfr ".st.fr1.fra82"
-set  ii [$tekfr.stfirst.br create group -m {{1 0} {0 1} {0 0}} ]
+    if {$::svg2can::matrix == "::tkp::matrix"} { 
+	set  ii [$tekfr.stfirst.br create group -m {{1 0} {0 1} {0 0}} ]
+    } else {
+	set  ii [$tekfr.stfirst.br create group -m {1 0 0 1 0 0} ]
+    }
 
   if {$::wrapup == 1} {
     set ::wrapup 0
@@ -1573,8 +1581,12 @@ proc idrotate2degre {canv idobj deg xt yt} {
 	set w $canv
         if {[winfo exists $w]} {
             set phi [expr 2*$deg*3.14159/360.0]
-            set m [::tkp::matrix rotate $phi $xt $yt]
-            $w itemconfig $idobj -m $m
+	    if {$::svg2can::matrix == "::tkp::matrix"} { 
+        	set m [::tkp::matrix rotate $phi $xt $yt]
+    	    } else {
+        	set m [::tko::matrix rotate $deg $xt $yt]    	    
+    	    }
+            $w itemconfigure $idobj -m $m
         }
 }
 
@@ -2356,14 +2368,23 @@ proc wizard {tpage toplevel pages func} {
     set cbut [cbutton new $page.p -type rect -text "Предыдущее окно" -fontfamily "$::svgFont" -width 40m -fontsize 4m -rx 1m -command [list move $tpage $page.page -1]]
     
 #    $cbut config  -command [list move $tpage $page.page -1]
-set iprev [[$cbut canvas] create group -m {{1 0} {0 1} {0 0}}]
+    if {$::svg2can::matrix == "::tkp::matrix"} { 
+	set iprev [[$cbut canvas] create group -m {{1 0} {0 1} {0 0}}]
+    } else {
+	set iprev [[$cbut canvas] create group -m {1 0 0 1 0 0}]
+    }
+
     set gri [[$cbut canvas] create path "M 13 3 L 3 13 13 23" -strokewidth 2 -parent $iprev]
     $cbut config -image "[$cbut canvas] $iprev" -ipad "2m 3m 2m 3m"
     [$cbut canvas] delete $iprev
     
     set cbut1 [cbutton new $page.n -type rect -text "Следующее окно" -compound left -fontfamily "$::svgFont" -width 40m -fontsize 4m -rx 1m]
     $cbut1 config  -command [list move $tpage $page.page 1]
-set iprev [[$cbut1 canvas] create group -m {{1 0} {0 1} {0 0}}]
+    if {$::svg2can::matrix == "::tkp::matrix"} { 
+	set iprev [[$cbut1 canvas] create group -m {{1 0} {0 1} {0 0}}]
+    } else {
+	set iprev [[$cbut1 canvas] create group -m {1 0 0 1 0 0}]
+    }
     set gri [[$cbut1 canvas] create path "M 3 3 L 13 13 3 23" -strokewidth 2 -parent $iprev]
     $cbut1 config -image "[$cbut1 canvas] $iprev" -ipad "3m 3m 2m 3m"
     [$cbut1 canvas] delete $iprev
@@ -3991,7 +4012,8 @@ set selkey [cframe new $c.c5 -type centry -stroke gray85 -fontsize 2m -rx 1m ]
     incr k
   }
 #Масштабирование кнопок использования ключа
-if {0} {
+if {$tpage != "csr"} {
+#Масштабирование кнопок при выпуске самоподписанного сертификата
     grid rowconfigure $c "8 9 10 11 12" -weight 1
     grid columnconfigure $c "0 1" -weight 1
 }
@@ -9659,7 +9681,11 @@ ttk::frame $tekfr.stfirst
 #ttk::label $tekfr.stfirst.labgl -image rabota_24x24 -compound left -text "Функционал cryptoarmpkcs"  -padding -1 -background white
 
 set labfn [cbutton new $tekfr.stfirst.labgl -type rect -text "Функционал cryptoarmpkcs" -fillnormal white  -command {} -strokewidth 0m -stroke {} -fillenter "#d9e8f6" -width 5.6c -height 7m]
-set  ii [$tekfr.stfirst.labgl create group -m {{1 0} {0 1} {0 0}} ]
+if {$::svg2can::matrix == "::tkp::matrix"} { 
+    set  ii [$tekfr.stfirst.labgl create group -m {{1 0} {0 1} {0 0}} ]
+} else {
+    set  ii [$tekfr.stfirst.labgl create group -m {1 0 0 1 0 0} ]
+}
 set gri [$tekfr.stfirst.labgl create path "$::userpc" -fill black -parent $ii]
 $labfn config -isvg "$tekfr.stfirst.labgl $ii" -ipad "0 9.5m 1m 6m" -fontfamily "$::svgFont" -fontsize 3.5m -fontweight normal
 
@@ -9677,7 +9703,11 @@ $labfn config -command "wrapunwrap [set labgl]"
 puts "WRAPUNWRAP=$labgl"
 
 #Стрелка вниз
-set  ii [$tekfr.stfirst.br create group -m {{1 0} {0 1} {0 0}} ]
+if {$::svg2can::matrix == "::tkp::matrix"} { 
+    set  ii [$tekfr.stfirst.br create group -m {{1 0} {0 1} {0 0}} ]
+} else {
+    set  ii [$tekfr.stfirst.br create group -m {1 0 0 1 0 0} ]
+}
 set gri [$tekfr.stfirst.br create path "M 2 0 L 2 10 M 0 16 L 2 24 L 4 16 M 2 30 L 2 40" -strokewidth 1 -parent $ii]
 
 #Стрелка вправо
@@ -9802,12 +9832,12 @@ puts "logoLC lab height=[winfo height .st.fr1.fr2_list$i] width=[winfo width .st
 #    set yr1_1 $yr1
 #    set yr1_2 $yr1 
     set btag [$lablc move 0 0]
-    set tsygn [[$lablc canvas] create ptext "$xr1 $yr1_1" -fill "#778899" -stroke black -fillopacity 1.0 \
+    set tsygn [[$lablc canvas] create [set ::svg2can::ptext] "$xr1 $yr1_1" -fill "#778899" -stroke black -fillopacity 1.0 \
 	-fontfamily "[set ::svgFont]" -fontsize $m15 -fontslant oblique -fontweight bold -text Электронная -textanchor nw -filloverstroke 0 -tags $btag]
     foreach {xs1 ys1 xs2 ys2} [[$lablc canvas] bbox $tsygn] {break}
     set lsygn [expr { $xs2 + $m11 * 2 }]
     
-    set tsygn [[$lablc canvas] create ptext "$lsygn $yr1_2" -fill "#8B8989" -fillopacity 0.5 -stroke black \
+    set tsygn [[$lablc canvas] create [set ::svg2can::ptext] "$lsygn $yr1_2" -fill "#8B8989" -fillopacity 0.5 -stroke black \
 	-fontfamily "$::svgFont" -fontsize 50.0 -fontweight bold -text подпись -textanchor nw -filloverstroke 0 -tags $btag]
     set angle 50
     idrotate2degre [$lablc canvas] $tsygn $angle $lsygn $yr1_2
@@ -9861,8 +9891,11 @@ set but11 "M 0 0 v$buty"
 append but1 " $but11"
 
 #set gri [$tekfr.forbut.svg create path [parsepath "$but1"] -strokewidth 0 -stroke "" -fill black]
-set  ii [$tekfr.forbut.svg create group -m {{1 0} {0 1} {0 0}} ]
-
+if {$::svg2can::matrix == "::tkp::matrix"} { 
+    set  ii [$tekfr.forbut.svg create group -m {{1 0} {0 1} {0 0}} ]
+} else {
+    set  ii [$tekfr.forbut.svg create group -m {1 0 0 1 0 0} ]
+}
 set gri [$tekfr.forbut.svg create path [parsepath "$but1"] -strokewidth 0.5 -stroke black -fill "" -parent $ii]
 
 $fbut config -isvg "$tekfr.forbut.svg $ii"
@@ -9897,7 +9930,11 @@ set labgl [cbutton new .st.fr1.fra82.stend.bute -type ellipse  -strokewidth 1 -t
 set labgl [ibutton new .st.fr1.fra82.stend.lab -text "" -width 1.5c -fillenter "##" -fillnormal white  -command {} -strokewidth 0 -stroke {} -fillpress "##"  -pad "0 0 0 0"]
 #  -fillenter "##"
 #Стрелка вниз и вправо
-set  ii [.st.fr1.fra82.stend.lab create group -m {{1 0} {0 1} {0 0}} ]
+if {$::svg2can::matrix == "::tkp::matrix"} { 
+    set  ii [.st.fr1.fra82.stend.lab create group -m {{1 0} {0 1} {0 0}} ]
+} else {
+    set  ii [.st.fr1.fra82.stend.lab create group -m {1 0 0 1 0 0} ]
+}
 set gri [.st.fr1.fra82.stend.lab create path "M 0 0 L 0 14 L 18 14" -strokewidth 0.2 -stroke black -parent $ii]
 
 #$labgl config -image ".st.fr1.fra82.stend.lab $gri"
@@ -10063,7 +10100,7 @@ proc cmdbrowser {} {
     }
     if {$::pkcs11_status != -1} {
         for {set i 0} {$i < 13} {incr i} {
-puts "cmdBrowser fillnormal=WHITE"
+#puts "cmdBrowser fillnormal=WHITE"
           .st.fr1.fra82.b$i configure -state normal
           $::fra82b([set i]) config  -state normal
           $::fra82b([set i]) config  -fillnormal white -fillenter "#d9e8f6"

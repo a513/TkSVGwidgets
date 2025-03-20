@@ -3,7 +3,7 @@
 #      This file provides translation from canvas commands to XML/SVG format.
 #      
 #  Copyright (c) 2004-2007  Mats Bengtsson
-#  Copyright (c) 2021-2024  Orlov Vladimir
+#  Copyright (c) 2021-2025  Orlov Vladimir
 #  
 #  This file is distributed under BSD style license.
 #
@@ -36,7 +36,10 @@
 
 # We need URN decoding for the file path in images. From my whiteboard code.
 
-package require tkpath 
+if {[catch {package require tko}]} {
+    package require tkpath
+}
+
 package require uriencode
 package require tinydom
 
@@ -80,6 +83,25 @@ namespace eval svg2can {
     variable pi 3.14159265359
     variable degrees2Radians [expr {2*$pi/360.0}]
     variable systemFont
+    if {[catch {package present tko}]}  {
+#Используется пакет tkpath
+	set tkpath "::tkp::canvas"
+	set ptext "ptext"
+	set pline "pline"
+	set prect "prect"
+	set ppolygon "ppolygon"
+	set pimage "pimage"
+	set matrix "::tkp::matrix"
+    } else {
+#Используется пакет tko
+	set tkpath "::tko::path"
+	set ptext "text"
+	set pline "line"
+	set prect "rect"
+	set ppolygon "polygon"
+	set pimage "image"
+	set matrix "::tko::matrix"
+    }
 
     switch -- $::tcl_platform(platform) {
 	unix {
@@ -740,7 +762,7 @@ proc svg2can::ParseImageEx {xmllist paropts transAttr args} {
     }
     
     set opts [MergePresentationAttrEx $opts $presAttr]
-    return [concat create pimage $x $y $opts]    
+    return [concat create [set ::svg2can::pimage] $x $y $opts]    
 }
 
 proc svg2can::ParseLineEx {xmllist paropts transAttr args} {
@@ -818,7 +840,7 @@ proc svg2can::ParseLineEx {xmllist paropts transAttr args} {
 	}
     }
 
-    return [concat create pline $x1 $y1 $x2 $y2 $opts]    
+    return [concat create [set ::svg2can::pline] $x1 $y1 $x2 $y2 $opts]    
 }
 
 proc svg2can::ParsePathEx {xmllist paropts transAttr args} {
@@ -1053,7 +1075,7 @@ proc svg2can::ParsePolygonEx {xmllist paropts transAttr args} {
 	}
     }
 
-    return [concat create ppolygon $points $opts]    
+    return [concat create [set ::svg2can::ppolygon] $points $opts]    
 }
 
 proc svg2can::ParseRectEx {xmllist paropts transAttr args} {
@@ -1138,7 +1160,7 @@ proc svg2can::ParseRectEx {xmllist paropts transAttr args} {
 	}
     }
 
-    return [concat create prect $x $y $x2 $y2 $opts]    
+    return [concat create [set ::svg2can::prect] $x $y $x2 $y2 $opts]    
 }
 
 # svg2can::ParseText --
@@ -1234,7 +1256,7 @@ if {0} {
 	  $xAttr [expr {$yAttr - $ascent + $baselineShift}] $opts]]	
 	set cmdList [AddAnyTransformCmds $cmdList $transformL]
 }
-	set cmdList [concat create ptext  \
+	set cmdList [concat create [set ::svg2can::ptext]  \
 	  $xAttr [expr {$yAttr - $ascent + $baselineShift}] $opts]
 
 	set cmdList [AddAnyTransformCmds $cmdList $transformL]
@@ -2380,15 +2402,20 @@ proc svg2can::TransformAttrListToMatrix {transform} {
 		    set yr [lindex $value 1]
 		}
 		set phi_my [svg2can::degre2radian $phi]
-		set m_my [tkp::matrix rotate $phi_my $xr $yr]
 #puts "TransformAttrListToMatrix: m_my=$m_my"		
-		set m_my1 [tkp::matrix mult "{1 0} {0 1} {0 0}" $m_my]
+		if {$::svg2can::matrix == "::tkp::matrix"} { 
+		    set m_my [tkp::matrix rotate $phi_my $xr $yr]
+		    set m_my1 [tkp::matrix mult "{1 0} {0 1} {0 0}" $m_my]
+		    foreach {a1 a2} [lindex $m_my1 0] {break}
+		    foreach {a3 a4} [lindex $m_my1 1] {break}
+		    foreach {a5 a6} [lindex $m_my1 2] {break}
+		    set m([incr i]) [list $a1 $a2 $a3 $a4 $a5 $a6]
+		} else {
+		    set m_my [tkp::matrix rotate $phi $xr $yr]
+		    set m_my1 [tkp::matrix mult "1 0 0 1 0 0" $m_my]
+		    set m([incr i]) $m_my1
+		}
 #puts "TransformAttrListToMatrix: m_my1=$m_my1"		
-
-		foreach {a1 a2} [lindex $m_my1 0] {break}
-		foreach {a3 a4} [lindex $m_my1 1] {break}
-		foreach {a5 a6} [lindex $m_my1 2] {break}
-		set m([incr i]) [list $a1 $a2 $a3 $a4 $a5 $a6]
 
 if {0} {
 puts "TransformAttrListToMatrix: op=rotate phi=$phi value_0=[lindex $value 0]"
@@ -2458,7 +2485,11 @@ puts "TransformAttrListToMatrix: op=rotate phi=$phi value_0=[lindex $value 0]"
     foreach {a b c d tx ty} $mat { break }
 #puts "TransformAttrListToMatrix -> mat=$mat"
 
-    return [list [list $a $b] [list $c $d] [list $tx $ty]]
+    if {$::svg2can::matrix == "::tkp::matrix"} { 
+	return [list [list $a $b] [list $c $d] [list $tx $ty]]
+    } else {
+	return [list  $a $b  $c $d  $tx $ty]
+    }
 }
 
 proc svg2can::MMult {m1 m2} {
@@ -2603,8 +2634,8 @@ proc svg2can::ParseViewBox {xmllist} {
 }
 proc svg2can::SVGFileToCanvas {w filePath} {
 #puts "SVGFileToCanvas: file=$filePath"    
-    if {[winfo class $w] != "PathCanvas"} {
-	return -coge error "Bad type canvas. The canvas type must be PathCanvas."
+    if {[winfo class $w] != "PathCanvas" && [winfo class $w] != "TkoPath"} {
+	return -coge error "Bad type canvas. The canvas type must be PathCanvas or TkoPath."
     }
     foreach name [array name svg2can::curColor] {
 	unset ::svg2can::curColor($name)
@@ -2632,7 +2663,11 @@ proc svg2can::SVGFileToCanvas {w filePath} {
       -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
       -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
 #puts "cmdList=$cmdList"    
-    set gr [${::svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
+    if {$::svg2can::matrix == "::tkp::matrix"} { 
+	set gr [${::svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
+    } else {
+	set gr [${::svg2can::priv(wcan)} create group -matrix {1 0 0 1 0 0}]
+    }
 
     foreach cmd $cmdList {
 #puts "cmd=$cmd"
@@ -2649,7 +2684,7 @@ proc svg2can::SVGFileToCanvas {w filePath} {
 
 proc svg2can::SVGXmlToCanvas {w xml} {
 #puts "SVGFileToCanvas: file=$filePath"    
-    if {[winfo class $w] != "PathCanvas"} {
+    if {[winfo class $w] != "PathCanvas" && [winfo class $w] != "TkoPath"} {
 	return -coge error "Bad type canvas. The canvas type must be PathCanvas."
     }
     foreach name [array name svg2can::curColor] {
@@ -2668,7 +2703,11 @@ proc svg2can::SVGXmlToCanvas {w xml} {
       -imagehandler [list ::CanvasFile::SVGImageHandler $w] \
       -foreignobjecthandler [list ::CanvasUtils::SVGForeignObjectHandler $w]]
 #puts "cmdList=$cmdList"    
-    set gr [${::svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
+    if {$::svg2can::matrix == "::tkp::matrix"} { 
+	set gr [${::svg2can::priv(wcan)} create group -matrix {{1 0} {0 1} {0 0}}]
+    } else {
+	set gr [${::svg2can::priv(wcan)} create group -matrix {1 0 0 1 0 0}]
+    }
 
     foreach cmd $cmdList {
 #puts "cmd=$cmd"
@@ -2800,6 +2839,22 @@ proc svg2can::copyGroup {wcan canv group {args ""}} {
 	if {$copytag == ""} {return -1}
     }
 #Масштабирование Группы
+    lassign [$wcan itemcget $group -matrix]  w1 w0 h0 h1 x y
+    set typec 0
+    if {$h1 == ""} {
+	lassign "$h0" x y 
+	lassign "$w0" h0 h1 
+	lassign "$w1" w1 w0 
+	set typec 1
+    } 
+    set w1 [expr {$w1 * $scalex}]
+    set h1 [expr {$h1 * $scaley}]
+    if {$typec == 1} {
+	$canv itemconfigure $grnew -matrix [list "$w1 $w0" "$h0 $h1" "$x $y"]
+    } else {
+	$canv itemconfigure $grnew -matrix "$w1 $w0 $h0 $h1 $x $y"		
+    }
+if {0} {
     foreach {width height xy} [$wcan itemcget $group -matrix] {
 	foreach {w1 w0} $width {
 	    set w1 [expr {$w1 * $scalex}]
@@ -2809,7 +2864,29 @@ proc svg2can::copyGroup {wcan canv group {args ""}} {
 	}
 	$canv itemconfigure $grnew -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
     }
+}
 #Перемещение Группы
+    lassign [$canv itemcget $grnew -matrix]  w1 w0 h0 h1 xm ym
+    set typec 0
+    if {$h1 == ""} {
+        lassign "$h0" xm ym
+        lassign "$w0" h0 h1 
+        lassign "$w1" w1 w0 
+        set typec 1
+    } 
+    foreach {x1 y1 x2 y2} [$canv bbox $grnew] {
+	set dx [expr {[winfo fpixels $wcan $x0] - $x1 }] 
+	set dy [expr {[winfo fpixels $wcan $y0] - $y1 }]
+	set x [expr {$xm + $dx}]
+	set y [expr {$ym + $dy}]
+    }
+
+    if {$typec == 1} {
+        $canv itemconfigure $grnew -matrix [list "$w1 $w0" "$h0 $h1" "$x $y"]
+    } else {
+        $canv itemconfigure $grnew -matrix "$w1 $w0 $h0 $h1 $x $y"		
+    }
+if {0} {
     foreach {width height xy} [$canv itemcget $grnew -matrix] {
 	foreach {xm ym} $xy {
 	    foreach {x1 y1 x2 y2} [$canv bbox $grnew] {
@@ -2821,6 +2898,7 @@ proc svg2can::copyGroup {wcan canv group {args ""}} {
 	}
 	$canv itemconfigure $grnew -matrix [list "$width" "$height" "$x $y"]
     }
+}    
     return $grnew
   }
 #Радианы в градусы и наоборот
@@ -2846,7 +2924,12 @@ proc svg2can::id2coordscenter {w id} {
 #Вернуть объект в исходное (угол поворота 0)
 proc svg2can::id2angle0 {w id } {
 #    if {[idissvg $id] == 0} {return}
-    set m [list {1.0 0.0} {-0.0 1.0} {0.0 0.0}]
+    if {$::svg2can::matrix == "::tkp::matrix"} { 
+	set m [list {1.0 0.0} {-0.0 1.0} {0.0 0.0}]
+    } else {
+	set m [list 1.0 0.0 -0.0 1.0 0.0 0.0]
+    }
+
     $w itemconfigure $id -m $m
 }
 #Повернуть id на угол
@@ -2863,7 +2946,14 @@ proc svg2can::rotateid2angle {w id deg {retm 0}} {
 #foreach {xr  yr x1 y1} [.c bbox $id] {break}
 
 
-    set m1 [::tkp::matrix rotate $phi $xr $yr]
+#    set m1 [::tkp::matrix rotate $phi $xr $yr]
+
+    if {$::svg2can::matrix == "::tkp::matrix"} {
+	set m1 [[set ::svg2can::matrix] rotate $phi $xr $yr]
+    } else {
+	set m1 [[set ::svg2can::matrix] rotate $deg $xr $yr]
+    }
+    
 	if {$retm != 0} {
 	    return $m1
 	}
@@ -2872,7 +2962,8 @@ proc svg2can::rotateid2angle {w id deg {retm 0}} {
 set mOrig [$w itemcget $id -m]
 #puts "rotateid2angle: m1=$m1\n\tmOrig=$mOrig"
     if {$mOrig != ""} {
-	    set m1 [::tkp::matrix mult $mOrig $m1]
+#	    set m1 [::tkp::matrix mult $mOrig $m1]
+	    set m1 [[set ::svg2can::matrix] mult $mOrig $m1]
 #puts "rotateid2angle Full: m1=$m1\n\tmOrig=$mOrig"
     }
 
@@ -2880,6 +2971,24 @@ set mOrig [$w itemcget $id -m]
 #Новые координаты центра
     foreach {xrn yrn} [svg2can::id2coordscenter $w $id] {break}
 #Перемещение по x и y
+    lassign [$wcan itemcget $isvg -matrix]  w1 w0 h0 h1 x y
+    set typec 0
+    if {$h1 == ""} {
+	lassign "$h0" x y 
+	lassign "$w0" h0 h1 
+	lassign "$w1" w1 w0 
+	set typec 1
+    } 
+    set x [expr {$x + ($xr - $xrn)}]
+    set y [expr {$y + ($yr - $yrn)}]
+    if {$typec == 1} {
+        $w itemconfigure $id -matrix [list "$w1 $w0" "$h0 $h1" "$x $y"]
+    } else {
+        $w itemconfigure $id -matrix "$w1 $w0 $h0 $h1 $x $y"
+    }
+
+
+if {0} {
 	foreach {width height xy} [$w itemcget $id -matrix] {
 	    foreach {x y} $xy {
 		set x [expr {$x + ($xr - $xrn)}]
@@ -2887,7 +2996,7 @@ set mOrig [$w itemcget $id -m]
 	    }
 	    $w itemconfigure $id -matrix [list "$width" "$height" "$x $y"]
 	}
-
+}
 
     return
 }

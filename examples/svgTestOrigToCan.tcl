@@ -100,7 +100,7 @@ proc exitarm {t} {
 proc seldir {} {
     variable ans
     set typelist {{"Тип фийла" {".svg"} {}}}
-    set ans "[tk_getOpenFile -title "Choose directory" -filetypes $typelist -initialdir $::initdir]"
+    set ans [tk_getOpenFile -title "Choose directory" -filetypes $typelist -initialdir $::initdir]
 }
 proc clearcan {w10m} {
     if {[info exist svg2can::gradientIDToToken]} {
@@ -125,14 +125,20 @@ wm state $t withdraw
 wm state $t normal
 
 #####################
-wm geometry $t [winfo pixels . 10c]x[winfo pixels . 8c]+150+150
+wm geometry $t [winfo pixels . 12c]x[winfo pixels . 8c]+150+150
 wm title $t "Folder with svg-images"
 bind $t <Destroy> {if {"%W" == ".test"} {exitarm .test}}
 
 wm geometry . [winfo pixels . 4c]x[winfo pixels . 4c]+50+50
 
 #set fr [cframe new  $t.c -type frame -rx 0 -strokewidth 0 -stroke ""]
-set fr [tkp::canvas $t.c -bg yellow]
+
+if {![info exist ::svg2can::tkpath]} {
+    set fr [tkp::canvas $t.c -bg yellow]
+} else {
+    set fr [[set ::svg2can::tkpath] $t.c -bg yellow]
+}
+
 set bincan [bind $t.c <Configure>]
 bind $t.c <Configure> {}
 
@@ -153,6 +159,7 @@ set yim $w10m
 set xim $w10m
     set iddir [ibutton new $t.c -x $xim -y $yim -text "Выбора папки с SVG-файлами" -help "Вы еще не выбрали папку" -height 1.0c -width 1c -command seldir]
     set fgr [svg2can::SVGXmlToCanvas $t.c $fpic]
+#    set fgr [svg2can::SVGFileToCanvas $t.c "ВыборПапки.svg"]
     $iddir config -image "$t.c $fgr" -pad 1m
     $t.c delete $fgr
     foreach {x1 y1 x2 y2} [$t.c bbox [$iddir move 0 0]] {
@@ -172,7 +179,6 @@ set xim $w10m
     set cmd [cbutton new $t.c -type rect -x $xprev -y $yim -text "Cmds" -rx 1m -height 8m -width 15m -compound none -command "variable ans;set ans Cmds"]
 
 update
-
 grid   $fr -in .test -column 0 -row 0 -sticky news
 raise $fr
 
@@ -190,7 +196,7 @@ puts "VWAIT  ans=$ans"
 	continue
     }
     if {$ans == "Cmds"} {
-	if {[catch {svg2can::SVGFileToCmds $t.c "$img"} gr] } {
+	if {[catch {svg2can::SVGFileToCmds $t.c $img} gr] } {
 	    puts "Bad file: $img er=$gr"
 	} else {
 	    if {[info exist img]} {
@@ -202,7 +208,6 @@ puts "VWAIT  ans=$ans"
 	}
 	continue
     }
-    
     set tekans $ans
     while {[llength [$t.c find all]] > $::delid} {
 	    $t.c delete [lindex [$t.c find all] $::delid] end
@@ -243,18 +248,25 @@ puts "Choose directory $dirname"
 #    foreach img $svgim {}
     foreach img $tekans {
 #puts "-> $img"
-	if {[catch {svg2can::SVGFileToCanvas $t.c "$img"} gr] } {
+	if {[catch {svg2can::SVGFileToCanvas $t.c $img} gr] } {
 	    puts "Bad file: $img er=$gr"
 	} else {
 	    puts "Ok file: $img groupSVG=$gr bbox=[.test.c bbox $gr]"
 #Размещение со сдаигом в низ 
 	    if {1} {
-		set gr1 [svg2can::copyGroup $t.c $t.c $gr -y 2.5c]
+		set gr1 [svg2can::copyGroup $t.c $t.c $gr -x 5m -y 2.5c]
+
 		puts "Ok file: $img groupSVGmove=$gr1 bbox=[.test.c bbox $gr1]"
 		$t.c delete $gr
 #ОБрамляющий прямоугольник - белый
 		foreach {x1 y1 x2 y2} [.test.c bbox $gr1] {break}
-		$t.c create ppolygon $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 -fill "cyan" -fillopacity 0.2 -stroke black -strokewidth 1		
+		if {![info exist ::svg2can::ppolygon]} {
+		    $t.c create ppolygon $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 -fill "cyan" -fillopacity 0.2 -stroke black -strokewidth 1 -tags "Bbox$gr1"
+		} else {
+		    $t.c create [set ::svg2can::ppolygon] $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 -fill "cyan" -fillopacity 0.2 -stroke black -strokewidth 1 -tags "Bbox$gr1"
+		}
+
+#		$t.c itemconfigure $gr1 -tag "Bbox$gr1"
 	    }
 	}
     }

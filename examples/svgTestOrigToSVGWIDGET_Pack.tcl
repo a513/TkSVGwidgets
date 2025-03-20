@@ -132,9 +132,12 @@ bind $t <Destroy> {if {"%W" == ".test"} {exitarm .test}}
 wm geometry . [winfo pixels . 4c]x[winfo pixels . 4c]+50+50
 
 #set fr [cframe new  $t.c -type frame -rx 0 -strokewidth 0 -stroke ""]
-set fr [tkp::canvas $t.c -bg yellow]
+#set fr [tkp::canvas $t.c -bg yellow]
+set fr [[set ::svg2can::tkpath] $t.c -bg yellow]
 
-tkp::canvas $t.b -width 700 -height 700
+#tkp::canvas $t.b -width 700 -height 700
+[set ::svg2can::tkpath] $t.b -width 700 -height 700
+
 
 set bincan [bind $t.c <Configure>]
 bind $t.c <Configure> {}
