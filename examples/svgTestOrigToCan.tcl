@@ -7,7 +7,8 @@ package require svgwidgets
 #source "svgfile2canvas.tcl"
 variable ans
 set ans ""
-set ::initdir "/usr/share/icons"
+#set ::initdir "/usr/share/icons"
+set ::initdir [file home]
 
 #SVG-картинка для выбора папки с svg-файлами
 set fpic {<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
@@ -253,21 +254,9 @@ puts "Choose directory $dirname"
 	} else {
 	    puts "Ok file: $img groupSVG=$gr bbox=[.test.c bbox $gr]"
 #Размещение со сдаигом в низ 
-	    if {1} {
-		set gr1 [svg2can::copyGroup $t.c $t.c $gr -x 5m -y 2.5c]
-
-		puts "Ok file: $img groupSVGmove=$gr1 bbox=[.test.c bbox $gr1]"
-		$t.c delete $gr
-#ОБрамляющий прямоугольник - белый
-		foreach {x1 y1 x2 y2} [.test.c bbox $gr1] {break}
-		if {![info exist ::svg2can::ppolygon]} {
-		    $t.c create ppolygon $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 -fill "cyan" -fillopacity 0.2 -stroke black -strokewidth 1 -tags "Bbox$gr1"
-		} else {
-		    $t.c create [set ::svg2can::ppolygon] $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 -fill "cyan" -fillopacity 0.2 -stroke black -strokewidth 1 -tags "Bbox$gr1"
-		}
-
-#		$t.c itemconfigure $gr1 -tag "Bbox$gr1"
-	    }
+	    lassign [$t.c bbox $gr] x1 y1 x2 y2
+	    set svgorig [ibutton new $t.c -x 5m -y 3c -width [expr {$x2 - $x1 + 4}] -height [expr {$y2 - $y1 + 4}] -isvg "$t.c $gr" -stroke black -pad "2" -help "[file tail $img]" -text ""]
+	    $t.c delete $gr
 	}
     }
 }
