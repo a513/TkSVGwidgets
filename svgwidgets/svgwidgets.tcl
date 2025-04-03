@@ -5193,6 +5193,7 @@ oo::class create cframe {
 	    set Options(-height)	7m
 	}
 	ccombo -
+	cspin -
 	centry {
 	    set Options(-rx)	1.5m
 	    set Options(-text) ""
@@ -5212,7 +5213,7 @@ oo::class create cframe {
 	    if {$fr == 1} {
 		destroy $wcan
 	    }
-    	    error "mbutton: Unknown type=$type: must be clframe, ccombo, centry, frame"
+    	    error "mbutton: Unknown type=$type: must be clframe, ccombo, cspin, centry, frame"
 	}
     }
     my config $args
@@ -5256,9 +5257,27 @@ oo::class create cframe {
 	    }
 	    raise $wentry
 	}
+	cspin {
+	    set fonte "Helvetica [winfo pixels $wcan $Options(-fontsize)]"
+#puts "CSPIN font=$fonte="
+	    set ycoords $strwidth
+	    if {[info exists Options(-textvariable)]} {
+		set cent [spinbox $wentry -background snow -bd 0 -highlightthickness 0 -font "$fonte" -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow -textvariable $Options(-textvariable)]
+	    } else {
+		set cent [spinbox $wentry -background snow -bd 0 -highlightthickness 0 -font "$fonte" -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow ]
+	    }
+	    if {$fr == 1 } {
+		pack $wentry -in $wcan -fill x -expand 1 -padx $Options(-rx)  -pady 1.0m
+	    } else {
+		set entwidth [winfo fpixels $wcan $Options(-width)]
+		set entheight [winfo fpixels $wcan $Options(-height)]
+		place $wentry -in $wcan -x [expr {$xc0 + $onemm2px }] -y [expr {$yc0 + $ycoords}] -width [expr {$entwidth - $onemm2px * 2}] -height [expr {$entheight - $ycoords * 2}]
+	    }
+	    raise $wentry
+	}
 	ccombo {
 	    set fonte "Helvetica [winfo pixels $wcan $Options(-fontsize)]"
-#puts "CENTRY font=$fonte="
+#puts "CCOMBO font=$fonte="
 	    set ycoords $strwidth
 	    ttk::style configure My.TCombobox -borderwidth 0 -fieldbackground white -selectbackground white -selectborderwidth 0 -selectforeground black -padding 0 -arrowsize 5m -background white
 	    ttk::style map My.TCombobox -fieldbackground { readonly white}
@@ -5300,15 +5319,19 @@ oo::class create cframe {
     }
 #puts "ch=$ch cw=$cw ycoords=$ycoords xc0=$xc0 yc0=$yc0 strwidth=$strwidth"
     if {$fr == 1 || $tbut == "clframe" } {
-	set idr [$wcan create [set prect] [expr {$xc0 + $strwidth * 0}] [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch - $ycoords}]] 
+#	set idr [$wcan create [set prect] [expr {$xc0 + $strwidth * 0}] [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch - $ycoords}]] 
+	set idr [$wcan create [set prect] $xc0 [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw}] [expr {$yc0 + $ch - $ycoords}] -stroke {} -strokewidth 0] 
     } else {
-	set idr [$wcan create [set prect] [expr {$xc0 + $strwidth * 0}] [expr {$yc0 - $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch + $ycoords}]] 
+#	set idr [$wcan create [set prect] [expr {$xc0 + $strwidth * 0}] [expr {$yc0 - $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch + $ycoords}]] 
+	set idr [$wcan create [set prect] $xc0 $yc0 [expr {$xc0 + $cw}] [expr {$yc0 + $ch + $ycoords}] -stroke {} -strokewidth 0] 
     }
+    my changestrwidth
+
 
     set btag "canvasb[string range [self] [string first Obj [self]] end]"
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -rx $crx -tags [list Rectangle obj $canvasb $btag $tbut [linsert $btag end $tbut] utag$idr]
     my changestrwidth $strwidth
-    if {$tbut == "centry" || $tbut == "ccombo"} {
+    if {$tbut == "centry" || $tbut == "cspin" || $tbut == "ccombo"} {
 	set bg [$wentry cget -background]
 	if {$bg == ""} {
 	    set bg "white"
@@ -5333,7 +5356,7 @@ oo::class create cframe {
     return self
   }
   method entry {} {
-	if {$tbut != "centry" && $tbut != "ccombo"} {
+	if {$tbut != "centry" && $tbut != "cspin" && $tbut != "ccombo"} {
 	    return ""
 	}
 	return "$wentry"
@@ -5370,7 +5393,7 @@ oo::class create cframe {
     }
 
     $wcan coords $idr $x0 $y0 $x1 $y1
-    if {$fr == 0 && ($tbut == "centry" || $tbut == "ccombo")} {
+    if {$fr == 0 && ($tbut == "centry" || $tbut == "cspin" || $tbut == "ccombo")} {
 	place configure $wentry -width [expr {$wx - $onemm2px * 2}] -height [expr {$hy - $onemm2px * 2 }]
 	return
     }
@@ -5570,6 +5593,9 @@ if {[$wcan bbox $id] != ""} {
 	set tagr [$wcan itemcget $id -tags]
 	set centry [lsearch $tagr "centry"]
 	if {$centry == -1} {
+	    set centry [lsearch $tagr "cspin"]
+	}
+	if {$centry == -1} {
 	    set centry [lsearch $tagr "ccombo"]
 	}
 	if {$centry > -1} {
@@ -5754,7 +5780,7 @@ if {[$wcan bbox $id] != ""} {
 			    my boxtext
 			}
 		    }
-		} elseif {$tbut == "centry" || $tbut == "ccombo"} {
+		} elseif {$tbut == "centry" || $tbut == "cspin" || $tbut == "ccombo"} {
     		    set Options($option) $value
 		}
     	    }
@@ -5892,7 +5918,7 @@ if {[$wcan bbox $id] != ""} {
 	    bind $wcan  <Configure> {}
 	    destroy $wcan
 	} else {
-	    if {$fr == 0 && ($tbut == "centry" || $tbut == "ccombo")} {
+	    if {$fr == 0 && ($tbut == "centry" || $tbut == "cspin" || $tbut == "ccombo")} {
 		destroy $wentry
 	    }
 	}
