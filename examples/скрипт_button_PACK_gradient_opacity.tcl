@@ -8,7 +8,8 @@ proc exitarm {t} {
 	    set t1 $t
 	}
 	set erlib [mbutton new "$t1.message" -type yesno  -fillnormal white -text "Вы действительно\nхотите выйти?" -textanchor n -strokewidth 3]
-	$erlib config -fillnormal gradient4
+	set g4 [$t1.message gradient create linear -method pad -units bbox -stops { { 0.00 #ffffff 1} { 1.00 #dbdbdb 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
+	$erlib config -fillnormal $g4
 	set herlib [expr {int([winfo fpixels "$t1.message" [$erlib config -height]])}]
 	set werlib [expr {int([winfo fpixels "$t1.message" [$erlib config -width]])}]
 
@@ -28,18 +29,8 @@ proc exitarm {t} {
 	    return
 	}
 #Подчищаем за собою
-	foreach {oo} [info class instances cbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances ibutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances mbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cmenu] {
-	    $oo destroy
-	}
+#	svgwidget::clearclass "cbutton ibutton mbutton cmenu cframe"
+	svgwidget::clearclass
 
 	destroy $t
 	puts "Пример button_PACK_gradient завершен."
@@ -96,10 +87,10 @@ wm title $t "tcl/tk pack gradient and opacity demo"
 
 wm geometry $t 800x600+150+150
 
-tkp::canvas $t.c -bg yellow
-#Уствновить gradient
-#canvas::gradient .c -direction x -colr1 yellow -color2 blue
-canvas::gradient $t.c -direction x -color1 cyan -color2 yellow
+set tkpfr [cframe new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow]
+set g4 [$t.c gradient create linear -method pad -units bbox -stops { { 0.0 cyan 1} { 1.0 yellow 1}} -lineartransition {0.0 0.0 0.0 1.0} ]
+$tkpfr config -fillnormal $g4
+
 update
 
 pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
@@ -165,11 +156,14 @@ pack [$::rc6 canvas] -in [$::clfrv canvas] -padx 5m -pady "5m" -fill both -expan
 #lower [$::clfrv canvas] [$::rc1 canvas]
 #Кнопка обновления фона фреймов
 set upwin [cbutton new $t.butup -type round  -text {Обновить окно} -command {updatewin $b1 $::clfrv}]
+$upwin config -width 120
+[$upwin canvas] configure -width 120
+
 #$::xa2 config -command "$::b1 fon;$::clfrv fon;$went fon;$::xa2 fon"
 [$upwin canvas] configure -bg [$::b1 config -fillnormal]
 $upwin place -in $t.c -x 2m -y 2m
 #set bel [cbutton new $t.butbel -type round  -text {Прозрачный эллипс} -command {$::b1 config -fillnormal {};lower [$::xa3 canvas]; update;$::b1 fon; $::xa3 fon;$::xa3 config -fillnormal {};lower [$::b1 canvas] [$::xa1 canvas]}]
-set bel [cbutton new $t.butbel -type round  -text {Прозрачность} -command {opacity $went $::clfrv}]
+set bel [cbutton new $t.butbel -type rect -rx 4  -text {Прозрачность} -command {opacity $went $::clfrv}]
 #$::xa2 config -command "$::b1 fon;$::clfrv fon;$went fon;$::xa2 fon"
 #[$::xa2 canvas] configure -bg [$::b1 config -fillnormal]
 $bel place -in $t.c -x 10c -y 2m

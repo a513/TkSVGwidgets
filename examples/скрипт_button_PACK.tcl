@@ -1,7 +1,6 @@
 package require svgwidgets
-#source "../SVGWIDGETS/svgwidgets.tcl"
-set tkp::pixelalign 1
-set tkp::depixelize 1
+#set tkp::pixelalign 1
+#set tkp::depixelize 1
 
 proc folderbrown {canv} {
     set grfolder [$canv create group]
@@ -32,7 +31,8 @@ proc exitarm {t} {
 	    set t1 $t
 	}
 	set erlib [mbutton new "$t1.message" -type yesno  -fillnormal white -text "Вы действительно\nхотите выйти?" -textanchor n -strokewidth 3]
-	$erlib config -fillnormal gradient4
+	set g4 [$t1.message gradient create linear -method pad -units bbox -stops { { 0.00 #ffffff 1} { 1.00 #dbdbdb 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
+	$erlib config -fillnormal $g4
 	set herlib [expr {int([winfo fpixels "$t1.message" [$erlib config -height]])}]
 	set werlib [expr {int([winfo fpixels "$t1.message" [$erlib config -width]])}]
 
@@ -51,22 +51,9 @@ proc exitarm {t} {
 	    wm resizable $t 1 1
 	    return
 	}
-
-	foreach {oo} [info class instances cbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances ibutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances mbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cmenu] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cframe] {
-	    $oo destroy
-	}
+#Подчищаем за собою
+#	svgwidget::clearclass "cbutton ibutton mbutton cmenu cframe"
+	svgwidget::clearclass
 	destroy $t
 	puts "Пример button_PACK завершен."
 	return
