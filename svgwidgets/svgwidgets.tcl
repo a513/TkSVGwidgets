@@ -23,6 +23,28 @@ namespace eval ::svgwidget {
 	set tkpath "::tko::path"
     }
 
+proc clearclass {{wsclass "cbutton ibutton mbutton cmenu cframe"}}  {
+    foreach {wclass} $wsclass {
+	set listoo -1
+	catch {set listoo [info class instances $wclass]}
+	if {$listoo == -1} {
+    	    error "svgwidget::clearclass: Unknown class=$wclass: must be \"\[cbutton\] \[ibutton\] \[mbutton\] \[cmenu\] \[cframe\]\""
+    	    return
+	}
+	foreach {oo} $listoo {
+	    $oo destroy
+	}
+    }
+}
+proc destroyclass {{wsclass "cbutton ibutton mbutton cmenu cframe"}}  {
+    foreach {wclass} $wsclass {
+	if {[catch {$wclass destroy}] == 1} {
+    		error "svgwidget::destroyclass: Unknown class=$wclass: must be \"\[cbutton\] \[ibutton\] \[mbutton\] \[cmenu\] \[cframe\]\""
+    		return
+	}
+    }
+}
+
 #Контроль изменения переменной в radio-кнопке
 proc trace_rb {var ind op} {
     global $var
