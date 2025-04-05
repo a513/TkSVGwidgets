@@ -9,7 +9,8 @@ proc exitarm {t} {
 	    set t1 $t
 	}
 	set erlib [mbutton new "$t1.message" -type yesno  -fillnormal white -text "Вы действительно\nхотите выйти?" -textanchor n -strokewidth 3]
-	$erlib config -fillnormal gradient4
+	set g4 [$t1.message gradient create linear -method pad -units bbox -stops { { 0.00 #ffffff 1} { 1.00 #dbdbdb 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
+	$erlib config -fillnormal $g4
 	set herlib [expr {int([winfo fpixels "$t1.message" [$erlib config -height]])}]
 	set werlib [expr {int([winfo fpixels "$t1.message" [$erlib config -width]])}]
 
@@ -28,22 +29,7 @@ proc exitarm {t} {
 	    wm resizable $t 1 1
 	    return
 	}
-
-	foreach {oo} [info class instances cbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances ibutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances mbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cmenu] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cframe] {
-	    $oo destroy
-	}
+	svgwidget::clearclass
 	destroy $t
 	puts "Пример button_PACK_gradient завершен."
 	return
@@ -61,10 +47,12 @@ wm title $t "tcl/tk pack gradient demo"
 
 wm geometry $t 800x600+150+150
 
-tkp::canvas $t.c -bg yellow
+set tkpfr [cframe new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow]
+set g4 [$t.c gradient create linear -method pad -units bbox -stops { { 0.0 cyan 1} { 1.0 yellow 1}} -lineartransition {0.0 0.0 0.0 1.0} ]
+$tkpfr config -fillnormal $g4
+#tkp::canvas $t.c -bg yellow
 #Уствновить gradient
 #canvas::gradient .c -direction x -colr1 yellow -color2 blue
-canvas::gradient $t.c -direction x -color1 cyan -color2 yellow
 update
 
 pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
@@ -80,7 +68,7 @@ set xa2 [cbutton new $t.frame.but2 -type round  -text Полукруглый]
 [$xa2 canvas] configure -bg [$b1 config -fillnormal]
 set xa3 [cbutton new $t.frame.but3 -type ellipse  -text Эллипс -fontweight bold -fontslant italic -fontfamily helvetica -fontsize 4m ]
 [$xa3 canvas] configure -bg [$b1 config -fillnormal]
-set xa4 [cbutton new $t.frame.but4 -type rect  -text {ВЫХОД (Закругленный)} -rx 2m -command "exitarm $t" -filltext red -fontweight bold -fontsize 4m]
+set xa4 [cbutton new $t.frame.but4 -type rect  -text {ВЫХОД (Закругленный)} -rx 2m -command "exitarm $t" -textfill red -fontweight bold -fontsize 4m]
 [$xa4 canvas] configure -bg [$b1 config -fillnormal]
 $xa4 config  -textstroke black -textstrokewidth 0.7
 $b1 pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw
@@ -125,7 +113,10 @@ $rc5 pack -in [$clfrv canvas] -padx 1c -pady "5m 0" -fill none -expand 1
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
 
 #Кнопка обновления фона фреймов
-set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "$b1 fon;$clfrv fon;$went fon"]
+set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "$b1 fon;$clfrv fon;$went fon" ]
+$xaup config -width 120
+[$xaup canvas] configure -width 120
+
 $xaup config -command "$b1 fon;$clfrv fon;$went fon;$xaup fon"
 
 [$xaup canvas] configure -bg [$b1 config -fillnormal]

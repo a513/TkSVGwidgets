@@ -5247,7 +5247,8 @@ oo::class create cframe {
 	set entwidth [winfo fpixels $wcan $Options(-width)]
 	$wcan configure -width [expr {$strwidth + $entwidth}]
     }
-    set obje [string range [self] [string first Obj [self]] end]
+#    set obje [string range [self] [string first "Obj" [self]] end]
+    set obje [string range [self] [expr {[string last "::" [self]] + 2}] end]
     set wentry "$wcan.entry$obje"
     switch $type {
 	clframe {
