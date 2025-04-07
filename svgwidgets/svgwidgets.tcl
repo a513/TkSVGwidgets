@@ -553,7 +553,9 @@ oo::class create cbutton {
 
 
 #puts "cbutton type=$type x1=$x1 y1=$y1"
-    set btag "canvasb[string range [self] [string first Obj [self]] end]"
+#    set btag "canvasb[string range [self] [string first Obj [self]] end]"
+    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
+
     set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 
 #    $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -strokewidth $strwidth -rx $Options(-rx) -tags [list Rectangle obj $canvasb $btag [linsert $btag end rect] utag$idr]
@@ -2328,7 +2330,9 @@ oo::class create ibutton {
     my changestrwidth
 
     foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
-    set btag "canvasb[string range [self] [string first Obj [self]] end]"
+#    set btag "canvasb[string range [self] [string first Obj [self]] end]"
+    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
+
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -strokelinejoin $Options(-strokelinejoin) -stroke $Options(-stroke)  -rx $Options(-rx) -tags [list Rectangle obj $canvasb $btag [linsert $btag end rect] utag$idr] -fill {}
 
     set idr "utag$idr"
@@ -3107,6 +3111,8 @@ set ::copycanitem {
     if {$copytag == ""} {return -1}
 #Бобавить tags
     set btag "canvasb[string range [self] [string first Obj [self]] end]"
+    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
+
     $wcan itemconfigure $copytag -tags [list $type obj $canvasb $btag [linsert $btag end frame] utag$copytag]
     $wcan itemconfigure $copytag -parent $grnew
     foreach {x1 y1 x2 y2} [$wcan bbox $grnew] {break}
@@ -3169,7 +3175,9 @@ set ::copycanitem {
 	if {$copytag == ""} {return -1}
 #	$wcan itemconfigure $copytag -parent $grnew
 #Добавить tags
-	set btag "canvasb[string range [self] [string first Obj [self]] end]"
+#	set btag "canvasb[string range [self] [string first Obj [self]] end]"
+	set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
+
 	$wcan itemconfigure $copytag -tags [list $type obj $canvasb $btag [linsert $btag end frame] utag$copytag]
     }
 #Ставим группу в нужное место
@@ -3750,7 +3758,8 @@ oo::class create mbutton {
     } 
 
     set Options(-command) {}
-    set btag "canvasb[string range [self] [string first Obj [self]] end]"
+#    set btag "canvasb[string range [self] [string first Obj [self]] end]"
+    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
 
     my config $args
     set x1 [winfo fpixels $wcan $Options(-x)]
@@ -4874,6 +4883,8 @@ puts "cmenu finish: uuncnown direction=$direction"
 		    $wcan lower "$otag isvg" "$otag idor"
 		    if {[$obj config -fillenter] != "##"} {
 			set btago "canvasb[string range [set obj] [string first Obj [set obj]] end]"
+			set btago "canvasb[string range [set obj] [expr {[string last "::" [set obj]] + 2}] end]"
+
 			set brect [[$obj canvas] create [set prect] 0 [expr {$y0 + 2}] $wmax [expr {$y1 - 2}] -fill {} -fillopacity 0.2 -strokeopacity 0.2 -stroke {} -strokewidth 0 -tags $btago]
 #Курсор на строке, вне ее, щелчек по кнопке
 			if {$tp != "check" && $tp != "radio"} {
@@ -5351,7 +5362,9 @@ oo::class create cframe {
     my changestrwidth
 
 
-    set btag "canvasb[string range [self] [string first Obj [self]] end]"
+#    set btag "canvasb[string range [self] [string first Obj [self]] end]"
+    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
+
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -rx $crx -tags [list Rectangle obj $canvasb $btag $tbut [linsert $btag end $tbut] utag$idr]
     my changestrwidth $strwidth
     if {$tbut == "centry" || $tbut == "cspin" || $tbut == "ccombo"} {
@@ -5671,7 +5684,8 @@ if {[$wcan bbox $id] != ""} {
 	set tags "[$wcan itemcget $id -tags]"
 	set ind [lsearch -regexp "$tags" {^canvasbObj}]
 	if {$ind == -1} {
-	    set ind [lsearch -regexp "$tags" {^canvasb::}]
+#	    set ind [lsearch -regexp "$tags" {^canvasb::}]
+	    set ind [lsearch -regexp "$tags" {^canvasb.}]
 	}
 	set oid [lindex "$tags" $ind]
 	if {[$wcan type "$oid image"] != ""} {
