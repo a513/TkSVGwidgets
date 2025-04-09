@@ -3422,23 +3422,19 @@ set ::methshowmenu {
 		if {$mtype} {
 		    set rootx [expr {$rootx - $wm / 2 + $wb / 2}]
 		    set rooty [expr {$rooty + $hb}]
-
 		} else {
 		    set x [expr {$x - $wm / 2 + $wb / 2}]
 		    set y [expr {$y + $hb}]
 		
 		}
-	    
 	    }
 	    down {
 		if {$mtype} {
 		    set rootx [expr {$rootx - $wm / 2 + $wb / 2}]
 		    set rooty [expr {$rooty - $hm}]
-
 		} else {
 		    set x [expr {$x - $wm / 2 + $wb / 2}]
 		    set y [expr {$y - $hm}]
-		
 		}
 	    }
 	    left {
@@ -3470,18 +3466,17 @@ set ::methshowmenu {
 	    set mbut [[my config -menu] place -x $rootx -y $rooty ]
 	    place forget [[my config -menu] canvas]
 	    pack [[my config -menu] canvas] -side top -anchor nw
-#	    wm state $tlm normal
 	    wm geometry $tlm +$rootx+$rooty
-	    set tlb [[my config -menu] config -lockwindow]
+#	    set tlb [[my config -menu] config -lockwindow]
+	    set tlb [winfo toplevel $wcan]
+
 	    set ptlb [winfo toplevel $tlb]
-#	    set ptlb [winfo parent $tlb]
 	    if {$ptlb == ""} {
 		set ptlb $tlb
 	    }
 	    if {[tk busy status $ptlb]} {
 		set sttlb 1
 	    } else {
-
 		if {[winfo class [winfo toplevel [[self] canvas]]] != "femenu"} {
 		    tk busy hold $ptlb
 		}
@@ -3490,30 +3485,32 @@ set ::methshowmenu {
 	    set brel ""
 	    if {$ptlbw != $ptlb ||  $ptlb == "."} {
 		set brel [bind [set ptlb]_Busy <ButtonRelease>]
+		set bconf [bind [set ptlb]_Busy <Configure>]
+		set bfoc [bind [set ptlb]_Busy <FocusOut>]
 	    } else {
 		set brel [bind [set ptlb]._Busy <ButtonRelease>]
-	    }
-
-	    if {$ptlbw != $ptlb ||  $ptlb == "."} {
-		set bconf [bind [set ptlb]_Busy <Configure>]
-	    } else {
 		set bconf [bind [set ptlb]._Busy <Configure>]
+		set bfoc [bind [set ptlb]._Busy <FocussOut>]
 	    }
 	    if { $sttlb } {
 		if {$ptlbw != $ptlb ||  $ptlb == "."} {
 		    eval "bind [set ptlb]_Busy <ButtonRelease> {bind [set ptlb]_Busy <ButtonRelease> {$brel}; tk busy forget $ptlb; wm state $tlm withdraw}"
 		    eval "bind [set ptlb]_Busy <Configure> {bind [set ptlb] <Configure> {$bconf};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
+		    eval "bind [set ptlb] <FocusOut> {bind [set ptlb] <FocusOut> {$bfoc};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
 		} else {
 		    eval "bind [set ptlb]._Busy <ButtonRelease> {bind [set ptlb]._Busy <ButtonRelease> {$brel}; wm state $tlm withdraw;}"
 		    eval "bind [set ptlb]._Busy <Configure> {bind [set ptlb] <Configure> {$bconf};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
+		    eval "bind [set ptlb] <FocusOut> {bind [set ptlb] <FocusOut> {$bfoc};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
 		}
 	    } else {
 		if {$ptlbw != $ptlb ||  $ptlb == "."} {
 		    eval "bind [set ptlb]_Busy <ButtonRelease> {bind [set ptlb]_Busy <ButtonRelease> {$brel}; tk busy forget $ptlb; wm state $tlm withdraw};"
 		    eval "bind [set ptlb]_Busy <Configure> {bind [set ptlb] <Configure> {$bconf};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
+		    eval "bind [set ptlb] <FocusOut> {bind [set ptlb] <FocusOut> {$bfoc};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
 		} else {
 		    eval "bind [set ptlb]._Busy <ButtonRelease> {bind [set ptlb]._Busy <ButtonRelease> {$brel}; tk busy forget $ptlb; wm state $tlm withdraw};"
 		    eval "bind [set ptlb]._Busy <Configure> {bind [set ptlb] <Configure> {$bconf};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
+		    eval "bind [set ptlb] <FocusOut> {bind [set ptlb] <FocusOut> {$bfoc};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
 		}
 	    }
 	    wm state $tlm normal
@@ -4873,7 +4870,26 @@ oo::class create cmenu {
 	set pimage "image"
 	set matrix "::tko::matrix"
     }
-
+    set tpmenu "canvas"
+    set ind [lsearch $args "-type"]
+    if {$ind > -1} {
+	incr ind
+	set tpmenu [lindex $args $ind]
+    }
+    if {$tpmenu != "canvas" && $tpmenu != "window"} {
+	error "cmanu: bad type=$tpmenu: must be canvas or window (default canvas)"
+    }
+    if {$tpmenu == "window"} {
+	set pwin [split $w "."]
+	if {[llength $pwin] != 3 || [lindex $pwin 0] != ""} {
+	    error "cmanu: bad path=$win: must be .<window>.<canvas>"
+	}
+	set fmWin ".[lindex $pwin 1]"
+	destroy $fmWin
+	toplevel $fmWin -class femenu
+	wm overrideredirect $fmWin 1
+	wm state $fmWin withdraw
+    }
     if {[winfo exists $w]} {
 	if {[winfo class $w] != "PathCanvas" && [winfo class $w] != "TkoPath"} {
 #	error "cmenu cmenu $w already exist"
@@ -4881,6 +4897,7 @@ oo::class create cmenu {
 	    destroy $w
 	}
     }
+
     set erlib ""
     set wcan $w
     set fr 0
@@ -5269,6 +5286,8 @@ if {$fr == 1}  {
     }
     foreach {option value} $args {
         switch $option {
+	    -type {
+	    }
     	    -lockwindow {
     		set Options($option) $value
     	    }
