@@ -976,7 +976,9 @@ if {0} {
 	set mbut [$cmenu1 place -x $x -y $y -in $fm]
     }
     if {$mtype == 1} {
-	set cmd "bind $topl <Configure> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <Configure> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
+	set cmd "bind $topl <Configure> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <Configure> {};bind $topl <FocusOut> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
+	eval $cmd
+	set cmd "bind $topl <FocusOut> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <FocusOut> {};bind $topl <Configure> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
 	eval $cmd
     }
     set ::fdmenu 0

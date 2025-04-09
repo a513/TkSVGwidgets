@@ -304,7 +304,9 @@ puts "ADDDIR cmd6=$cmd6 canCtx=$canCtx gr=[$cmd6 config -isvg]"
 #    $mbut config -fillnormal "#e0dfde" -stroke gray70
 update
     if {$mtype == 1} {
-	set cmd "bind $topl <Configure> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <Configure> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
+	set cmd "bind $topl <Configure> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <Configure> {};bind $topl <FocusOut> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
+	eval $cmd
+	set cmd "bind $topl <FocusOut> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <Configure> {};bind $topl <FocusOut> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
 	eval $cmd
     }
     set ::fdmenu 0
@@ -437,6 +439,6 @@ set details	 0
 set sepfolders	 1
 #puts "ГОТОВО=$mn r1=$r1 r2=$r2"
 update
-trace variable rad w displaymenu
+trace add variable rad write displaymenu
 #set rad enter
 set rad release
