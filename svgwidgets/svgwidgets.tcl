@@ -5582,7 +5582,7 @@ oo::class create cframe {
 	    set fonte "Helvetica [winfo pixels $wcan $Options(-fontsize)]"
 #puts "CCOMBO font=$fonte="
 	    set ycoords $strwidth
-	    ttk::style configure My.TCombobox -borderwidth 0 -fieldbackground white -selectbackground white -selectborderwidth 0 -selectforeground black -padding 0 -arrowsize 5m -background white
+	    ttk::style configure My.TCombobox -borderwidth 0 -fieldbackground white -focuscolor white -selectbackground white -selectborderwidth 0 -selectforeground black -padding 0 -arrowsize 5m -background white
 	    ttk::style map My.TCombobox -fieldbackground { readonly white}
 	    ttk::style map My.TCombobox -selectbackground {readonly white}
 	    ttk::style map My.TCombobox -selectforeground {readonly black}
