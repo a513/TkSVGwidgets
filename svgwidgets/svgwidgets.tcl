@@ -5979,7 +5979,22 @@ oo::define cmenu {
 
 namespace eval ::gengrad {
   set i 0
-
+  set icongrad [image create photo -data {
+    iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAEwElEQVRIx11WW5IkuQ0DQPWsb+xj+AA+6XYSgD+U1TNeRUWFIiNTpEjiwf/899/7pf119tf46+w5+9f4
+    6+v7X18+k1+zv772nP06OQOyIlPZ59nz/Xw9y7+X9l/fO0/m7+/z/Zwn+n5+/b18fNq2BdoWKQAAbZke127dqMc1AwoFGrnjMpWrgAFSpkzv5+8hwGmtalveSC1S1vIp
+    o4dShguAPVArwhlbu2erDW1tkLZlwZTNjYT0sGisKMV89k2b1q2qeB4UmxSiSKSKtZFXn8TZMv7kV6IEhBylBVgoQSxTblRMgXDIJafi0U2fRAuHNlIkSNGOrVTxFAqU
+    ymZx5NZVXLOsVMXHtANonhRohT63wxBvuccdRxu5cG9XZj+R3CmYHsUxuQRDkozEcM9zGtz2cxIREsmSbZW8p7ja1NGGG/r+W2mdcc+tGlqlcCMjUgobgQtALMJWJQnx
+    zpvSE3CjDWu0ipl3TO4LaM/dcUOsSAXjBVWg4viAgkASGnwWG7Z06chmyuc5t2j3Nt46TM9xFzv6IhvmAKCAoOmwXWQ4LFCFZFAWAKbgRrFSpMfVE21mI/tTvT3zLHCw
+    m55g3QMsKqTY6WmUDAtVJHlBBECx3NsJ1NqMc55oV5vZ1WNtDh1xReHNHaUOBQ+mrTS0VQYAxLdGqQDFb5UK2NpofesDh96THiQoGNArCICodubwAjslEIglmPcG7P1F
+    /jDEPnL5LFN66SipcxTXEQ6AFsAKp6doKSXUToYFSAIMoVuld5YsFy28cmfDmH6vot1zdtlZLHHApkAeRSY4jZiJlqXwxvisGK1ctizqjHe23CiR92y0OdoAKJkuOASA
+    WQTchkcnYYkygP6YogDQO+9mWviC7jgXYuPSPXhMZxyes1/tDttfq+cYYmmGJQGQv3Hw6YTpskV6AthoYZ+9dBtuzjzBkVmyQDxEAPWUFavGhG6M/IRpK+RHA9Rq01ap
+    cgnqJY9zdhPSxylmdFoSGk7LiSARZKUXw3deAaZomNIVwA3qF3G7F2Vsj3Yl5oKgTUgdqAjLjBixnP6cy99QYDvND/MwRc0PkuXl5mhdSXg1jWJVkFMByJBimN/nVm/+
+    rQK2sgGMryBa7sRy5gmao8eY5q3qk1scUWFFGNAMk/d8AX53l83z8r6atnAUX6mgg/TMLkz56KuRomKnYoclKYApoZdK/TNIKhAT0O3BvUFWrtrZwKv0nCcdlcYDTCFB
+    ZegyxOFELO/g/wNruekjVUHvR5Az+4o223P2u54sNRNxZyhB4iBAx7oq9kNz6M8UsWCrQMBlf6bTHBsbZJEebKienoWFOXCKtpMKSgjRBKl/BLhIZiGXHyuFenw7Ubp1
+    ztdjiFGP6QlEHZdzR94GyNEUwf8vfi6h12z5Qlofe8G9Tf5+oNE0QzodNSz3CiTFUj8g+MfSFQZfcvWLZL/G4pqao5R1GloUk2BZMUqJ4VQp/w8BP7r2+rgbJm6vuvX6
+    otvwg9wCM7hMwhAgqUIMA71iphq4dgB56egzQoXyuls2b9tbFucPo9AWSIcsO9f/6So8fxDwpyS8ZrSXwH/bZ/4xCeemxE9NryW+n10RDtDL1jcUgffJq8yvJxc/Rv19
+    iWTR/wE5KW53Qusm+AAAAABJRU5ErkJggg==
+  }]
   if {[string range $::tcl_platform(machine) 0 2] != "arm"} {
     array set Imy []
     set Imy(arrow-down-prelight) [image create photo  -data {
@@ -6050,7 +6065,7 @@ namespace eval ::gengrad {
 
 #Вид scrollbar-ов: 0 - оригинальный, 1 - типа breeze
         ttk::style element create HorizontalMY.Scrollbar.trough image $Imy(scrollbar-trough-horiz-active) \
-        -border {6 0 6 0} -sticky ew
+        -border {4 0 4 0} -sticky ew
         ttk::style element create HorizontalMY.Scrollbar.thumb \
              image [list $Imy(scrollbar-slider-horiz) \
                         {active !disabled}  $Imy(scrollbar-slider-horiz-active) \
@@ -6058,7 +6073,7 @@ namespace eval ::gengrad {
             ] -border {6 0 6 0} -sticky ew
 
         ttk::style element create VerticalMY.Scrollbar.trough image $Imy(scrollbar-trough-vert-active) \
-            -border {0 6 0 6} -sticky ns
+            -border {0 4 0 4} -sticky ns
         ttk::style element create VerticalMY.Scrollbar.thumb \
             image [list $Imy(scrollbar-slider-vert) \
                         {active !disabled}  $Imy(scrollbar-slider-vert-active) \
@@ -6726,7 +6741,7 @@ namespace eval ::gengrad {
   wm maxsize .tpgradient 660 640
   wm minsize .tpgradient 600 430
   wm geometry .tpgradient 600x430+500+300
-  wm title .tpgradient {TKpaint create gradient}
+  wm title .tpgradient {SVGWIDGETS: генерация градиента}
   wm protocol .tpgradient WM_DELETE_WINDOW {gengrad::cancelgradient}
 
   variable Gradienttype
@@ -6980,8 +6995,11 @@ pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradie
 
     set wgrad ".viewrad"
     toplevel $wgrad -bg snow
-    wm withdraw .viewrad
+    wm title $wgrad "Кодогенерация градиента"
+    wm withdraw $wgrad
     wm protocol $wgrad WM_DELETE_WINDOW [subst "wm withdraw $wgrad"]
+    wm iconphoto $wgrad "$::gengrad::icongrad"
+    wm iconphoto .tpgradient "$::gengrad::icongrad"
 
     wm geometry $wgrad 600x430+100+50
     set ::vgrad [cframe create "Obj[incr ::gengrad::i]" $wgrad.can -type clframe -text "Просмотр градиента" -fontsize 5m -fillnormal yellow -bg snow -strokewidth 1m -stroke cyan]
@@ -6990,7 +7008,7 @@ pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradie
     update
 #Форма для команды генерации градиента
     text $wgrad.cmd -yscrollcommand [list $wgrad.scroll set] -setgrid 1 -height 5 -undo 1 -autosep 1 -highlightcolor cyan -highlightbackground cyan -highlightthickness 2
-    ttk::scrollbar $wgrad.scroll -command [list $wgrad.cmd yview]
+    ttk::scrollbar $wgrad.scroll -command [list $wgrad.cmd yview] -style My.Vertical.TScrollbar
     pack $wgrad.scroll -side right -fill y -pady 1m -padx {0 1m}
     pack $wgrad.cmd -expand 0 -fill both -pady 1m -padx {1m 0}
     update 

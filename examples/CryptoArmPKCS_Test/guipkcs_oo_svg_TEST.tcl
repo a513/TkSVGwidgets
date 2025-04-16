@@ -512,57 +512,6 @@ set ::px2mm [winfo fpixels . 1m]
 set ::signedCert ""
 
 array set Imy []
-set Imy(arrow-down-prelight) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+g
-vaeTAAAAk0lEQVQokc2PsQ3CMBRE/32WwF2moDJgsUFSIBgxCGImQBaiYop0RlkB
-4aMCWQkCGiSuPL13+l/kP+N8LL5l4HwsbtQzkZan0oRXsPXRgboZIU00lKaloAK1
-njWXRR+e77spqDWEq1CaFs+VprMQ7iBcH6vx4QGnxG3eIV/LJahe+/BAyO8VEXn3
-10CyPrqP4E9yB2s4SU1wZK6JAAAAAElFTkSuQmCC
-}]
-set Imy(arrow-down-insens) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+g
-vaeTAAAAqUlEQVQokc2QsQrCMBiErybBoaMmBgriE/yQtXZy8cWl4OLQ9gkUoSmW
-Tjq0JjiJWoW6CN78fcdxwH+GiMJvGUZEoefjtZaL2trD+TMcK8+DlZbTPbPWdpGe
-nRxziZrMm6o6vkjGGOmYS9DyNM93DQOAsiwvkda15375LBljZBcECVqRFsXWAkDQ
-b7sDQrS+D78Jj71dAgCjq9hkWVoNHQKiWBHFahD8SW5gekeBcxjv0wAAAABJRU5E
-rkJggg==
-}]
-set Imy(arrow-down) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+g
-vaeTAAAApElEQVQokc2PTQqCUBSFz9Vd9Axdghi8HvgEVxG4Ra0tRIPIn4G2g8AU
-GzaPvE0fGdUk6Iy/73AO8J/xlfK+ZchXyqPRrtii1bHY717DOqaRU7bu0r503VU4
-bg7mbCbm9dCfTyYcyDACIyNw0pR5YwPA0LetcNyCgdSUAhlGDKwJnNTVYQsAZLYt
-llqPzBsCJwDdnuGJYO4FgHe/JpKvdPwR/Eke6FFKPMIYKegAAAAASUVORK5CYII=
-}]
-
-if {[string range $::tcl_platform(machine) 0 2] != "arm"} {
-#Начиная с tk8.6.16 пересоздать элемент нельзя
-#Поэтому пересоздаем layout - макет
-        ttk::style element create My.downarrow \
-            image [list $Imy(arrow-down) \
-                        active    $Imy(arrow-down-prelight) \
-                        pressed   $Imy(arrow-down-prelight) \
-                        disabled  $Imy(arrow-down-insens) \
-          ]  -border 4 -sticky {} 
-    ttk::style layout TCombobox {
-	Combobox.field -sticky nswe -children {
-	    My.downarrow -side right -sticky ns
-		Combobox.padding -expand 1 -sticky nswe -children {
-		    Combobox.textarea -sticky nswe
-		}
-	}
-    }
-
-
-if {0} {
-        ttk::style element create Combobox.downarrow \
-            image [list $Imy(arrow-down) \
-                        active    $Imy(arrow-down-prelight) \
-                        pressed   $Imy(arrow-down-prelight) \
-                        disabled  $Imy(arrow-down-insens) \
-          ]  -border 4 -sticky {} 
-}
-}
     array set colors {
 	-frame          "#d8d8d8"
 	-lighter        "#fcfcfc"
@@ -695,49 +644,19 @@ set sy $sx
 ::FE::scaleImage $Imy(scrollbar-slider-horiz) $sy $sx
 ::FE::scaleImage $Imy(scrollbar-slider-horiz-active) $sy $sx
 ::FE::scaleImage $Imy(scrollbar-slider-insens) $sy $sx
-#Стрелка вниз combobox
-::FE::scaleImage $Imy(arrow-down) $sx
-# $sy
-::FE::scaleImage $Imy(arrow-down-prelight) $sx
-# $sy
-::FE::scaleImage $Imy(arrow-down-prelight) $sx
-# $sy
-::FE::scaleImage $Imy(arrow-down-insens) $sx
-# $sy
 }
 
-
 #Вид scrollbar-ов: 0 - оригинальный, 1 - типа breeze
-if {1} {
-#if {[string range $::tcl_platform(machine) 0 2] != "arm"} {}
-        ttk::style element create HorizontalMY.Scrollbar.trough image $Imy(scrollbar-trough-horiz-active) \
-        -border {6 0 6 0} -sticky ew
-        ttk::style element create HorizontalMY.Scrollbar.thumb \
-             image [list $Imy(scrollbar-slider-horiz) \
-                        {active !disabled}  $Imy(scrollbar-slider-horiz-active) \
-                        disabled            $Imy(scrollbar-slider-insens) \
-            ] -border {6 0 6 0} -sticky ew
+ttk::style layout Vertical.TScrollbar {
+    VerticalMY.Scrollbar.trough -sticky ns -children {
+        VerticalMY.Scrollbar.thumb -expand true
+    }
+}
 
-        ttk::style element create VerticalMY.Scrollbar.trough image $Imy(scrollbar-trough-vert-active) \
-            -border {0 6 0 6} -sticky ns
-        ttk::style element create VerticalMY.Scrollbar.thumb \
-            image [list $Imy(scrollbar-slider-vert) \
-                        {active !disabled}  $Imy(scrollbar-slider-vert-active) \
-                        disabled            $Imy(scrollbar-slider-insens) \
-            ] -border {0 6 0 6} -sticky ns
-
-        ttk::style layout Vertical.TScrollbar {
-            VerticalMY.Scrollbar.trough -sticky ns -children {
-                VerticalMY.Scrollbar.thumb -expand true
-            }
-        }
-
-        ttk::style layout Horizontal.TScrollbar {
-            HorizontalMY.Scrollbar.trough -sticky ew -children {
-                HorizontalMY.Scrollbar.thumb -expand true
-            }
-        }
-#{}
+ttk::style layout Horizontal.TScrollbar {
+    HorizontalMY.Scrollbar.trough -sticky ew -children {
+        HorizontalMY.Scrollbar.thumb -expand true
+    }
 }
 
 ttk::style map MyBorder.TButton -background [list disabled white pressed gray64 active skyblue !active #e2e2e1]
