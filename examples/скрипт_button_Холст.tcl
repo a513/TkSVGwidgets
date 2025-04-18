@@ -1,8 +1,28 @@
 package require svgwidgets
 #source "../SVGWIDGETS/svgwidgets.tcl"
 #package require canvas::gradient
-set tkp::pixelalign 1
-set tkp::depixelize 1
+#set tkp::pixelalign 1
+#set tkp::depixelize 1
+variable b1
+variable clfrv
+variable went 
+variable xgrad 
+variable tkpfr
+
+proc updategrad {w gr} {
+    variable b1
+    variable clfrv
+    variable went 
+    variable xgrad 
+    variable tkpfr
+    set gg [gengrad::generateGradient $w $gr]
+    if {$gg == ""} {
+	return
+    }
+    update
+    set newgr [eval [$tkpfr canvas] [set gg]]
+    $tkpfr config -fillnormal $newgr
+}
 
 proc folderbrown {canv} {
     set grfolder [$canv create group]
@@ -112,8 +132,13 @@ puts "Квадрат=$rc6"
 [$rc6 canvas] delete $img
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
-update
 $tkpfr config -fillnormal gradient5
+update
+#Кнопка смены драдиента нв основном фрейме
+set xgrad [cbutton new $t.c -type round -x 2m -y 2m  -text {Обновить градиент} -command "variable tkpfr;updategrad \[\$tkpfr canvas] \[\$tkpfr config -fillnormal]" -width 150 -height 25]
+#$xgrad place -in $t.c -x 2m -y 2m
+#
+
 #Меню
 set menu [cmenu new $t.c -x 310 -y 440 -direction up ]
 $menu add check -text check1 -variable z2

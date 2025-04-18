@@ -4182,6 +4182,8 @@ oo::class create mbutton {
 	foreach {x0 y0 x1 y1} [$wcan bbox 0] {break}
 #	$wcan configure -width [expr {$x1 + $x0}] -height [expr {$y1 + $y0}]
 	$wcan configure -width [expr {$x1}] -height [expr {$y1}]
+    } else {
+	$wcan delete IDOR
     }
     if {$Options(-command) != ""} {
 #	set cmd [my config -command]
@@ -6684,12 +6686,12 @@ namespace eval ::gengrad {
     return [$fm create polyline {7.560055118110236 3.779527560055118 32.21982637367283 31.96326613684094} -stroke "#FF6347" -strokewidth 6.0 -startarrowwidth 11.0 -startarrowfill 0.4 -endarrow 1 -endarrowwidth 11.0 -endarrowfill 0.4 -parent $gr]
   }
 
- proc generateGradient { {grad ""}} {
+ proc generateGradient { {args ""}} {
   package require scrollutil_tile
   global Gradient
   catch "destroy .tpgradient"
   catch {unset Gradient}
-  if {$grad == ""} {
+  if {$args == "" || [llength $args] != 2} {
     set Gradient(type) linear
     set Gradient(color0) "#57f1b3"
     set Gradient(color1) "#c63e31"
@@ -6713,7 +6715,7 @@ namespace eval ::gengrad {
     set Gradient(unitssel) 0
     set Gradient(i) 2
   } else {
-    array set Gradient [parsegradient .c  $grad]
+    array set Gradient [parsegradient [lindex $args 0]  [lindex $args 1]]
     if {$Gradient(type) == "linear"} {
 	set Gradient(cx) 0.5
 	set Gradient(cy) 0.5
@@ -6977,7 +6979,7 @@ pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradie
     pack .tpgradient.frame6 -anchor center -expand 1 -fill both -padx "0 0" -pady 0 -side left -in .tpgradient.frameStops
     pack .tpgradient.frameStops .tpgradient.frameFirst -in .tpgradient
 
-    if {$grad != ""} {
+    if {$args != ""} {
 	if {$Gradient(i) > 2} {
 	    set i [expr {$Gradient(i) - 2}]
 	    set j 2

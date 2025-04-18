@@ -2,6 +2,14 @@ package require svgwidgets
 #Уствновить gradient
 #canvas::gradient .c -direction x -colr1 yellow -color2 blue
 package require canvas::gradient
+
+variable b1
+variable clfrv
+variable went 
+variable xaup
+variable xgrad 
+variable tkpfr
+
 proc exitarm {t} {
 	if {$t == "."} {
 	    set t1 ""
@@ -33,6 +41,24 @@ proc exitarm {t} {
 	destroy $t
 	puts "Пример button_PACK_gradient завершен."
 	return
+}
+proc updategrad {w gr} {
+    variable b1
+    variable xaup
+    variable clfrv
+    variable went 
+    variable xgrad 
+    variable tkpfr
+    set gg [gengrad::generateGradient $w $gr]
+    if {$gg == ""} {
+	return
+    }
+    update
+    set newgr [eval [$tkpfr canvas] [set gg]]
+    $tkpfr config -fillnormal $newgr
+    update
+    after 100
+    $b1 fon; $clfrv fon; $xgrad fon; $went fon; $xaup fon
 }
 
 variable t
@@ -121,6 +147,11 @@ $xaup config -command "$b1 fon;$clfrv fon;$went fon;$xaup fon"
 
 [$xaup canvas] configure -bg [$b1 config -fillnormal]
 $xaup place -in $t.c -x 2m -y 2m
+#Обновить градиентную заливку главного окна
+set xgrad [cbutton new $t.butgrad -type round  -text {Обновить градиент} -command "updategrad [$tkpfr canvas] [$tkpfr config -fillnormal]" -width 150]
+[$xgrad canvas] configure -bg [$b1 config -fillnormal]
+$xgrad place -in $t.c -relx 0.7 -y 2m 
+
 
 puts "frame=$b1 clframe=$clfrv  entry=$went but=$xaup"
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
