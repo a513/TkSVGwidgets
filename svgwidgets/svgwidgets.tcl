@@ -6567,7 +6567,11 @@ namespace eval ::gengrad {
 	foreach {offset color opacity} $stop {
 	    set Gradient(offset$i) $offset
 	    set Gradient(color$i) $color
-	    set Gradient(opacity$i) $opacity
+	    if {$opacity == ""} {
+		set Gradient(opacity$i) 1.00
+	    } else {
+		set Gradient(opacity$i) $opacity
+	    }
 	}
 	incr i
     }
