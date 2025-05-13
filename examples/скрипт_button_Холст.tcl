@@ -132,7 +132,11 @@ puts "Квадрат=$rc6"
 [$rc6 canvas] delete $img
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
-$tkpfr config -fillnormal gradient5
+if {$svgwidget::tkpath != "::tko::path"} {
+    $tkpfr config -fillnormal gradient5
+} else {
+    $tkpfr config -fillnormal ::tko::gradient5
+}
 update
 #Кнопка смены драдиента нв основном фрейме
 set xgrad [cbutton new $t.c -type round -x 2m -y 2m  -text {Обновить градиент} -command "variable tkpfr;updategrad \[\$tkpfr canvas] \[\$tkpfr config -fillnormal]" -width 150 -height 25]
@@ -149,9 +153,14 @@ set mbut [$menu add finish]
 $mbut config -stroke chocolate
 
 #.test.c gradient names
-$clfrv config -fillnormal gradient29
+if {$svgwidget::tkpath != "::tko::path"} {
+    $clfrv config -fillnormal gradient29
+} else {
+    $clfrv config -fillnormal ::tko::gradient29
+}
 set gradCloud [[$b1 canvas] gradient create linear -method pad -units bbox -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00} ]
 #set gradCloud1 [tkp::gradient create linear -method pad -units bbox -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00} ]
 
-$b1 config -fillnormal gradient45
+#$b1 config -fillnormal gradient45
+$b1 config -fillnormal $gradCloud
 

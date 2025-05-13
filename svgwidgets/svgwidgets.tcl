@@ -6738,6 +6738,14 @@ namespace eval ::gengrad {
 
 #    puts "ShowWindow.tpgradient: Gradient(i)=$Gradient(i)"
   }
+    switch -- $::tcl_platform(platform) {
+	"windows"        {
+		set svgFont "Arial Narrow"
+	    }
+	"unix" - default {
+		set svgFont "Nimbus Sans Narrow"
+	    }
+    }
 
   toplevel .tpgradient -background "#dcdcdc"  -highlightbackground "#dcdcdc"
 
@@ -6962,12 +6970,12 @@ pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradie
     incr i
     set buts ".tpgradient.frameStops.buts"
     frame $buts -borderwidth {2} -relief {flat} -background "#d6d2d0"
-    eval "cbutton create addst $buts.butadd -type round -command {global Gradient; ::gengrad::createstop $cf \$Gradient(i)} -text {Добавить слой} -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily {Nimbus Sans Narrow}"
+    eval "cbutton create addst $buts.butadd -type round -command {global Gradient; ::gengrad::createstop $cf \$Gradient(i)} -text {Добавить слой} -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily \"$svgFont\""
 
-    cbutton create view $buts.butview -rx 2m -command {::gengrad::viewgradient ".tpgradient.frameFirst.canvas18"}  -text "Просмотр градиента" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "Nimbus Sans Narrow"
-    cbutton create ok $buts.butok -type ellipse -command {::gengrad::okgradient} -text "Готово" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "Nimbus Sans Narrow"
-    cbutton create canc $buts.butcan -type round -command {::gengrad::cancelgradient} -text "Cancel" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "Nimbus Sans Narrow"
-    eval "cbutton create delst $buts.butdel -command {::gengrad::deletestop $cf} -text {Удалить последний слой} -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily {Nimbus Sans Narrow}"
+    cbutton create view $buts.butview -rx 2m -command {::gengrad::viewgradient ".tpgradient.frameFirst.canvas18"}  -text "Просмотр градиента" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
+    cbutton create ok $buts.butok -type ellipse -command {::gengrad::okgradient} -text "Готово" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
+    cbutton create canc $buts.butcan -type round -command {::gengrad::cancelgradient} -text "Cancel" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
+    eval "cbutton create delst $buts.butdel -command {::gengrad::deletestop $cf} -text {Удалить последний слой} -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily \"$svgFont\""
 
     pack $buts.butview -anchor ne -expand 0 -fill x -padx 1m -pady "3m 1m" -side top
     pack $buts.butadd -anchor ne -expand 0 -fill x -padx 1m -pady 1m -side top
