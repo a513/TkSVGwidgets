@@ -3688,6 +3688,8 @@ set ::methscaleGroup {
     	    set scalex $xScale
     	    set scaley $yScale
 #Изменение размеров - ширины и высоты
+#Используется пакет tkpath
+	if {$tkpath == "::tkp::canvas"} {
 	    foreach {width height xy} [$wcan itemcget $id -matrix] {
 		foreach {w1 w0} $width {
 		    set w1 [expr {$w1 * $scalex}]
@@ -3697,19 +3699,31 @@ set ::methscaleGroup {
 		}
 		$wcan itemconfigure $id -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
 	    }
-if {[$wcan bbox $id] != ""} {
-    	    foreach {snx1 sny1 snx2 sny2} [$wcan bbox $id] {break}
-
+	    if {[$wcan bbox $id] != ""} {
+    		foreach {snx1 sny1 snx2 sny2} [$wcan bbox $id] {break}
 #Перемещение по x и y
-	    foreach {width height xy} [$wcan itemcget $id -matrix] {
-		foreach {x y} $xy {
-		    set x [expr {$x + $rx1 - $snx1 + $pxl }]
-		    set y [expr {$y + $ry1 - $sny1 + $pyl}]
+		foreach {width height xy} [$wcan itemcget $id -matrix] {
+		    foreach {x y} $xy {
+			set x [expr {$x + $rx1 - $snx1 + $pxl }]
+			set y [expr {$y + $ry1 - $sny1 + $pyl}]
+		    }
+		    $wcan itemconfigure $id -matrix [list "$width" "$height" "$x $y"]
 		}
-		$wcan itemconfigure $id -matrix [list "$width" "$height" "$x $y"]
 	    }
-}
-	    continue
+	} else {
+#Для пакета tko
+	    if {[$wcan bbox $id] != ""} {
+    		foreach {snx1 sny1 snx2 sny2} [$wcan bbox $id] {break}
+		lassign [$wcan itemcget $id -matrix]  w1 w0 h0 h1 x y
+		set w1 [expr {$w1 * $scalex}]
+		set h1 [expr {$h1 * $scaley}]
+		set x [expr {$x + $rx1 - $snx1 + $pxl }]
+		set y [expr {$y + $ry1 - $sny1 + $pyl}]
+		$wcan itemconfigure $id -matrix "$w1 $w0 $h0 $h1 $x $y"		
+	    }
+	}
+	
+	continue
       }
       
       if {[catch {$wcan itemcget $id -strokewidth} result]==0} {
