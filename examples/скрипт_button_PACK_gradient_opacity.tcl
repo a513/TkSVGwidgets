@@ -1,5 +1,6 @@
 package require svgwidgets
 package require canvas::gradient
+variable tkpfr
 
 proc exitarm {t} {
 	if {$t == "."} {
@@ -38,39 +39,25 @@ proc exitarm {t} {
 }
 
 proc updatewin {went clfrv } {
-#    puts "Updatewin ::b1=$::b1 ::xa1=$::xa1"
-    $::xa3  fon
-    $::b1 fon
-    $clfrv fon
-    $went fon
+    opacity 
+    return
 }
 
-proc opacity {frame1 frame2} {
+proc opacity {} {
+    variable tkpfr
     $::b1 config -fillnormal {}
-updatewin $::b1 $::clfrv
+#updatewin $::b1 $::clfrv
     set ::winop 1
     set op 1
-    foreach w1 "$::bb $::uu $::ww" {
-#	lower [$w1 canvas]
-#update
+    foreach w1 [$tkpfr slavesoo] {
 	$w1 fon
     }
-
-
-    foreach w1 "$::xa1 $::xa2 $::xa3 $::xa4" {
-#	lower [$w1 canvas]
-#update
+    foreach w1 [$::b1 slavesoo] {
 	$w1 fon
     }
-#    lower [$::b1 canvas] [$::xa1 canvas]
-puts "opacity ::rc1=$::rc1"
-    foreach w1 "$::rc1 $::rc2 $::rc3 $::rc4 $::rc5 $::rc6" {
-#	lower [$w1 canvas]
-#update
+    foreach w1 [$::clfrv slavesoo] {
 	$w1 fon
-
     }
-#    lower [$::clfrv canvas] [$::rc1 canvas]
 
 }
 #0 - нет прозрачности 1 - есть прозрачность
@@ -163,7 +150,7 @@ $upwin config -width 120
 [$upwin canvas] configure -bg [$::b1 config -fillnormal]
 $upwin place -in $t.c -x 2m -y 2m
 #set bel [cbutton new $t.butbel -type round  -text {Прозрачный эллипс} -command {$::b1 config -fillnormal {};lower [$::xa3 canvas]; update;$::b1 fon; $::xa3 fon;$::xa3 config -fillnormal {};lower [$::b1 canvas] [$::xa1 canvas]}]
-set bel [cbutton new $t.butbel -type rect -rx 4  -text {Прозрачность} -command {opacity $went $::clfrv}]
+set bel [cbutton new $t.butbel -type rect -rx 4  -text {Прозрачность} -command {opacity}]
 #$::xa2 config -command "$::b1 fon;$::clfrv fon;$went fon;$::xa2 fon"
 #[$::xa2 canvas] configure -bg [$::b1 config -fillnormal]
 $bel place -in $t.c -x 10c -y 2m

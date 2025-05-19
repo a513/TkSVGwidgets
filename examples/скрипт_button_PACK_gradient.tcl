@@ -139,7 +139,7 @@ $rc5 pack -in [$clfrv canvas] -padx 1c -pady "5m 0" -fill none -expand 1
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
 
 #Кнопка обновления фона фреймов
-set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "$b1 fon;$clfrv fon;$went fon" ]
+set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "foreach z2 [$tkpfr slavesoo] {\$z2 fon}" ]
 $xaup config -width 120
 [$xaup canvas] configure -width 120
 
@@ -148,7 +148,8 @@ $xaup config -command "$b1 fon;$clfrv fon;$went fon;$xaup fon"
 [$xaup canvas] configure -bg [$b1 config -fillnormal]
 $xaup place -in $t.c -x 2m -y 2m
 #Обновить градиентную заливку главного окна
-set xgrad [cbutton new $t.butgrad -type round  -text {Обновить градиент} -command "updategrad [$tkpfr canvas] [$tkpfr config -fillnormal]" -width 150]
+set xgrad [cbutton new $t.butgrad -type round  -text {Обновить градиент} -command "variable tkpfr;updategrad \[\$tkpfr canvas] \[\$tkpfr config -fillnormal]; foreach z2 [$tkpfr slavesoo] {\$z2 fon}" -width 150]
+
 [$xgrad canvas] configure -bg [$b1 config -fillnormal]
 $xgrad place -in $t.c -relx 0.7 -y 2m 
 

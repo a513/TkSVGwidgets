@@ -3275,6 +3275,32 @@ set ::methodman {
     my fon
 
   }
+#Какие svg-щбъекты размещены в окне текущего svg-щбъекта
+  method slavesoo {} {
+    set man [winfo manager $wcan]
+    if { $man == ""} {
+	return ""
+    }
+#    return [$man slaves $wcan]
+#Возврат дочерних объектов
+#Дочерние окна
+    set slaves [$man slaves $wcan]
+#Все svg-объекты
+    set allobj ""
+    foreach {wclass} "cbutton ibutton mbutton cmenu cframe" {
+	set listoo -1
+	set listoo [info class instances $wclass]
+	foreach {oo} $listoo {
+	    foreach ww $slaves {
+		if {[$oo canvas] == $ww } {
+		    lappend allobj $oo
+		}
+	    }
+	}
+    }
+    return $allobj
+  }
+
 #Какие окна размещены в этом окне
   method slaves {} {
     set man [winfo manager $wcan]

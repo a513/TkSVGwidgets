@@ -77,9 +77,10 @@ frame $t.c -bg yellow
 pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
 update
 #Кнопка консоли
-set cons [cbutton create Консоль $t.cons -type rect -rx 2m -height 7m -bg yellow -text "Показать консоль" \
-    -command {if {[Консоль config -text] == "Показать консоль"} {console show;Консоль config -text "Скрыть консоль"} \
-    else {console hide;::Консоль config -text "Показать консоль" ;}}]
+set cons [cbutton create Консоль $t.cons -type rect -rx 2m -height 7m -bg yellow -text "__Показать консоль__" \
+    -command {if {[Консоль config -text] == "  Показать консоль"} {console show;Консоль config -text "  Скрыть консоль"} \
+    else {console hide;::Консоль config -text "  Показать консоль" ;}}]
+$cons config -text "  Показать консоль"
 #puts "Поле консоли: $cons"
 
 pack $t.cons -in $t.c -side top -fill none -expand 0 -padx 3c -pady "2m 2m"
@@ -136,6 +137,7 @@ $clfrv config -fontsize 3.5m -fillbox cyan
 set bg [$clfrv config -fillnormal]
 
 set rc1 [cbutton new $t.rbut1 -type radio  -text Radio1 -variable vrc1 -value 1 -bg $bg]
+$rc1 fon
 eval  [subst {$rc1 config -command {puts "Radio1=[set rc1] Правый фрейм=[set clfrv]"}}]
 
 pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
@@ -143,6 +145,7 @@ update
 after 30
 #[$rc1 canvas] configure -bg [$clfrv config -fillnormal]
 set rc2 [cbutton new $t.rbut2 -type radio  -text Radio2 -variable vrc1 -value 0 -bg $bg ]
+$rc2 fon
 eval  [subst {$rc2 config -command {puts "Radio2=[set rc2] Правый фрейм=[set clfrv]"}}]
 set rc3 [cbutton new $t.rbut3 -type check  -text Check1 -variable vrc3 -bg $bg]
 eval  [subst {$rc3 config -command {puts "Check1=[set rc3] Правый фрейм=[set clfrv]"}}]
