@@ -282,6 +282,7 @@ oo::class create cbutton {
 
 	if { [catch {[winfo parent $wcan] cget -background} xcolor] == 0 } {
     	    $wcan configure -background $xcolor
+    	    set Options(-background) $xcolor
         } else {
 	    set stylepar [[winfo parent $wcan] cget -style]
 	    if {$stylepar == ""} {
@@ -291,6 +292,7 @@ oo::class create cbutton {
 	    }
 	    if {$bgc != ""} {
     		$wcan configure -background $bgc
+    		set Options(-background) $bgc
 	    }
         }
         set fr 1
@@ -616,8 +618,11 @@ set coordsidr [$wcan coords $idr]
     }
 
     if {$fr == 1} {
-	eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
-#	eval "bind $wcan  <ButtonRelease> {[self] fon}"
+	if {$tbut == "frame"} {
+	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
+	} else {
+	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
+	}
     }
 $wcan coords $idr "$coordsidr"
 #puts "COORDS 1: SELF=[self]: idr=$idr= [$wcan coords $idr] strokewidth=[$wcan itemcget $idr -strokewidth]"
@@ -1064,7 +1069,11 @@ if {0} {
 #Чтение значения аттрибута
 	if {[llength $args] == 1} {
 #puts "config $args : $Options($args)"
-	    return $Options($args)
+	    if {$args == "-bg"} {
+		return $Options(-background)
+	    } else {
+		return $Options($args)
+	    }
 	}
 #puts "Error args length: $args"
       error "use is: <object> config ?-option value?...\nargs=$args" 
@@ -1076,7 +1085,7 @@ if {0} {
 	    -background -
 	    -bg {
 		if {$fr} {
-		    set  Options($option) $value
+		    set  Options(-background) $value
 		    $wcan configure -background $value
 		}
 	    }
@@ -1905,10 +1914,34 @@ if {[$wcan bbox $isvg] != ""} {
     	    }
     	    -fillnormal {
     		set Options($option) $value
-		if {[info exists idr]} {
-		    if { $tbut != "check" && $tbut != "radio"} {
-			$wcan itemconfigure $idr -fill $value
-    		    }
+		if {[info exists idr] && $tbut != "check" && $tbut != "radio" } {
+		    $wcan itemconfigure $idr -fill $value
+		    update
+		    if {$tbut == "frame" && $fr == 1} {
+			if {[string first "gradient" $value] != -1} {
+#Окно на передний план!!!
+			    set rwin [winfo toplevel $wcan]
+			    set most [wm attributes $rwin -topmost]
+			    if {$most == 0} {
+				wm attributes $rwin -topmost 1
+			        update
+			    }
+			    foreach z2 [my slavesoo] {
+				$z2 fon
+			    }
+			    if {$most == 0} {
+				wm attributes $rwin -topmost 0
+			        update
+			    }
+			} else {
+			    foreach z2 [my slavesoo] {
+				[$z2 canvas] delete fon
+				if {$value != ""} {
+				    $z2 config -background $value
+				}
+			    }
+			}
+		    }
 		}
     	    }
     	    -strokenormal {
@@ -2648,7 +2681,7 @@ oo::class create ibutton {
 	    -background -
 	    -bg {
 		if {$fr} {
-		    set  Options($option) $value
+		    set  Options(-background) $value
 		    $wcan configure -background $value
 		}
 	    }
@@ -3273,6 +3306,24 @@ set ::methodman {
     }
     $wcan delete fon
     my fon
+    set tbut [my type]
+    if {[my type] != "cmenu" && ($tbut == "clframe" || $tbut == "frame" ) && $fr == 1} {
+	set value [my config -fillnormal]
+	if {[string first "gradient" $value] != -1} {
+	    foreach z2 [my slavesoo] {
+		$z2 fon
+	    }
+	} else {
+	    if {$type != "place"} {
+		foreach z2 [my slaves] {
+#puts "MANAGER: z2=$z2 delete"
+		    $z2 delete fon
+		    $z2 configure -background $value
+		}
+	    }
+	}
+	raise $wcan 
+    }
 
   }
 #Какие svg-щбъекты размещены в окне текущего svg-щбъекта
@@ -3284,7 +3335,10 @@ set ::methodman {
 #    return [$man slaves $wcan]
 #Возврат дочерних объектов
 #Дочерние окна
-    set slaves [$man slaves $wcan]
+    set slaves [pack slaves $wcan]
+    append slaves " [grid slaves $wcan]"
+    append slaves " [place slaves $wcan]"
+
 #Все svg-объекты
     set allobj ""
     foreach {wclass} "cbutton ibutton mbutton cmenu cframe" {
@@ -3307,7 +3361,10 @@ set ::methodman {
     if { $man == ""} {
 	return ""
     }
-    return [$man slaves $wcan]
+    set slaves [pack slaves $wcan]
+    append slaves " [grid slaves $wcan]"
+    append slaves " [place slaves $wcan]"
+    return $slaves
   }
 #В каком окне размешено текущее окно
   method islocate {} {
@@ -3336,8 +3393,20 @@ set ::methodman {
 
 #set hb [expr {$hb - 1}]
 #puts "MANAGER COORDS type=$type rx=$rx ry=$ry wb=$wb hb=$hb args=$args"
+    set mm [winfo manager $wcan]
+    if {$mm == ""} {
+	return
+    }
+    array unset ii
+    array set ii [$mm info $wcan]
+    if {$ii(-in) == [winfo parent $wcan] && $mm != "place"} {
+#puts "FON: окно дочернее. Прозразность невозможна"
+	return
+    }
+
 if {1} {
-    set cc [my slaves]
+#    set cc [my slaves]
+    set cc [$mm slaves $wcan]
 #puts "islocate $cc"
     if {$cc != ""} {
 	foreach slave "$cc" {
@@ -3356,6 +3425,7 @@ if {1} {
 #Создаём картинку виджета $y - 2 ???
     loupe $screencan [expr {$rx + $wb / 2}] [expr {$ry + $hb / 2}] $wb $hb
 #Сождаём фон из картинки
+    $wcan delete "fon"
     set fon [$wcan create image 0 0 -image $screencan -anchor nw  -tags {fon}]
     $wcan lower $fon
     update
@@ -3379,6 +3449,7 @@ if {1} {
 # puts "MANAGER PLACE self=[self] args=\"$args\""
     append args " -bordermode outside"
     my manager place $args
+raise $wcan
     if {$wclass == "mbutton"} {
 	vwait $Options(-variable)
 	return [set $Options(-variable)]
@@ -3757,12 +3828,13 @@ set ::methscaleGroup {
         $wcan itemconfigure $id -strokewidth [expr {$stw * $yScale * $xScale}]
       }
 
-#      if {$type != "pimage" && $type != "polyline" && $type != "path"} { }
       if {$type != [set pimage] && $type != "polyline" && $type != "path"} {
-	    $wcan scale $id $xOrigin $yOrigin $xScale $yScale
-#	    if {$type == "ptext"} { }
-	    if {$type == [set ptext]} {
-    		$wcan coords $id [$wcan coords $id]
+#puts "wcan=$wcan scale id=$id xOrigin=$xOrigin yOrigin=$yOrigin xScale=$xScale yScale=$yScale"
+	    if {$xScale != 0 && $yScale != 0} {
+		$wcan scale $id $xOrigin $yOrigin $xScale $yScale
+		if {$type == [set ptext]} {
+    		    $wcan coords $id [$wcan coords $id]
+    		}
     	    }
       } elseif {$type == "polyline" || $type == "path"} {
 	    set st [$wcan itemcget $id -startarrow]
@@ -3773,9 +3845,11 @@ set ::methscaleGroup {
 	
 	    $wcan itemconfigure $id -startarrow 0
 	    $wcan itemconfigure $id -endarrow 0
-	    $wcan scale $id $xOrigin $yOrigin $xScale $yScale
-	    $wcan itemconfigure $id  -startarrow $st -startarrowlength [expr {$al * $xScale}] -startarrowwidth [expr {$aw * $yScale}] 
-	    $wcan itemconfigure $id -endarrow $et -endarrowlength [expr {$al * $xScale}] -endarrowwidth [expr {$aw * $yScale}]
+	    if {$xScale != 0 && $yScale != 0} {
+		$wcan scale $id $xOrigin $yOrigin $xScale $yScale
+		$wcan itemconfigure $id  -startarrow $st -startarrowlength [expr {$al * $xScale}] -startarrowwidth [expr {$aw * $yScale}] 
+		$wcan itemconfigure $id -endarrow $et -endarrowlength [expr {$al * $xScale}] -endarrowwidth [expr {$aw * $yScale}]
+	    }
       }
 #Добавить в tksvgpaint
 #      if {$type == "prect"} { }
@@ -3876,7 +3950,7 @@ set ::methscaleGroup {
     catch {unset FontS}
   }
   method resizeGroup {} {
-    eval "bind $wcan <Configure> {[self] scaleGroup %w %h}"
+    eval "bind $wcan <Configure> {[self] scaleGroup %w %h; [self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
   }
 }
 oo::define ibutton {
@@ -4633,7 +4707,7 @@ oo::class create mbutton {
 	    -background -
 	    -bg {
 		if {$fr} {
-		    set  Options($option) $value
+		    set  Options(-background) $value
 		    $wcan configure -background $value
 		}
 	    }
@@ -5479,10 +5553,12 @@ oo::class create cframe {
 	set type [lindex $args $ind]
     }
 
+    catch {unset Options}
     if {![winfo exists $wcan]} {
 #	tkp::canvas $wcan -bd 0 -highlightthickness 0
 	[set tkpath] $wcan -bd 0 -highlightthickness 0
-	$wcan configure -bg [[winfo parent $wcan] cget -bg]
+	set Options(-background) [[winfo parent $wcan] cget -background]
+	$wcan configure -background $Options(-background)
 	set fr 1
     } else {
 	set ind [lsearch $args "-x"]
@@ -5504,7 +5580,6 @@ oo::class create cframe {
     set geotop ""
 #Вставить проверку wcan на canvas!!
 
-    catch {unset Options}
     set tbut $type
 #puts "CFRAME: type=$type tbut=$tbut args=$args fr=$fr "
     set Options(-strokewidth) 	0.5m
@@ -5676,6 +5751,7 @@ oo::class create cframe {
 
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -rx $crx -tags [list Rectangle obj $canvasb $btag $tbut [linsert $btag end $tbut] utag$idr]
     my changestrwidth $strwidth
+    $wcan itemconfigure $idr -stroke $Options(-stroke)
     if {$tbut == "centry" || $tbut == "cspin" || $tbut == "ccombo"} {
 	set bg [$wentry cget -background]
 	if {$bg == ""} {
@@ -5689,14 +5765,15 @@ oo::class create cframe {
 	set idt [$wcan create [set ptext] [expr {$xc0 + ($cw - $strwidth * 2) / 2.0}] [expr {$yc0 + 1}] -textanchor n -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) -tags [list Text obj $canvasb "$btag"]]
     }
     if {$fr == 1} {
-	if {$tbut == "frame"} {
-	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0}"
+	if {$tbut == "frame" || $tbut == "clframe"} {
+#puts "CFRAME=[self]: coords=[$wcan coords $idr] idr=$idr"
+#	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
+	    eval "bind $wcan  <Configure> {[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 	}
     }
 #puts "[self]"
-
     return self
   }
   method entry {} {
@@ -5707,7 +5784,7 @@ oo::class create cframe {
   }
 
   method resize {wx hy {from 1}} {
-#puts "cframe resize: fr=$fr wx=$wx hy=$hy"
+#puts "cframe resize: self=[self] fr=$fr wx=$wx hy=$hy"
     set topw [winfo toplevel $wcan]
     set geotek [wm geometry $topw]
     set geotop $geotek
@@ -5798,7 +5875,11 @@ oo::class create cframe {
 #Чтение значения аттрибута
 	if {[llength $args] == 1} {
 #puts "config $args : $Options($args)"
-	    return $Options($args)
+	    if {$args == "-bg"} {
+		return $Options(-background)
+	    } else {
+		return $Options($args)
+	    }
 	}
 #puts "cframe Error args length: $args"
       error "use is: <object> config ?-option value?...\nargs=$args" 
@@ -5808,7 +5889,7 @@ oo::class create cframe {
 	    -background -
 	    -bg {
 		if {$fr} {
-		    set  Options($option) $value
+		    set  Options(-background) $value
 		    $wcan configure -background $value
 		}
 	    }
@@ -5891,12 +5972,44 @@ oo::class create cframe {
     	    -fillnormal {
     		set Options($option) $value
 		if {[info exists idr]} {
+		    set tbut [my type]
 		    $wcan itemconfigure $idr -fill $value
+#Приводит к зацикливанию????		    update
+if {0} {
 #????
-		    if {$tbut != "clframe" && $fr == 1} {
+		    if {$tbut != "clframe" && $tbut != "frame" && $fr == 1} {
 			set type [catch "$wcan gradient type $value"]
 			if {$type == 1} {
 			    [my canvas] configure -background $value
+			}
+		    }
+}
+		    if {($tbut == "clframe" || $tbut == "frame") && $fr == 1} {
+			if {[string first "gradient" $value] != -1} {
+#Окно на передний план!!!
+			    set rwin [winfo toplevel $wcan]
+			    set most [wm attributes $rwin -topmost]
+			    if {$most == 0} {
+				wm attributes $rwin -topmost 1
+			        update
+			    }
+
+			    foreach z2 [my slavesoo] {
+				$z2 fon
+			    }
+
+			    if {$most == 0} {
+				wm attributes $rwin -topmost 0
+			        update
+			    }
+			} else {
+				foreach z2 [my slavesoo] {
+#puts "FILLNORMAL: z2=$z2 value=$value"
+				    [$z2 canvas] delete fon
+				    if {$value != ""} {
+					$z2 config -background $value
+				    }
+				}
 			}
 		    }
 		}

@@ -5040,11 +5040,14 @@ $vbut config -fillenter "" -stroke ""
   grid $c.fscr -row 0 -column 0 -columnspan 4 -sticky wsen -padx {0 0} -pady {0 0}
   grid columnconfigure $c 1 -weight 1
 #  ttk::labelframe $c.build -text "Выпуск сертификата" -labelanchor n
-    set clfrv [cframe new $c.build -type clframe -text "Выпуск сертификата по запросу" -rx 1m -strokewidth 1 -stroke red]
+    set clfrv [cframe new $c.build -type clframe -text "Выпуск сертификата по запросу" -rx 1m -strokewidth 0.5m -stroke red ]
+#    set clfrv [cframe new $c.build -type clframe -text "" -rx 1m -strokewidth 0 -stroke {} -fillnormal cyan -bg yellow]
+puts "Стр.5045: clfrv=$clfrv  win=$c.build"
 # -width $wfr1
     [$clfrv canvas] configure -background [$c cget -background]
     $clfrv boxtext
     $clfrv config -fontsize 3.5m -fillbox cyan
+set ::crcert $clfrv
 #     "#5d8fc8"
 
   #########
@@ -5095,19 +5098,19 @@ set ptca [cframe new $c.bc -type centry -stroke gray85 -fontsize 2m -rx 1m]
   grid columnconfigure $c 1 -weight 1
 
   $c.bc delete 0 end
-  grid $c.lbc -row 2 -column 0  -sticky w -padx {1m 0} -pady 0
-  grid $c.bc -row 2 -column 1 -columnspan 2 -sticky we -padx {0 1m} -pady 0
+  grid $c.lbc -row 2 -column 0  -sticky w -padx {1m 3m} -pady 0
+  grid $c.bc -row 2 -column 1 -columnspan 2 -sticky we -padx {0 2m} -pady 0
   label $c.lyear -text "Определите срок действия сертификата (в годах и днях):"  -bg skyblue -highlightthickness 0
-  grid $c.lyear -row 4 -column 0 -columnspan 3 -sticky news -padx 1m -pady 0
+  grid $c.lyear -row 4 -column 0 -columnspan 3 -sticky news -padx {1m 1m} -pady 0
   #	spinbox $c.years -from 0 -to 25 -state readonly -textvariable ::yearcert -justify right
   #	grid $c.years -row 5 -column 0 -columnspan 1 -sticky w -padx {4 0} -pady 2
   #	scale $c.days -from 0 -to 366 -tickinterval 30 -orient horizontal -variable ::dayscert -showvalue true
   #	grid $c.days -row 5 -column 1 -columnspan 1 -sticky wnes -padx 0 -pady 2
 set mm3 [winfo pixels $c 3m]
-  spinbox $c.years -from 0 -to 25 -state readonly -textvariable ::yearcert -justify right -width 5 -highlightthickness 0 -readonlybackground snow -font "-size $mm3" -foreground black -bd 0
+  spinbox $c.years -from 0 -to 25 -state readonly -textvariable ::yearcert -justify right -width 2 -highlightthickness 0 -readonlybackground snow -font "-size $mm3" -foreground black -bd 0
   grid $c.years -row 5 -column 0 -columnspan 1 -sticky w -padx {1m 0} -pady {0 0}
   scale $c.days -from 0 -to 366 -tickinterval 30 -orient horizontal -variable ::dayscert -showvalue true -width 8  -font {Times 8 bold roman} -bg snow -highlightthickness 0 -bd 0
-  grid $c.days -row 5 -column 0 -columnspan 3 -sticky e -padx {0 1m} -pady {0 0}
+  grid $c.days -row 5 -column 0 -columnspan 3 -sticky e -padx {10m 2m} -pady {0 0}
 
   label $c.kind -text "Идентификация владельца сертификата:" -anchor w
 # -bg skyblue
@@ -5122,7 +5125,7 @@ set ltsp [cframe new $c.listKind -type ccombo -stroke gray85 -fontsize 2m -rx 1m
 
   grid $c.l0 -row 8 -column 0 -sticky w -padx {4 0} -pady {0 2}
   grid $c.ftype -row 8 -column 1 -columnspan 2 -sticky nswe -padx {4 4} -pady {0 2}
-  grid $c -row 1 -column 0 -columnspan 4 -sticky wsen -padx 1m -pady {0 0}
+  grid $c -row 1 -column 0 -columnspan 4 -sticky wsen -padx 0m -pady {0 0}
 set c_years $c
   set c $c_old
   ########
@@ -6434,9 +6437,9 @@ proc setoptok {c} {
   switch $optok {
     0 {
 #      grid $c.lfr2.labTok -column 0 -padx 5 -pady 2 -row 0 -sticky we
-	grid $c.lfr2.labTok -column 0 -padx {2m 0} -row 0 -sticky we  -pady {5m 1m}
+	grid $c.lfr2.labTok -column 0 -padx {2m 0} -row 0 -sticky we  -pady {8m 1m}
 #      grid $c.lfr2.entTok -column 1 -padx 2 -pady 2 -row 0 -sticky we -padx {0 5}
-	grid $c.lfr2.entTok -column 1 -padx {0 2m} -row 0 -sticky we -pady {5m 1m}
+	grid $c.lfr2.entTok -column 1 -padx {0 2m} -row 0 -sticky we -pady {8m 1m}
 	grid configure $c.lfr2.labSoPin  -pady {0 1m}
 	grid configure $c.lfr2.entSoPin  -pady {0 1m}
 
@@ -6450,8 +6453,8 @@ proc setoptok {c} {
     1 {
       grid forget $c.lfr2.labTok
       grid forget $c.lfr2.entTok
-	grid configure $c.lfr2.labSoPin  -pady {5m 1m}
-	grid configure $c.lfr2.entSoPin  -pady {5m 1m}
+	grid configure $c.lfr2.labSoPin  -pady {8m 1m}
+	grid configure $c.lfr2.entSoPin  -pady {8m 1m}
       grid $c.lfr2 -row 1 -column 0 -sticky wsen -padx "10m 10m" -pady 3m
 
       $c.lfr2.labSoPin configure -text "Текущий PIN-пользователя"
@@ -6462,8 +6465,8 @@ proc setoptok {c} {
     2 {
       grid forget $c.lfr2.labTok
       grid forget $c.lfr2.entTok
-	grid configure $c.lfr2.labSoPin  -pady {5m 1m}
-	grid configure $c.lfr2.entSoPin  -pady {5m 1m}
+	grid configure $c.lfr2.labSoPin  -pady {8m 1m}
+	grid configure $c.lfr2.entSoPin  -pady {8m 1m}
      grid $c.lfr2 -row 1 -column 0 -sticky wsen -padx "10m 10m" -pady 3m
       $c.lfr2.labSoPin configure -text "Текущий SO-PIN"
       $c.lfr2.labUserPin configure -text "Новый SO-PIN"
@@ -6473,8 +6476,8 @@ proc setoptok {c} {
     3 {
       grid forget $c.lfr2.labTok
       grid forget $c.lfr2.entTok
-	grid configure $c.lfr2.labSoPin  -pady {5m 1m}
-	grid configure $c.lfr2.entSoPin  -pady {5m 1m}
+	grid configure $c.lfr2.labSoPin  -pady {8m 1m}
+	grid configure $c.lfr2.entSoPin  -pady {8m 1m}
       grid $c.lfr2 -row 1 -column 0 -sticky wsen -padx "10m 10m" -pady 3m
       $c.lfr2.labSoPin configure -text "Введите SO PIN"
       $c.lfr2.labUserPin configure -text "Текущий PIN-пользователя"
@@ -6773,10 +6776,10 @@ proc page_token {c} {
 
   label $c.lfr2.labTok -font FontNSN -justify left -text "Введите метку токена"  -anchor w 
   #-width 20
-  grid $c.lfr2.labTok -column 0 -padx {2m 0} -row 0 -sticky we  -pady {5m 1m}
+  grid $c.lfr2.labTok -column 0 -padx {2m 0} -row 0 -sticky we  -pady {6m 1m}
 #  entry $c.lfr2.entTok -background snow -width 40
 set caent [cframe new $c.lfr2.entTok -type centry -stroke gray85 -fontsize 2m -rx 1m]
-  grid $c.lfr2.entTok -column 1 -padx {0 2m} -row 0 -sticky we -pady {5m 1m}
+  grid $c.lfr2.entTok -column 1 -padx {0 2m} -row 0 -sticky we -pady {6m 1m}
   label $c.lfr2.labSoPin -font FontNSN -text "Введите SO PIN" -anchor w 
   #-width 20
   grid $c.lfr2.labSoPin -column 0 -padx {2m 0} -row 1 -sticky we -pady {0 1m}
@@ -14474,3 +14477,4 @@ tk_messageBox -title "::env" -icon info -message "$xa1"
 for {set i 0} {$i < 13} {incr i} {
     $::fra82b($i) config -compound left 
 }
+#$::crcert config -fontsize 3.5m  -strokewidth 0.5m -rx 1m

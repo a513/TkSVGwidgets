@@ -28,7 +28,9 @@ proc exitarm {t} {
 	set werlib [expr {[winfo width $t] / 2 - $werlib / 2}]
 	set herlib [expr {[winfo height $t] / 4 }]
 #	eval bind . <Configure> \{raise $t1.message $t1._Busy\}
+
 	set rr [$erlib place -in $t -x $werlib -y $herlib]
+
 	if {[tk busy status $t]} {
 	    tk busy forget $t
 	}
@@ -90,7 +92,8 @@ set b1 [cbutton new $t.frame -type frame -rx 5m ]
 update
 
 set xa1 [cbutton new $t.frame.but1 -type rect  -text Прямоугольник]
-set xa2 [cbutton new $t.frame.but2 -type round  -text Полукруглый]
+#set xa2 [cbutton new $t.frame.but2 -type round  -text Полукруглый]
+set xa2 [cbutton new $t.but22 -type round  -text Полукруглый]
 [$xa2 canvas] configure -bg [$b1 config -fillnormal]
 set xa3 [cbutton new $t.frame.but3 -type ellipse  -text Эллипс -fontweight bold -fontslant italic -fontfamily helvetica -fontsize 4m ]
 [$xa3 canvas] configure -bg [$b1 config -fillnormal]
@@ -139,7 +142,7 @@ $rc5 pack -in [$clfrv canvas] -padx 1c -pady "5m 0" -fill none -expand 1
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
 
 #Кнопка обновления фона фреймов
-set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "foreach z2 [$tkpfr slavesoo] {\$z2 fon}" ]
+set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "foreach z2 \"[$tkpfr slavesoo]\" {\$z2 fon}" ]
 $xaup config -width 120
 [$xaup canvas] configure -width 120
 
@@ -148,7 +151,7 @@ $xaup config -command "$b1 fon;$clfrv fon;$went fon;$xaup fon"
 [$xaup canvas] configure -bg [$b1 config -fillnormal]
 $xaup place -in $t.c -x 2m -y 2m
 #Обновить градиентную заливку главного окна
-set xgrad [cbutton new $t.butgrad -type round  -text {Обновить градиент} -command "variable tkpfr;updategrad \[\$tkpfr canvas] \[\$tkpfr config -fillnormal]; foreach z2 [$tkpfr slavesoo] {\$z2 fon}" -width 150]
+set xgrad [cbutton new $t.butgrad -type round  -text {Обновить градиент} -command "variable tkpfr;updategrad \[\$tkpfr canvas] \[\$tkpfr config -fillnormal]; foreach z2 \"[$tkpfr slavesoo]\" {\$z2 fon}" -width 150]
 
 [$xgrad canvas] configure -bg [$b1 config -fillnormal]
 $xgrad place -in $t.c -relx 0.7 -y 2m 
