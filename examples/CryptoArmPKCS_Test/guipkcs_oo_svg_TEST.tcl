@@ -5119,7 +5119,7 @@ set ltsp [cframe new $c.listKind -type ccombo -stroke gray85 -fontsize 2m -rx 1m
 
   set ::tekIdKind [lindex $::listkind 4]
   grid $c.kind -row 7 -column 0 -columnspan 2 -sticky wn -padx 1m -pady {0m 0} 
-  grid $c.listKind -row 7 -column 1 -columnspan 1 -sticky nwse -padx {2.5c 2}
+  grid $c.listKind -row 7 -column 1 -columnspan 1 -sticky nwse -padx {2.5c 2m}
 #   -pady {0 1} -ipady 2
 #grid $c.kind $c.listKind -row 7 -column 0 -columnspan 3 -sticky nwse
 

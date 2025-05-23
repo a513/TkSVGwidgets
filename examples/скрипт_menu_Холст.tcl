@@ -6,8 +6,8 @@ variable sepfolders
 variable t
 set t ".test1"
 destroy $t
-set tkp::pixelalign 1
-set tkp::depixelize 1
+#set tkp::pixelalign 1
+#set tkp::depixelize 1
 toplevel $t
 wm state $t withdraw
 wm state $t normal
@@ -393,6 +393,8 @@ wm state $t normal
 wm geometry $t 800x600+150+150
 #frame $t.frame  -bg yellow
 set tkpfr [cframe new $t.frame -type frame -strokewidth 0 -stroke "" -fillnormal yellow -rx 0]
+#Включаем масштабирование содержимого холста
+$tkpfr resizeGroup
 
 pack $t.frame  -in $t -fill both -expand 1 -padx 3m -pady 3m
 #set ch [cbutton new $t.type -type check -variable dir -text "Только каталоги" -bg yellow -fontsize 4.5m]
@@ -452,7 +454,7 @@ set details	 0
 set sepfolders	 1
 puts "ГОТОВО=$mn r1=$r1 r2=$r2 командаМеню=$mn"
 update
-trace variable rad w displaymenu
+trace add variable rad write displaymenu
 #set rad enter
 set rad release
 if {$::tmenu == 0} {

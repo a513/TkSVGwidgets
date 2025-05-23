@@ -86,6 +86,8 @@ set tkpfr [cframe new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yel
 update
 pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
 set bb [bind $t.c <Configure> ]
+#Включаем масштабирование содержимого холста
+$tkpfr resizeGroup
 #bind $t.c <Configure> "scaleGroup %W %w %h %x %y;[set bb]"
 
 set went [cframe new $t.c -type centry -rx 2m -height 7m  -x 110 -y 40 -width 410]

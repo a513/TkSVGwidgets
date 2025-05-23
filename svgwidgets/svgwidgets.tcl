@@ -313,6 +313,7 @@ oo::class create cbutton {
     set Options(-fontsize) $tremm2px
     set Options(-fontweight) "normal"
     set Options(-fillnormal) white
+    set Options(-fillopacity) 1.0
     set Options(-textfill) black
 #    set Options(-fillnormal) "#e9eeef"
     set Options(press) 0
@@ -620,6 +621,7 @@ set coordsidr [$wcan coords $idr]
     if {$fr == 1} {
 	if {$tbut == "frame"} {
 	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
+#	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillopacity \[[self] config -fillopacity]}"
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 	}
@@ -1918,7 +1920,8 @@ if {[$wcan bbox $isvg] != ""} {
 		    $wcan itemconfigure $idr -fill $value
 		    update
 		    if {$tbut == "frame" && $fr == 1} {
-			if {[string first "gradient" $value] != -1} {
+			set opac [my config -fillopacity]
+			if {[string first "gradient" $value] != -1 || ($opac > 0.0 && $opac < 1.0)} {
 #Окно на передний план!!!
 			    set rwin [winfo toplevel $wcan]
 			    set most [wm attributes $rwin -topmost]
@@ -1926,8 +1929,10 @@ if {[$wcan bbox $isvg] != ""} {
 				wm attributes $rwin -topmost 1
 			        update
 			    }
+			    update
 			    foreach z2 [my slavesoo] {
 				$z2 fon
+				update
 			    }
 			    if {$most == 0} {
 				wm attributes $rwin -topmost 0
@@ -1944,6 +1949,37 @@ if {[$wcan bbox $isvg] != ""} {
 		    }
 		}
     	    }
+    	    -fillopacity {
+		if {[info exists idr]} {
+    		    set Options($option) $value
+		    if { $tbut != "check" && $tbut != "radio"} {
+			$wcan itemconfigure $idr $option $value
+			update
+			if {$tbut == "frame" && $fr == 1} {
+#Окно на передний план!!!
+			    set rwin [winfo toplevel $wcan]
+			    set most [wm attributes $rwin -topmost]
+			    if {$most == 0} {
+				wm attributes $rwin -topmost 1
+			    	update
+			    }	
+			    foreach z2 [my slavesoo] {
+				$z2 fon
+			    }
+			    if {$most == 0} {
+				wm attributes $rwin -topmost 0
+			    	update
+			    }
+			}
+    		    }
+		}
+    	    }
+	    -strokewidth {
+    		set Options($option) $value
+		if {[info exists idr]} {
+		    my changestrwidth
+		}
+    	    }
     	    -strokenormal {
     		set Options($option) $value
 		if {[info exists idr]} {
@@ -1952,19 +1988,12 @@ if {[$wcan bbox $isvg] != ""} {
     		    }
 		}
     	    }
-    	    -strokeopacity -
-    	    -fillopacity {
-    		set Options($option) $value
+    	    -strokeopacity {
+-    		set Options($option) $value
 		if {[info exists idr]} {
 		    if { $tbut != "check" && $tbut != "radio"} {
 			$wcan itemconfigure $idr $option $value
     		    }
-		}
-    	    }
-	    -strokewidth {
-    		set Options($option) $value
-		if {[info exists idr]} {
-		    my changestrwidth
 		}
     	    }
 	    -ry -
@@ -3426,7 +3455,8 @@ if {1} {
     loupe $screencan [expr {$rx + $wb / 2}] [expr {$ry + $hb / 2}] $wb $hb
 #Сождаём фон из картинки
     $wcan delete "fon"
-    set fon [$wcan create image 0 0 -image $screencan -anchor nw  -tags {fon}]
+#    set fon [$wcan create image 0 0 -image $screencan -anchor nw  -tags {fon}]
+    set fon [$wcan create [set pimage] 0 0 -image $screencan -anchor nw  -tags {fon} ]
     $wcan lower $fon
     update
 #    raise $wcan 
@@ -3951,6 +3981,7 @@ set ::methscaleGroup {
   }
   method resizeGroup {} {
     eval "bind $wcan <Configure> {[self] scaleGroup %w %h; [self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
+#    eval "bind $wcan <Configure> {[self] scaleGroup %w %h; [self] resize %w %h 0; [self] config -fillopacity \[[self] config -fillopacity]}"
   }
 }
 oo::define ibutton {
@@ -5610,6 +5641,7 @@ oo::class create cframe {
 	    set Options(-strokewidthtext) 0
 	    set Options(-width)		10m
 	    set Options(-height)	7m
+	    set Options(-fillopacity)	1.0
 	}
 	ccombo -
 	cspin -
@@ -5627,6 +5659,7 @@ oo::class create cframe {
 	frame {
 	    set Options(-text) ""
 	    set  Options(-fontsize) 0
+	    set Options(-fillopacity)	1.0
 	}
 	default {
 	    if {$fr == 1} {
@@ -5769,6 +5802,7 @@ oo::class create cframe {
 #puts "CFRAME=[self]: coords=[$wcan coords $idr] idr=$idr"
 #	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
+#	    eval "bind $wcan  <Configure> {[self] resize %w %h 0; [self] config -fillopacity \[[self] config -fillopacity]}"
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 	}
@@ -5906,15 +5940,6 @@ oo::class create cframe {
     		}
 		set  Options($option) $value
 	    }
-	    -strokeopacity -
-    	    -fillopacity {
-    		if {$tbut == "clframe" || $tbut == "frame"} {
-    		    set Options($option) $value
-		    if {[info exists idr]} {
-			$wcan itemconfigure $idr $option $value
-		    }
-		}
-    	    }
     	    -relwidth {
     		    set Options($option) $value
     		    if {$value > 0 && $value <= 1.0} {
@@ -5969,30 +5994,52 @@ oo::class create cframe {
     		}
     		set Options($option) $value
     	    }
+	    -strokeopacity {
+    		if {$tbut == "clframe" || $tbut == "frame"} {
+    		    set Options($option) $value
+		    if {[info exists idr]} {
+			$wcan itemconfigure $idr $option $value
+		    }
+		}
+    	    }
+    	    -fillopacity {
+		if {[info exists idr] && ($tbut == "clframe" || $tbut == "frame") } {
+    		    set Options($option) $value
+		    if {[info exists idr]} {
+			$wcan itemconfigure $idr $option $value
+#Окно на передний план!!!
+			set rwin [winfo toplevel $wcan]
+			set most [wm attributes $rwin -topmost]
+			if {$most == 0} {
+				wm attributes $rwin -topmost 1
+				update
+			}	
+			foreach z2 [my slavesoo] {
+				$z2 fon
+			}
+			if {$most == 0} {
+				wm attributes $rwin -topmost 0
+				update
+			}
+		    }
+		}
+    	    }
     	    -fillnormal {
     		set Options($option) $value
 		if {[info exists idr]} {
 		    set tbut [my type]
 		    $wcan itemconfigure $idr -fill $value
 #Приводит к зацикливанию????		    update
-if {0} {
-#????
-		    if {$tbut != "clframe" && $tbut != "frame" && $fr == 1} {
-			set type [catch "$wcan gradient type $value"]
-			if {$type == 1} {
-			    [my canvas] configure -background $value
-			}
-		    }
-}
 		    if {($tbut == "clframe" || $tbut == "frame") && $fr == 1} {
-			if {[string first "gradient" $value] != -1} {
+			set opac [my config -fillopacity]
+			if {[string first "gradient" $value] != -1 || ($opac > 0.0 && $opac < 1.0)} {
 #Окно на передний план!!!
 			    set rwin [winfo toplevel $wcan]
 			    set most [wm attributes $rwin -topmost]
 			    if {$most == 0} {
 				wm attributes $rwin -topmost 1
-			        update
 			    }
+			    update
 
 			    foreach z2 [my slavesoo] {
 				$z2 fon
