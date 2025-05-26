@@ -81,7 +81,7 @@ wm state $t withdraw
 wm state $t normal
 
 #####################
-wm geometry $t 800x600+150+150
+wm geometry $t 720x600+150+150
 wm title $t "tcl/tk svg widgets canvas demo with resize"
 
 #tkp::canvas $t.c -bg yellow
@@ -96,7 +96,9 @@ set bb [bind $t.c <Configure> ]
 $tkpfr resizeGroup
 #bind $t.c <Configure> "scaleGroup %W %w %h %x %y;[set bb]"
 
-set went [cframe new $t.c -type centry -rx 2m -height 7m  -x 110 -y 40 -width 410]
+set went [cframe new $t.c -type centry -rx 2m -height 7m  -x 110 -y 40 -width 500]
+[$went entry] delete 0 end
+[$went entry] insert 0 {Для генерации кода градиента используйте кнопку "Обновить градиент"}
 
 #SVG-фрейм
 set b1 [cbutton new $t.c -type frame -rx 5m -y 90 -height 340 -x 40 -width 260]
