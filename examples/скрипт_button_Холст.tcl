@@ -8,6 +8,12 @@ variable clfrv
 variable went 
 variable xgrad 
 variable tkpfr
+variable vrc1
+variable vrc3
+variable vrc4
+
+variable z1
+variable z2
 
 proc updategrad {w gr} {
     variable b1
@@ -102,6 +108,7 @@ set hrect [expr {$hrect + 45 + 20}]
 set xa3 [cbutton new $t.c -type ellipse  -text Эллипс -fontsize 5m -fontslant italic -x 80 -width 180 -y $hrect -height 45]
 set hrect [expr {$hrect + 45 + 20}]
 set xa4 [cbutton new $t.c -type rect  -text Закругленный -fontsize 4m -rx 2m  -compound none -x 80 -width 180 -y $hrect -height 45 -ipad "1m 7m  3m 7m"]
+eval  [subst {$xa4 config -command {puts "Закруглеённый=[set xa4] Левый фрейм=[set b1]"}}]
 set img [foldercolor [$xa4 canvas] "blue" ]
 $xa4 config -image "[$xa4 canvas] $img"
 [$xa4 canvas] delete $img
@@ -127,6 +134,7 @@ set rc7 [ibutton create Картинка $t.c -width 2c -height 1c -text Кар�
 #set rc7 [ibutton new $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 420 -y $hrect -image "::tk::icons::error"]
 set hrect [expr {$hrect + 28 + $dy + 15}]
 set rc6 [cbutton new $t.c -type square  -text Квадрат -ipad "1m 1m 1m 1m" -x 470 -y $hrect]
+eval  [subst {$rc6 config -command {puts "Квадрат=[set rc6] Правый фрейм=[set clfrv]"}}]
 set img [folderbrown [$rc6 canvas]]
 $rc6 config -image "[$rc6 canvas] $img"
 $rc6 config -fillnormal cyan
@@ -166,3 +174,7 @@ set gradCloud [[$b1 canvas] gradient create linear -method pad -units bbox -stop
 #$b1 config -fillnormal gradient45
 $b1 config -fillnormal $gradCloud
 
+set vrc1 0
+set vrc4 1
+set z1 0
+set z2 1
