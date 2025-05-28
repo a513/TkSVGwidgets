@@ -41,18 +41,15 @@ proc exitarm {t} {
 	tk busy hold $t
 	set werlib [expr {[winfo width $t] / 2 - $werlib / 2}]
 	set herlib [expr {[winfo height $t] / 4 }]
-#	eval bind . <Configure> \{raise $t1.message $t1._Busy\}
 	set rr [$erlib place -in $t -x $werlib -y $herlib]
 	if {[tk busy status $t]} {
 	    tk busy forget $t
 	}
-#	bind . <Configure> {}
 	if {$rr != "yes"} {
 	    wm resizable $t 1 1
 	    return
 	}
 #Подчищаем за собою
-#	svgwidget::clearclass "cbutton ibutton mbutton cmenu cframe"
 	svgwidget::clearclass
 	destroy $t
 	puts "Пример button_PACK завершен."
@@ -72,7 +69,8 @@ wm geometry $t 800x600+150+150
 wm title $t "tcl/tk svg widgets pack demo"
 
 #tkp::canvas $t.c -bg yellow
-frame $t.c -bg yellow
+#frame $t.c -bg yellow
+set rfr [cbutton new $t.c -type frame -rx 0  -fillnormal yellow -bg yellow -strokewidth 0 -stroke {}]
 
 pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
 update
@@ -142,8 +140,7 @@ eval  [subst {$rc1 config -command {puts "Radio1=[set rc1] Правый фрей
 
 pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
 update
-after 30
-#[$rc1 canvas] configure -bg [$clfrv config -fillnormal]
+#after 30
 set rc2 [cbutton new $t.rbut2 -type radio  -text Radio2 -variable vrc1 -value 0 -bg $bg ]
 $rc2 fon
 eval  [subst {$rc2 config -command {puts "Radio2=[set rc2] Правый фрейм=[set clfrv]"}}]
@@ -163,9 +160,9 @@ $rc6 config -fillnormal cyan
 #puts "Квадрат=$rc6"
 [$rc6 canvas] delete $img
 
-#pack [$clfrv canvas] -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
 update
 #Второй способ согласования цветов!!!
+if {0} {
 $rc1 pack -in [$clfrv canvas] -padx 1c -pady "1c 0"
 $rc2 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill both -expand 1
 $rc3 pack -in [$clfrv canvas] -padx 1c -pady "2m 0"
@@ -174,10 +171,17 @@ $rc4 pack -in [$clfrv canvas] -padx 1c -pady "2m" -fill both -expand 1
 $rc5 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill none -expand 1 -anchor n
 $rc7 pack -in [$clfrv canvas] -padx 1c -pady "2m 0" -fill x -expand 1
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "2m 5m" -fill both -expand 1
-#pack [$rc6 canvas] -in [$clfrv canvas] -padx 1c -pady "2m 5m" -fill both -expand 1
-#$rc6 config -width [$rc6 config -width]
-#$clfrv pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor ne 
-#lower [$clfrv canvas] [$rc1 canvas]
+}
+
+if {1} { 
+set inwin [$clfrv canvas]
+pack [$rc1 canvas] -in $inwin -padx 1c -pady "1c 0"
+pack [$rc2 canvas] -in $inwin -padx 1c -pady "2m 0" -fill both -expand 1
+pack [$rc3 canvas] -in $inwin -padx 1c -pady "2m 0"
+pack [$rc4 canvas] -in $inwin -padx 1c -pady "2m" -fill both -expand 1
+pack [$rc5 canvas] -in $inwin -padx 1c -pady "2m 0" -fill none -expand 1 -anchor n
+pack [$rc7 canvas] -in $inwin -padx 1c -pady "2m 5m" -fill both -expand 1
+pack [$rc6 canvas] -in $inwin -padx 1c -pady "2m 0" -fill x -expand 1
+}
 pack configure [$rc7 canvas] -expand 0 
 
-#bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}

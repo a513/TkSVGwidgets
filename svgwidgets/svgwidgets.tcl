@@ -1921,7 +1921,7 @@ if {[$wcan bbox $isvg] != ""} {
 		    update
 		    if {$tbut == "frame" && $fr == 1} {
 			set opac [my config -fillopacity]
-			if {[string first "gradient" $value] != -1 || ($opac > 0.0 && $opac < 1.0)} {
+			if {$value == "" || [string first "gradient" $value] != -1 || ($opac >= 0.0 && $opac < 1.0)} {
 #Окно на передний план!!!
 			    set rwin [winfo toplevel $wcan]
 			    set most [wm attributes $rwin -topmost]
@@ -3447,6 +3447,13 @@ if {1} {
 }
     lower $wcan
     update
+#Окно на передний план!!!
+    set rwin [winfo toplevel $wcan]
+    set most [wm attributes $rwin -topmost]
+    if {$most == 0} {
+	wm attributes $rwin -topmost 1
+    	update
+    }	
     after 30
 #Скриншот без кнопки
     set screencan [image create photo -width $wb -height $hb]
@@ -3458,9 +3465,12 @@ if {1} {
 #    set fon [$wcan create image 0 0 -image $screencan -anchor nw  -tags {fon}]
     set fon [$wcan create [set pimage] 0 0 -image $screencan -anchor nw  -tags {fon} ]
     $wcan lower $fon
+    if {$most == 0} {
+	wm attributes $rwin -topmost 0
+    	update
+    }	
     update
-#    raise $wcan 
-	raise $wcan 
+    raise $wcan 
 if {1} {
     set cc [my slaves]
 #puts "islocate $cc"
@@ -5623,6 +5633,7 @@ oo::class create cframe {
     set Options(-height)	7m
     set Options(-state) "normal"
     set Options(press) 0
+    set Options(-fillopacity)	1.0
     switch -- $::tcl_platform(platform) {
 	"windows"        {
 		set svgFont "Arial Narrow"
@@ -5641,7 +5652,6 @@ oo::class create cframe {
 	    set Options(-strokewidthtext) 0
 	    set Options(-width)		10m
 	    set Options(-height)	7m
-	    set Options(-fillopacity)	1.0
 	}
 	ccombo -
 	cspin -
@@ -6014,6 +6024,7 @@ oo::class create cframe {
 				wm attributes $rwin -topmost 1
 				update
 			}	
+			update
 			foreach z2 [my slavesoo] {
 				$z2 fon
 			}
@@ -6032,12 +6043,13 @@ oo::class create cframe {
 #Приводит к зацикливанию????		    update
 		    if {($tbut == "clframe" || $tbut == "frame") && $fr == 1} {
 			set opac [my config -fillopacity]
-			if {[string first "gradient" $value] != -1 || ($opac > 0.0 && $opac < 1.0)} {
+			if {$value == "" || [string first "gradient" $value] != -1 || ($opac >= 0.0 && $opac < 1.0)} {
 #Окно на передний план!!!
 			    set rwin [winfo toplevel $wcan]
 			    set most [wm attributes $rwin -topmost]
 			    if {$most == 0} {
 				wm attributes $rwin -topmost 1
+				update
 			    }
 			    update
 
