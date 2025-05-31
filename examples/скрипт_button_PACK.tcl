@@ -55,6 +55,22 @@ proc exitarm {t} {
 	puts "Пример button_PACK завершен."
 	return
 }
+proc selwsvg {win x y} {
+    set ::wwin [winfo containing $x $y]
+#    puts "win=$::wwin wwin=$win x=$x y=$y"
+    set ::wsvg -1
+    foreach {wclass} "cbutton ibutton mbutton cmenu cframe" {
+	set listoo [info class instances $wclass]
+	foreach {oo} $listoo {
+	    if {[$oo canvas] == $::wwin} {
+		set ::wsvg $oo
+		puts $::wsvg
+		return
+	    }
+	}
+    }
+    puts $::wsvg
+}
 
 variable t
 set t ".test"
@@ -184,4 +200,4 @@ pack [$rc7 canvas] -in $inwin -padx 1c -pady "2m 5m" -fill both -expand 1
 pack [$rc6 canvas] -in $inwin -padx 1c -pady "2m 0" -fill x -expand 1
 }
 pack configure [$rc7 canvas] -expand 0 
-
+bind $t <ButtonRelease-3> {selwsvg %W %X %Y}

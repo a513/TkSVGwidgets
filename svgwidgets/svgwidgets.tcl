@@ -887,21 +887,35 @@ $wcan coords $idr "$coordsidr"
 #from = 0 resize вызывается событием Configure
 #puts "SELF=[self] TBUT=$tbut wx=$wx hy=$hy W=[winfo width $wcan] H=[winfo height $wcan]"
     if {$tbut == "frame"}  {
+	if {$fr == 1} {
+	    set wx1 [winfo width $wcan]
+#Два справа???
+	    set hy1 [winfo height $wcan]
+	} else {
+	    set wx1 [winfo fpixels $wcan $Options(-width)]
+	    set hy1 [winfo fpixels $wcan $Options(-height)]
+	}
+#puts "cframe resize: fr=$fr wx=$wx hy=$hy wx1=$wx1 hy1=$hy1  idr=$idr"
+
 	foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
 #puts "x0=$x0 y0=$y0 x1=$x1 y1=$y1"
 	set swidth [$wcan itemcget $idr -strokewidth]
 	if {$fr == 1} {
-	    set x1 [winfo width $wcan]
-	    set y1 [winfo height $wcan]
+	    if {$hy1 <= [expr {$swidth * 2.0}] || $wx1 <= [expr {$swidth * 2.0}]} {
+		return
+	    }
+	    set x1 [expr {$wx - $swidth}]
+	    set y1 [expr {$hy - $swidth}]
 	} else {
-	    set wx [winfo fpixels $wcan $wx]
-	    set hy [winfo fpixels $wcan $hy]
-	    set x1 [expr {$x0 + $wx}]
-	    set y1 [expr {$y0 + $hy}]
+	    set x1 [expr {$x0 + $wx - $swidth * 0}]
+	    set y1 [expr {$y0 + $hy - $swidth * 0}]
 	}
-	my config -width $x1 -height $y1
-	return
+
+	$wcan coords $idr $x0 $y0 $x1 $y1
+    
+#    puts "1 WX=$wx HY=$hy"
     }
+    
     if {$fr == 0} {
 	return
     }
@@ -927,19 +941,6 @@ if {$Options(-text) != ""} {
 	    set u $idt
             set FontS($u,fontsize) $result
       }
-}
-if {0} {
-   foreach id "[$wcan find withtag canvasb] [$wcan find withtag canvasi] [$wcan find withtag boxText]" {
-      set type [$wcan type $id]
-#puts "Canvasb id=$id type=$type"
-      if {$type == "group"} {
-	continue
-      }
-      if {[catch {$wcan itemcget $id -fontsize} result]==0} {
-	    set u $id
-            set FontS($u,fontsize) $result
-      }
-    }
 }
 #Ловим перемещение
     if {$Canv(X) != [winfo rootx $wcan] && $Canv(Y) != [winfo rooty $wcan] && $Canv(X1) != [expr {[winfo rootx $wcan] + [winfo width $wcan]}] && $Canv(Y1) != [expr {[winfo rooty $wcan] + [winfo height $wcan]}]} {
@@ -990,6 +991,8 @@ if {0} {
 	set wold [expr {([winfo fpixels $wcan $wx] - [winfo fpixels $wcan $hy]) / [winfo fpixels $wcan [my config -width]]}]
 	if {$hy < $wx} {
 	    set wx $hy
+	}  else {
+	    set hy $wx
 	}
     } else {
 	set wold [expr {[winfo fpixels $wcan $wx] / [winfo fpixels $wcan [my config -width] ]}]
@@ -1026,30 +1029,7 @@ if {1} {
 #puts "cbutton resize: fr=$fr wold=$wold yold=$yold ipad=$ipad"
 
     my config -ipad "[set ipad]"
-    if {$from && $fr} {
-	foreach {x1 y1 x2 y2} [$wcan bbox 0] {break}
-	set cw [expr {$x2 + $x1}]
-	set ch [expr {$y2 + $y1}]
-	my config -width $cw -height $ch 
-	$wcan configure -width $cw -height $ch
-    }
 #Пока отложим масштабирование шрифта
-if {0} {
-    if {$fr} {
-#Масштабирования шрифта
-	if {$Options(-text) != ""} {
-    	    if {[catch {$wcan itemcget $idt -fontsize} result]==0} {
-		set u $idt
-    		set fsize [expr {$result * $Canv(xscale)}]
-    		if {$fsize != $result} {
-        	    $wcan itemconfigure $idt -fontsize $fsize
-    		}
-    	    }
-	    catch {unset FontS}
-	}
-    }
-}
-
   }
 
   method config args {
@@ -1667,9 +1647,11 @@ if {[$wcan bbox $isvg] != ""} {
 		if { $tbut == "frame"} {
 		    if {[info exists idr]} {
     		set Options($option) $value
+			set strw [$wcan itemcget $idr -strokewidth]
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set x2 [expr {$x1 + $val}]
-			$wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth }]
+#			$wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth }]
+			$wcan coords $idr [expr {$x1 - $strw / 2.0 + $strwidth / 2.0}] [expr {$y1 - $strw / 2.0 + $strwidth / 2.0}] [expr {$x2 + $strw * 0 - $strwidth}]  [expr {$y2 + $strw * 0 - $strwidth }]
 		    }
     		    continue
 		} 
@@ -1773,9 +1755,11 @@ if {[$wcan bbox $isvg] != ""} {
 #Размер масштабирования
 		if {$tbut == "frame"} {
 		    if {[info exists idr]} {
+			set strw [$wcan itemcget $idr -strokewidth]
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set y2 [expr {$y1 + $val}]
-			$wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2.0}]  [expr {$y2 - $strwidth}]
+#			$wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2.0}]  [expr {$y2 - $strwidth}]
+			$wcan coords $idr [expr {$x1 + $strw / 2.0 - $strwidth / 2.0}] [expr {$y1 + $strw / 2.0 - $strwidth / 2.0 }] [expr {$x2 + $strw * 0 - $strwidth}]  [expr {$y2 + $strw * 0 - $strwidth}]
 		    }
 		    continue
 		} 
@@ -1923,20 +1907,12 @@ if {[$wcan bbox $isvg] != ""} {
 			set opac [my config -fillopacity]
 			if {$value == "" || [string first "gradient" $value] != -1 || ($opac >= 0.0 && $opac < 1.0)} {
 #Окно на передний план!!!
-			    set rwin [winfo toplevel $wcan]
-			    set most [wm attributes $rwin -topmost]
-			    if {$most == 0} {
-				wm attributes $rwin -topmost 1
-			        update
-			    }
-			    update
 			    foreach z2 [my slavesoo] {
 				$z2 fon
 				update
-			    }
-			    if {$most == 0} {
-				wm attributes $rwin -topmost 0
-			        update
+				if {[$z2 type] == "frame" || [$z2 type] == "clframe"} {
+				    $z2 config -fillnormal [$z2 config -fillnormal]
+				}
 			    }
 			} else {
 			    foreach z2 [my slavesoo] {
@@ -1957,18 +1933,12 @@ if {[$wcan bbox $isvg] != ""} {
 			update
 			if {$tbut == "frame" && $fr == 1} {
 #Окно на передний план!!!
-			    set rwin [winfo toplevel $wcan]
-			    set most [wm attributes $rwin -topmost]
-			    if {$most == 0} {
-				wm attributes $rwin -topmost 1
-			    	update
-			    }	
 			    foreach z2 [my slavesoo] {
 				$z2 fon
-			    }
-			    if {$most == 0} {
-				wm attributes $rwin -topmost 0
-			    	update
+				update
+				if {[$z2 type] == "frame" || [$z2 type] == "clframe"} {
+				    $z2 config -fillopacity [$z2 config -fillopacity]
+				}
 			    }
 			}
     		    }
@@ -1977,7 +1947,7 @@ if {[$wcan bbox $isvg] != ""} {
 	    -strokewidth {
     		set Options($option) $value
 		if {[info exists idr]} {
-		    my changestrwidth
+		    my changestrwidth $value
 		}
     	    }
     	    -strokenormal {
@@ -2921,9 +2891,6 @@ oo::class create ibutton {
 #puts "ibutton: -isvg ok isvg=$isvg idr=$idr"
     			    foreach {sx1 sy1 sx2 sy2} [$wcan bbox $isvg] {break}
     			    foreach {rx1 ry1 rx2 ry2} [$wcan bbox "$btag rect"] {break}
-if {0} {
-    			    foreach {rx1 ry1 rx2 ry2} [$wcan coords $idr] {break}
-}
 			    foreach {pxl pxr pyl pyr} $Options(-pad) {break}
 			    set pxl [winfo fpixels $wcan $pxl]
 			    set pxr [winfo fpixels $wcan $pxr]
@@ -2957,17 +2924,6 @@ if {0} {
 				$wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $x $y"		
 			    }
 
-if {0} {
-			    foreach {width height xy} [$wcan itemcget $isvg -matrix] {
-				foreach {w1 w0} $width {
-				    set w1 [expr {$w1 * $scalex}]
-				}
-				foreach {h0 h1} $height {
-				    set h1 [expr {$h1 * $scaley}]
-				}
-				$wcan itemconfigure $isvg -matrix [list "$w1 $w0" "$h0 $h1" "$xy"]
-			    }
-}			    
 			    if {[$wcan bbox $isvg] != ""} {
     				foreach {snx1 sny1 snx2 sny2} [$wcan bbox $isvg] {break}
 #Перемещение по x и y
@@ -2993,16 +2949,6 @@ if {0} {
 				} else {
 				    $wcan itemconfigure $isvg -matrix "$w1 $w0 $h0 $h1 $x $y"		
 				}
-if {0} {
-				foreach {width height xy} [$wcan itemcget $isvg -matrix] {
-				    foreach {x y} $xy {
-					set x [expr {$x + $rx1 - $snx1 + $pxl }]
-					set y [expr {$y + $ry1 - $sny1 + $pyl }]
-				    }
-			
-				    $wcan itemconfigure $isvg -matrix [list "$width" "$height" "$x $y"]
-				}
-}
 			    }
 			}
 		    } else {
@@ -3280,7 +3226,7 @@ set ::methodman {
     }
 #puts "changestrwidth tsw=$tsw nst=$nst"
     if {$tsw == $nst} {
-	return
+#	return
     }
 #Восстанавливаем начальные координаты прямоугольника
     foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
@@ -3296,8 +3242,8 @@ set ::methodman {
     set nst1 [expr {$nst / 2.0}]
     set x0 [expr {$x0 + $nst1}]
     set y0 [expr {$y0 + $nst1}]
-    set x1 [expr {$x1 - $nst1}]
-    set y1 [expr {$y1 - $nst1}]
+    set x1 [expr {$x1 - $nst}]
+    set y1 [expr {$y1 - $nst}]
 #Выставляем прямоугольник
     $wcan coords $idr $x0 $y0 $x1 $y1
     if {[winfo manager $wcan] != "UXTY"} {
@@ -3395,6 +3341,22 @@ set ::methodman {
     append slaves " [place slaves $wcan]"
     return $slaves
   }
+#Какие svg-виджеьы есть на холсте выбранной виджеты
+  method listwsvg {} {
+    set lsvg ""
+    foreach id  "[$wcan find withtag canvasb] [$wcan find withtag canvasbfr]" {
+	set idtag [lindex [$wcan itemcget $id -tag] 3]
+	if {([string last "GroupGroup" $idtag] == -1 && [string last "Group" $idtag] == -1) || ([string last "GroupGroup" $idtag] == -1 && ([string last "canvasbGroup" $idtag] > -1))} {
+	    set obj "[string range $idtag 7 end]"
+	    if {[string range $obj 0 2 ] == "Obj"} {
+		lappend lsvg "::oo::$obj"
+	    } else {
+		lappend lsvg "::$obj"
+	    }
+	}
+    }
+    return [lsort -unique $lsvg]
+  }
 #В каком окне размешено текущее окно
   method islocate {} {
     set man [winfo manager $wcan]
@@ -3433,27 +3395,24 @@ set ::methodman {
 	return
     }
 
-if {1} {
-#    set cc [my slaves]
-    set cc [$mm slaves $wcan]
-#puts "islocate $cc"
-    if {$cc != ""} {
-	foreach slave "$cc" {
-	    if {[winfo parent $slave] != $wcan} {
-	        lower $slave
-	    }
-	}
-    }
-}
-    lower $wcan
-    update
-#Окно на передний план!!!
     set rwin [winfo toplevel $wcan]
     set most [wm attributes $rwin -topmost]
     if {$most == 0} {
 	wm attributes $rwin -topmost 1
     	update
     }	
+    lower $wcan
+    set cc [my slaves]
+    if {$cc != ""} {
+	foreach slave "$cc" {
+	    if {[winfo parent $slave] != $wcan} {
+	        lower $slave $wcan
+		update
+	    }
+	}
+    }
+    update
+#Окно на передний план!!!
     after 30
 #Скриншот без кнопки
     set screencan [image create photo -width $wb -height $hb]
@@ -3471,18 +3430,18 @@ if {1} {
     }	
     update
     raise $wcan 
-if {1} {
-    set cc [my slaves]
+    update
 #puts "islocate $cc"
 #	lower $wcan
     if {$cc != ""} {
 	foreach slave "$cc" {
 	    if {[winfo parent $slave] != $wcan} {
-	        raise $slave
+	        raise $slave $wcan
+		update
 	    }
 	}
+	update
     }
-}
  }
   
   method place {args} {
@@ -5090,12 +5049,6 @@ oo::class create cmenu {
 #puts "cmenu constructor: Options(-strokewidth)=$Options(-strokewidth)"
     set xc [expr {$xc + [winfo fpixels $wcan $Options(-strokewidth)] / 2.0}]
     set yc [expr {$yc + [winfo fpixels $wcan $Options(-strokewidth)] / 1.0}]
-if {0} {
-    if {$fr == 0} {
-	set xc	[expr {$xc + $Options(-x)}]
-	set yc [expr {$yc + $Options(-y)}]
-    }
-}
     return self
   }
 
@@ -5829,9 +5782,6 @@ oo::class create cframe {
 
   method resize {wx hy {from 1}} {
 #puts "cframe resize: self=[self] fr=$fr wx=$wx hy=$hy"
-    set topw [winfo toplevel $wcan]
-    set geotek [wm geometry $topw]
-    set geotop $geotek
     
     if {$fr == 1} {
 	set wx1 [winfo width $wcan]
@@ -5874,13 +5824,6 @@ oo::class create cframe {
     if {[info exists bidt]} {
 	my boxtext
     }
-    
-#    puts "1 WX=$wx HY=$hy"
-    if {$from && $fr} {
-	foreach {x1 y1 x2 y2} [$wcan bbox $btag] {break}
-	$wcan configure -width [expr {$x2 + $x1}] -height [expr {$y2 + $y1}]
-    }
-
   }
 
   method canvas {} {
@@ -6018,19 +5961,12 @@ oo::class create cframe {
 		    if {[info exists idr]} {
 			$wcan itemconfigure $idr $option $value
 #Окно на передний план!!!
-			set rwin [winfo toplevel $wcan]
-			set most [wm attributes $rwin -topmost]
-			if {$most == 0} {
-				wm attributes $rwin -topmost 1
-				update
-			}	
-			update
 			foreach z2 [my slavesoo] {
 				$z2 fon
-			}
-			if {$most == 0} {
-				wm attributes $rwin -topmost 0
 				update
+				if {[$z2 type] == "frame" || [$z2 type] == "clframe"} {
+				    $z2 config -fillopacity [$z2 config -fillopacity]
+				}
 			}
 		    }
 		}
@@ -6045,21 +5981,13 @@ oo::class create cframe {
 			set opac [my config -fillopacity]
 			if {$value == "" || [string first "gradient" $value] != -1 || ($opac >= 0.0 && $opac < 1.0)} {
 #Окно на передний план!!!
-			    set rwin [winfo toplevel $wcan]
-			    set most [wm attributes $rwin -topmost]
-			    if {$most == 0} {
-				wm attributes $rwin -topmost 1
-				update
-			    }
-			    update
 
 			    foreach z2 [my slavesoo] {
 				$z2 fon
-			    }
-
-			    if {$most == 0} {
-				wm attributes $rwin -topmost 0
-			        update
+				update
+				if {[$z2 type] == "frame" || [$z2 type] == "clframe"} {
+				    $z2 config -fillnormal [$z2 config -fillnormal]
+				}
 			    }
 			} else {
 				foreach z2 [my slavesoo] {

@@ -15,6 +15,41 @@ variable vrc4
 variable z1
 variable z2
 
+proc selectwsvg {win x y} {
+    puts "$win $x $y"
+    set x0 $x
+    incr x0 -1
+    set x1 $x
+    incr x1
+    set y0 $y
+    incr y0 -1
+    set y1 $y
+    incr y1
+    lassign [$win bbox 0] xr0 yr0 xr1 yr1
+    set ::rid -1
+    foreach id [$win find overlapping $x0 $y0 $x1 $y1] {
+	foreach {xt0 yt0 xt1 yt1} [$win bbox $id] {
+	    if {$xt0 >= $xr0 && $yt0 >= $yr0 && $xt1 <= $xr1 && $yt1 <= $yr1} {
+		set ::rid $id
+	    }
+	}
+    }
+    if {$::rid > -1} {
+	if {[llength [$win itemcget $::rid -tags]] > 3} {
+	    set idtag "[lindex [$win itemcget $::rid -tags] 3]"
+	} else {
+	    set idtag "[lindex [$win itemcget $::rid -tags] 0]"
+	}
+	set obj "[string range $idtag 7 end]"
+	if {[string range $obj 0 2 ] == "Obj"} {
+	    set ::rid "::oo::$obj"
+	} else {
+	    set ::rid "::$obj"
+	}
+    }
+    puts "Выбран svg-виджет: $::rid"
+}
+
 proc updategrad {w gr} {
     variable b1
     variable clfrv
@@ -133,7 +168,7 @@ set hrect [expr {$hrect + 28 + $dy}]
 set rc5 [cbutton new $t.c -type circle  -text Круг -x 500 -y $hrect]
 set hrect [expr {$hrect + 28 + $dy}]
 set rc7 [ibutton create Картинка $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 470 -y $hrect -image "::tk::icons::error"]
-#set rc7 [ibutton new $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 420 -y $hrect -image "::tk::icons::error"]
+#set rc7 [ibutton create Group $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 470 -y $hrect -image "::tk::icons::error"]
 set hrect [expr {$hrect + 28 + $dy + 15}]
 set rc6 [cbutton new $t.c -type square  -text Квадрат -ipad "1m 1m 1m 1m" -x 470 -y $hrect]
 eval  [subst {$rc6 config -command {puts "Квадрат=[set rc6] Правый фрейм=[set clfrv]"}}]
@@ -180,3 +215,4 @@ set vrc1 0
 set vrc4 1
 set z1 0
 set z2 1
+bind $t.c <ButtonRelease-3> {selectwsvg %W %x %y}
