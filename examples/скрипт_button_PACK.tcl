@@ -1,6 +1,8 @@
 package require svgwidgets
-#set tkp::pixelalign 1
-#set tkp::depixelize 1
+
+variable vrc1
+variable vrc3
+variable vrc4
 
 proc folderbrown {canv} {
     set grfolder [$canv create group]
@@ -201,3 +203,6 @@ pack [$rc6 canvas] -in $inwin -padx 1c -pady "2m 0" -fill x -expand 1
 }
 pack configure [$rc7 canvas] -expand 0 
 bind $t <ButtonRelease-3> {selwsvg %W %X %Y}
+update
+set vrc1 1
+set vrc4 1

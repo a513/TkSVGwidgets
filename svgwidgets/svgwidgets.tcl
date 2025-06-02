@@ -3213,8 +3213,6 @@ set ::methodman {
     if {![info exist idr]} {
 	return
     }
-#Текущая толшина строки
-    set tsw [$wcan itemcget $idr -strokewidth]
 #Требуемая толшина строки
     if {$strw == -1} {
 	set nst [winfo fpixels $wcan $Options(-strokewidth)]
@@ -3224,33 +3222,10 @@ set ::methodman {
     if {$wclass == "mbutton"} {
 	return
     }
-#puts "changestrwidth tsw=$tsw nst=$nst"
-    if {$tsw == $nst} {
-#	return
+    if {!$Options(press)} {
+	$wcan itemconfigure $idr -strokewidth $nst
     }
-#Восстанавливаем начальные координаты прямоугольника
-    foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
-    set wtstr [$wcan itemcget $idr -strokewidth]
-#puts "changestrwidth nst=$nst x0=$x0 y0=$y0 x1=$x1 y1=$y1 wtstr=$wtstr"
-    set wtstr [expr {$wtstr / 2.0}]
-
-    set x0 [expr {$x0 - $wtstr}]
-    set y0 [expr {$y0 - $wtstr}]
-    set x1 [expr {$x1 + $wtstr}]
-    set y1 [expr {$y1 + $wtstr}]
-#Вычисляем новые координаты
-    set nst1 [expr {$nst / 2.0}]
-    set x0 [expr {$x0 + $nst1}]
-    set y0 [expr {$y0 + $nst1}]
-    set x1 [expr {$x1 - $nst}]
-    set y1 [expr {$y1 - $nst}]
-#Выставляем прямоугольник
-    $wcan coords $idr $x0 $y0 $x1 $y1
-    if {[winfo manager $wcan] != "UXTY"} {
-	if {!$Options(press)} {
-	    $wcan itemconfigure $idr -strokewidth $nst
-	}
-    }
+    return
   }
  
   method manager {type args} {
@@ -3382,7 +3357,6 @@ set ::methodman {
     set wb [winfo width $wcan]
     set hb [winfo height $wcan]
 
-#set hb [expr {$hb - 1}]
 #puts "MANAGER COORDS type=$type rx=$rx ry=$ry wb=$wb hb=$hb args=$args"
     set mm [winfo manager $wcan]
     if {$mm == ""} {
@@ -3421,7 +3395,6 @@ set ::methodman {
     loupe $screencan [expr {$rx + $wb / 2}] [expr {$ry + $hb / 2}] $wb $hb
 #Сождаём фон из картинки
     $wcan delete "fon"
-#    set fon [$wcan create image 0 0 -image $screencan -anchor nw  -tags {fon}]
     set fon [$wcan create [set pimage] 0 0 -image $screencan -anchor nw  -tags {fon} ]
     $wcan lower $fon
     if {$most == 0} {
@@ -3432,7 +3405,6 @@ set ::methodman {
     raise $wcan 
     update
 #puts "islocate $cc"
-#	lower $wcan
     if {$cc != ""} {
 	foreach slave "$cc" {
 	    if {[winfo parent $slave] != $wcan} {
