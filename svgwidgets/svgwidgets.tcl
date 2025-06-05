@@ -327,8 +327,9 @@ oo::class create cbutton {
     set Options(-strokenormal) #00bcd4
     set Options(-strokeenter) #d3d7db
     set Options(-strokepress) #00bcd4
-    set g3 [$wcan gradient create linear -method pad -units bbox -stops { { 0.00 #dbdbdb 1} { 1.00 #bababa 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
-    set g4 [$wcan gradient create linear -method pad -units bbox -stops { { 0.00 #ffffff 1} { 1.00 #dbdbdb 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
+    set g3 [$wcan gradient create linear -method pad -units bbox -stops { { 0.00 "#dbdbdb" 1} { 1.00 "#bababa" 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
+    set g4 [$wcan gradient create linear -method pad -units bbox -stops { { 0.00 "#ffffff" 1} { 1.00 "#dbdbdb" 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
+    set gradCloud [$wcan gradient create linear -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00} ]
 
     set  Options(-rx) 0
     set  Options(-ry) 0
@@ -434,6 +435,7 @@ oo::class create cbutton {
 	    set Options(-command) ""
 	    set Options(-fillenter) "##"
 	    set Options(-fillpress) "##"
+
 	}
 	default {
 	    if {$fr == 1} {
@@ -886,22 +888,32 @@ $wcan coords $idr "$coordsidr"
 #from = 1 resize делает пользователь
 #from = 0 resize вызывается событием Configure
 #puts "SELF=[self] TBUT=$tbut wx=$wx hy=$hy W=[winfo width $wcan] H=[winfo height $wcan]"
-    if {$tbut == "frame"}  {
+    if {$tbut == "frame"} {
+	if {$fr == 1} {
+	    set wx1 [winfo width $wcan]
+	    set hy1 [winfo height $wcan]
+	} else {
+	    set wx1 [winfo fpixels $wcan $Options(-width)]
+	    set hy1 [winfo fpixels $wcan $Options(-height)]
+	}
+#puts "cframe resize: fr=$fr wx=$wx hy=$hy wx1=$wx1 hy1=$hy1  idr=$idr"
+
 	foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
 #puts "x0=$x0 y0=$y0 x1=$x1 y1=$y1"
 	set swidth [$wcan itemcget $idr -strokewidth]
 	if {$fr == 1} {
-	    set x1 [winfo width $wcan]
-	    set y1 [winfo height $wcan]
+	    if {$hy1 <= [expr {$swidth * 2.0}] || $wx1 <= [expr {$swidth * 2.0}]} {
+		return
+	    }
+	    set x1 [expr {$wx - $swidth}]
+	    set y1 [expr {$hy - $swidth}]
 	} else {
-	    set wx [winfo fpixels $wcan $wx]
-	    set hy [winfo fpixels $wcan $hy]
-	    set x1 [expr {$x0 + $wx}]
-	    set y1 [expr {$y0 + $hy}]
+	    set x1 [expr {$x0 + $wx - $swidth * 0}]
+	    set y1 [expr {$y0 + $hy - $swidth * 0}]
 	}
-	my config -width $x1 -height $y1
-	return
+	$wcan coords $idr $x0 $y0 $x1 $y1
     }
+
     if {$fr == 0} {
 	return
     }
@@ -922,12 +934,12 @@ if {$hy <= [expr {$swidth * 2.0}] || $wx <= [expr {$swidth * 2.0}]} {
 	set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
 	set Canv(xscale) 1
     }
-if {$Options(-text) != ""} {
+    if {$Options(-text) != ""} {
       if {[catch {$wcan itemcget $idt -fontsize} result] == 0} {
 	    set u $idt
             set FontS($u,fontsize) $result
       }
-}
+    }
 #Ловим перемещение
     if {$Canv(X) != [winfo rootx $wcan] && $Canv(Y) != [winfo rooty $wcan] && $Canv(X1) != [expr {[winfo rootx $wcan] + [winfo width $wcan]}] && $Canv(Y1) != [expr {[winfo rooty $wcan] + [winfo height $wcan]}]} {
 	if {$Canv(H) == $hy && $Canv(W) == $wx} {
@@ -963,7 +975,7 @@ if {$Options(-text) != ""} {
     set Canv(X1) [expr {$Canv(X) + $Canv(W)}]
     set Canv(Y1) [expr {$Canv(Y) + $Canv(H)}]
 
-   set Canv(xscale) $xScale
+    set Canv(xscale) $xScale
 
 ##########################
     set wx [winfo fpixels $wcan $wx]
@@ -996,16 +1008,14 @@ if {$Options(-text) != ""} {
 	}
 	my config -rx $rx
     }
-#    foreach {x1 xh y1 y2} [my config -ipad] {break} 
     lassign [my config -ipad] x1 xh y1 y2
-if {1} {
     if {$tbut == "square" } {
 	set wold $yold
 	set ipad [expr {[winfo fpixels $wcan $x1] * $wold}]
     } else {
 	set ipad [expr {[winfo fpixels $wcan $x1]}]
     }
-}
+
     set ipad [expr {[winfo fpixels $wcan $x1] * $wold}]
     append ipad " [expr {[winfo fpixels $wcan $xh] * $wold }]"
     append ipad " [expr {[winfo fpixels $wcan $y1] * $yold}]"
@@ -5587,6 +5597,7 @@ oo::class create cframe {
 	    set Options(-width)		10m
 	    set Options(-height)	7m
 	    set Options(-fillopacity)	1.0
+	    $wcan gradient create linear -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00}
 	}
 	ccombo -
 	cspin -
@@ -5605,6 +5616,7 @@ oo::class create cframe {
 	    set Options(-text) ""
 	    set  Options(-fontsize) 0
 	    set Options(-fillopacity)	1.0
+	    set gradCloud [$wcan gradient create linear -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00}]
 	}
 	default {
 	    if {$fr == 1} {
@@ -5746,7 +5758,7 @@ oo::class create cframe {
 	if {$tbut == "frame" || $tbut == "clframe"} {
 #puts "CFRAME=[self]: coords=[$wcan coords $idr] idr=$idr"
 #	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
-	    eval "bind $wcan  <Configure> {[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
+	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
 #	    eval "bind $wcan  <Configure> {[self] resize %w %h 0; [self] config -fillopacity \[[self] config -fillopacity]}"
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"

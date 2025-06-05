@@ -120,7 +120,9 @@ wm geometry $t 720x600+150+150
 wm title $t "tcl/tk svg widgets canvas demo with resize"
 
 #tkp::canvas $t.c -bg yellow
-set tkpfr [cframe new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow]
+set tkpfr [cbutton new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow]
+#или
+#set tkpfr [cframe new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow]
 
 #canvas::gradient $t.c -direction x -color1 cyan -color2 yellow
 #Обязательно выполнить update !!!!
@@ -128,7 +130,7 @@ update
 pack $t.c -in $t -fill both -expand 1 -padx 3m -pady 3m
 set bb [bind $t.c <Configure> ]
 #Включаем масштабирование содержимого холста
-$tkpfr resizeGroup
+#$tkpfr resizeGroup
 #bind $t.c <Configure> "scaleGroup %W %w %h %x %y;[set bb]"
 
 set went [cframe new $t.c -type centry -rx 2m -height 7m  -x 110 -y 40 -width 500]
@@ -180,9 +182,9 @@ puts "Квадрат=$rc6"
 
 bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 if {$svgwidget::tkpath != "::tko::path"} {
-    $tkpfr config -fillnormal gradient5
+    $tkpfr config -fillnormal gradient25
 } else {
-    $tkpfr config -fillnormal ::tko::gradient5
+    $tkpfr config -fillnormal ::tko::gradient25
 }
 update
 #Кнопка смены драдиента нв основном фрейме
