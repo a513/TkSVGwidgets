@@ -60,6 +60,30 @@ proc opacity {} {
     }
 
 }
+proc selwsvg {win x y} {
+    set ::wwin [winfo containing $x $y]
+#    puts "win=$::wwin wwin=$win x=$x y=$y"
+    set ::wsvg -1
+    foreach {wclass} "cbutton ibutton mbutton cmenu cframe" {
+	set listoo [info class instances $wclass]
+	foreach {oo} $listoo {
+	    set type [$oo type]
+	    if {[$oo canvas] == $::wwin} {
+		set ::wsvg $oo
+		puts $::wsvg
+		return
+	    } elseif {$type == "centry" || $type == "ccombo" || $type == "cspin" } {
+		if {[$oo entry] == $::wwin} {
+		    set ::wsvg $oo
+		    puts $::wsvg
+		    return
+		}
+	    }
+	}
+    }
+    puts $::wsvg
+}
+
 #0 - нет прозрачности 1 - есть прозрачность
 set ::winop 0
 
@@ -162,3 +186,4 @@ update
 
 $tkpfr config -fillnormal $g4
 $::clfrv config -fillopacity 0.3
+bind $t <ButtonRelease-3> {selwsvg %W %X %Y}

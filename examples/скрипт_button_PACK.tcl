@@ -64,10 +64,17 @@ proc selwsvg {win x y} {
     foreach {wclass} "cbutton ibutton mbutton cmenu cframe" {
 	set listoo [info class instances $wclass]
 	foreach {oo} $listoo {
+	    set type [$oo type]
 	    if {[$oo canvas] == $::wwin} {
 		set ::wsvg $oo
 		puts $::wsvg
 		return
+	    } elseif {$type == "centry" || $type == "ccombo" || $type == "cspin" } {
+		if {[$oo entry] == $::wwin} {
+		    set ::wsvg $oo
+		    puts $::wsvg
+		    return
+		}
 	    }
 	}
     }

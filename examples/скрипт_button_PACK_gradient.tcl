@@ -62,6 +62,29 @@ proc updategrad {w gr} {
     after 100
     $b1 fon; $clfrv fon; $xgrad fon; $went fon; $xaup fon
 }
+proc selwsvg {win x y} {
+    set ::wwin [winfo containing $x $y]
+#    puts "win=$::wwin wwin=$win x=$x y=$y"
+    set ::wsvg -1
+    foreach {wclass} "cbutton ibutton mbutton cmenu cframe" {
+	set listoo [info class instances $wclass]
+	foreach {oo} $listoo {
+	    set type [$oo type]
+	    if {[$oo canvas] == $::wwin} {
+		set ::wsvg $oo
+		puts $::wsvg
+		return
+	    } elseif {$type == "centry" || $type == "ccombo" || $type == "cspin" } {
+		if {[$oo entry] == $::wwin} {
+		    set ::wsvg $oo
+		    puts $::wsvg
+		    return
+		}
+	    }
+	}
+    }
+    puts $::wsvg
+}
 
 variable t
 set t ".test"
@@ -92,7 +115,10 @@ set b1 [cbutton new $t.frame -type frame -rx 5m  -follopacity 1.0]
 $b1 pack -in $t.c -fill both -expand 1 -padx 1c -pady 5m -side left -anchor nw
 update
 
-set xa1 [cbutton new $t.but11 -type rect  -text Прямоугольник]
+#set xa1 [cbutton new $t.but11 -type rect  -text Прямоугольник]
+set xa1 [cbutton create "Прямоугольник" $t.but11 -type rect  -text Прямоугольник]
+
+
 #set xa2 [cbutton new $t.frame.but2 -type round  -text Полукруглый]
 set xa2 [cbutton new $t.but22 -type round  -text Полукруглый]
 [$xa2 canvas] configure -bg [$b1 config -fillnormal]
@@ -164,3 +190,4 @@ bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 update
 set g4 [$t.c gradient create linear -method pad -units bbox -stops { { 0.0 cyan 1} { 1.0 yellow 1}} -lineartransition {0.0 0.0 0.0 1.0} ]
 $tkpfr config -fillnormal $g4
+bind $t <ButtonRelease-3> {selwsvg %W %X %Y}
