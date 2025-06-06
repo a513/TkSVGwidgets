@@ -3670,6 +3670,13 @@ set ::methshowmenu {
 }
 set ::methscaleGroup {
   method scaleGroup {w h} {
+    set onemm2px [winfo pixels $wcan 5m]
+    set wxc [winfo fpixels $wcan $w]
+    set hyc [winfo fpixels $wcan $h]
+    if {$wxc < $onemm2px || $hyc < $onemm2px} {
+	return
+    }
+
     if {![info exist Canv(W)]} {
 	set Canv(W) [winfo width $wcan]
 	set Canv(H) [winfo height $wcan]
@@ -3914,7 +3921,9 @@ set ::methscaleGroup {
 	if {[$wcan type "$oid image"] != ""} {
 	    foreach {xr yr} [::svgwidget::id2center $wcan "$oid rect"] {break}
 	    foreach {xi yi} [::svgwidget::id2center $wcan $id] {break}
-	    $wcan move "$oid image" [expr {$xr - $xi }] [expr {$yr - $yi }]
+	    if {[info exist xr]} {
+		$wcan move "$oid image" [expr {$xr - $xi }] [expr {$yr - $yi }]
+	    }
 	} else {
 #puts "PIMAGE=$oid tags=$tags"
 	    foreach {xi yi} [$wcan coords "$oid pimage"] {break}
@@ -3925,8 +3934,9 @@ set ::methscaleGroup {
 	    foreach {xi yi} [::svgwidget::id2center $wcan $id] {break}
 	    foreach {xr yr xr1 yr1} [$wcan coords "$oid rect"] {break}
 	    foreach {xi yi xi1 yi1} [$wcan bbox "$oid pimage"] {break}
-
-	    $wcan move "$oid pimage" [expr {$xr - $xi * $xScale}] [expr {$yr - $yi * $yScale }]
+	    if {[info exist xr]} {
+		$wcan move "$oid pimage" [expr {$xr - $xi * $xScale}] [expr {$yr - $yi * $yScale }]
+	    }
 	} 
     }
 #Масштабирования шрифта
