@@ -91,6 +91,7 @@ wm protocol $t WM_DELETE_WINDOW {exitarm $t }
 
 #####################
 wm geometry $t 800x600+150+150
+wm minsize $t 700 500
 wm title $t "tcl/tk svg widgets pack demo"
 
 #tkp::canvas $t.c -bg yellow

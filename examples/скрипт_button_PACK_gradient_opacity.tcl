@@ -97,6 +97,7 @@ wm protocol $t WM_DELETE_WINDOW {exitarm $t }
 wm title $t "tcl/tk pack gradient and opacity demo"
 
 wm geometry $t 800x600+150+150
+wm minsize $t 700 500
 
 set tkpfr [cframe new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow]
 set g4 [$t.c gradient create linear -method pad -units bbox -stops { { 0.0 cyan 1} { 1.0 yellow 1}} -lineartransition {0.0 0.0 0.0 1.0} ]

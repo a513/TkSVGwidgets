@@ -116,7 +116,8 @@ wm state $t withdraw
 wm state $t normal
 
 #####################
-wm geometry $t 720x600+150+150
+wm geometry $t 800x600+150+150
+wm minsize $t 700 500
 wm title $t "tcl/tk svg widgets canvas demo with resize"
 
 #tkp::canvas $t.c -bg yellow

@@ -97,6 +97,7 @@ wm protocol $t WM_DELETE_WINDOW {exitarm $t }
 wm title $t "tcl/tk pack gradient demo"
 
 wm geometry $t 800x600+150+150
+wm minsize $t 700 500
 update
 set tkpfr [cframe new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow  -follopacity 1.0]
 #tkp::canvas $t.c -bg yellow
