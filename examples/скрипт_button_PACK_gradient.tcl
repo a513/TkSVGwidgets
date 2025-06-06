@@ -168,8 +168,7 @@ $rc5 pack -in [$clfrv canvas] -padx 1c -pady "5m 0" -fill none -expand 1
 $rc6 pack -in [$clfrv canvas] -padx 1c -pady "5m" -fill both -expand 1
 
 #Кнопка обновления фона фреймов
-set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "foreach z2 \"[$tkpfr slavesoo]\" {\$z2 config -fillopacity \[\$z2 config -fillopacity]}" ]
-#set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "foreach z2 \"[$tkpfr slavesoo]\" {\$z2 fon}" ]
+set xaup [cbutton new $t.butup -type round  -text {Обновить окно} -command "[set tkpfr] config -fillopacity [[set tkpfr] config -fillopacity] " ]
 $xaup config -width 120
 [$xaup canvas] configure -width 120
 
