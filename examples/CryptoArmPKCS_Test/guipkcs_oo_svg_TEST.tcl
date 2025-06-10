@@ -5040,7 +5040,7 @@ $vbut config -fillenter "" -stroke ""
   grid $c.fscr -row 0 -column 0 -columnspan 4 -sticky wsen -padx {0 0} -pady {0 0}
   grid columnconfigure $c 1 -weight 1
 #  ttk::labelframe $c.build -text "Выпуск сертификата" -labelanchor n
-    set clfrv [cframe new $c.build -type clframe -text "Выпуск сертификата по запросу" -rx 1m -strokewidth 0.5m -stroke red ]
+    set clfrv [cframe new $c.build -type clframe -text "Выпуск сертификата по запросу" -rx 0.5m -strokewidth 0.5m -stroke red ]
 #    set clfrv [cframe new $c.build -type clframe -text "" -rx 1m -strokewidth 0 -stroke {} -fillnormal cyan -bg yellow]
 puts "Стр.5045: clfrv=$clfrv  win=$c.build"
 # -width $wfr1
@@ -5082,8 +5082,8 @@ set crbut1 [cbutton new "$c.ftype.typePem" -type radio  -value 1 -variable ::for
     $cbut config -fillnormal $g11
     [$cbut canvas] configure -background [$c.ftype cget -background]
 
-  pack $c.ftype.build -expand 1 -fill x -side right -padx {0 4} -pady 1m
-  pack $c.ftype.typePem -expand 1 -fill x -side right -padx {0 10} -pady 1m
+  pack $c.ftype.build -expand 1 -fill x -side right -padx {0 4} -pady {1m 0.5m}
+  pack $c.ftype.typePem -expand 1 -fill x -side right -padx {0 10} -pady {1m 0.5m}
 
   label $c.lbc -text "Точка раздачи CA:"  -bg white -anchor w
 #  ttk::entry $c.bc  -textvariable ::pointca
@@ -5123,8 +5123,8 @@ set ltsp [cframe new $c.listKind -type ccombo -stroke gray85 -fontsize 2m -rx 1m
 #   -pady {0 1} -ipady 2
 #grid $c.kind $c.listKind -row 7 -column 0 -columnspan 3 -sticky nwse
 
-  grid $c.l0 -row 8 -column 0 -sticky w -padx {4 0} -pady {0 2}
-  grid $c.ftype -row 8 -column 1 -columnspan 2 -sticky nswe -padx {4 4} -pady {0 2}
+  grid $c.l0 -row 8 -column 0 -sticky w -padx {4 0} -pady {0 2m}
+  grid $c.ftype -row 8 -column 1 -columnspan 2 -sticky nswe -padx {4 4} -pady {0 2m}
   grid $c -row 1 -column 0 -columnspan 4 -sticky wsen -padx 0m -pady {0 0}
 set c_years $c
   set c $c_old
@@ -6433,6 +6433,7 @@ proc setoptok {c} {
   variable optok
   variable laboptok
   set laboptok [lindex $listop $optok]
+  $::labfr config -text "$laboptok"
   #  pack forget $c.butop
   switch $optok {
     0 {
@@ -6771,6 +6772,7 @@ proc page_token {c} {
 #  ttk::label .lfortok -textvariable laboptok -background wheat
 #  ttk::labelframe $c.lfr2 -labelwidget .lfortok
     set clfr1 [cframe new $c.lfr2 -type clframe -text "Для инициализации токена заполните следующие поля:" -rx 1m -strokewidth 0.5m]
+    set ::labfr $clfr1
     $clfr1 boxtext
     $clfr1 config -fillnormal "#ffffff" -fontsize 3.5m -fillbox wheat -stroke "#5d8fc8"
 

@@ -983,7 +983,7 @@ if {$hy <= [expr {$swidth * 2.0}] || $wx <= [expr {$swidth * 2.0}]} {
     if {$wx < $onemm2px || $hy < $onemm2px} {
 	return
     }
-
+    set wold 1
     if {$tbut == "radio" || $tbut == "circle" || $tbut == "check" || $tbut == "square" } {
 	set yold [expr {[winfo fpixels $wcan $hy] / [winfo fpixels $wcan [my config -height] ]}]
 	set wold [expr {([winfo fpixels $wcan $wx] - [winfo fpixels $wcan $hy]) / [winfo fpixels $wcan [my config -width]]}]
@@ -5739,10 +5739,8 @@ oo::class create cframe {
     }
 #puts "ch=$ch cw=$cw ycoords=$ycoords xc0=$xc0 yc0=$yc0 strwidth=$strwidth"
     if {$fr == 1 || $tbut == "clframe" } {
-#	set idr [$wcan create [set prect] [expr {$xc0 + $strwidth * 0}] [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch - $ycoords}]] 
 	set idr [$wcan create [set prect] $xc0 [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw}] [expr {$yc0 + $ch - $ycoords}] -stroke {} -strokewidth 0] 
     } else {
-#	set idr [$wcan create [set prect] [expr {$xc0 + $strwidth * 0}] [expr {$yc0 - $ycoords}] [expr {$xc0 + $cw - $strwidth * 0}] [expr {$yc0 + $ch + $ycoords}]] 
 	set idr [$wcan create [set prect] $xc0 $yc0 [expr {$xc0 + $cw}] [expr {$yc0 + $ch + $ycoords}] -stroke {} -strokewidth 0] 
     }
     my changestrwidth
@@ -5767,9 +5765,7 @@ oo::class create cframe {
     if {$fr == 1} {
 	if {$tbut == "frame" || $tbut == "clframe"} {
 #puts "CFRAME=[self]: coords=[$wcan coords $idr] idr=$idr"
-#	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
 	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
-#	    eval "bind $wcan  <Configure> {[self] resize %w %h 0; [self] config -fillopacity \[[self] config -fillopacity]}"
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 	}
@@ -5807,14 +5803,24 @@ oo::class create cframe {
 	if {$hy1 <= [expr {$swidth * 2.0}] || $wx1 <= [expr {$swidth * 2.0}]} {
 	    return
 	}
-	set x1 [expr {$wx - $swidth}]
-	set y1 [expr {$hy - $swidth}]
+	set x1 [expr {$wx - $swidth / 2.0}]
+	set y1 [expr {$hy - $swidth / 2.0}]
+	if {$tbut == "clframe"} {
+	    $wcan itemconfigure $idt -fontsize [winfo fpixels $wcan $Options(-fontsize)]
+	    $wcan itemconfigure $idr -strokewidth [winfo fpixels $wcan $Options(-strokewidth)]
+
+	    set fonts [$wcan itemcget $idt -fontsize]
+	    set wstr [$wcan itemcget $idr -strokewidth]
+	    $wcan coords $idr [expr {$swidth / 2.0}] [expr {($fonts + $wstr) / 2.0}] $x1 $y1
+	} else {
+	    $wcan coords $idr [expr {$swidth / 2.0}] [expr {$swidth / 2.0}] $x1 $y1
+	}
     } else {
 	set x1 [expr {$x0 + $wx - $swidth * 0}]
 	set y1 [expr {$y0 + $hy - $swidth * 0}]
+	$wcan coords $idr $x0 $y0 $x1 $y1
     }
 
-    $wcan coords $idr $x0 $y0 $x1 $y1
     if {$fr == 0 && ($tbut == "centry" || $tbut == "cspin" || $tbut == "ccombo")} {
 	place configure $wentry -width [expr {$wx - $onemm2px * 2}] -height [expr {$hy - $onemm2px * 2 }]
 	return
@@ -5831,13 +5837,10 @@ oo::class create cframe {
     if {[info exists bidt]} {
 	my boxtext
     }
-    
-#    puts "1 WX=$wx HY=$hy"
     if {$from && $fr} {
 	foreach {x1 y1 x2 y2} [$wcan bbox $btag] {break}
 	$wcan configure -width [expr {$x2 + $x1}] -height [expr {$y2 + $y1}]
     }
-
   }
 
   method canvas {} {
@@ -6025,6 +6028,7 @@ oo::class create cframe {
     		set Options($option) $value
 		if {[info exists idr]} {
 		    my changestrwidth [winfo fpixels $wcan $value]
+#		    my changestrwidth
 		}
     	    }
 	    -textvariable {
