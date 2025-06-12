@@ -5100,8 +5100,8 @@ set ptca [cframe new $c.bc -type centry -stroke gray85 -fontsize 2m -rx 1m]
   $c.bc delete 0 end
   grid $c.lbc -row 2 -column 0  -sticky w -padx {1m 3m} -pady 0
   grid $c.bc -row 2 -column 1 -columnspan 2 -sticky we -padx {0 2m} -pady 0
-  label $c.lyear -text "Определите срок действия сертификата (в годах и днях):"  -bg skyblue -highlightthickness 0
-  grid $c.lyear -row 4 -column 0 -columnspan 3 -sticky news -padx {1m 1m} -pady 0
+  label $c.lyear -text "Определите срок действия сертификата (в годах и Днях):"  -bg skyblue -highlightthickness 0
+  grid $c.lyear  -row 4 -column 0 -columnspan 3 -sticky ew -padx {1m 3m} -pady 0
   #	spinbox $c.years -from 0 -to 25 -state readonly -textvariable ::yearcert -justify right
   #	grid $c.years -row 5 -column 0 -columnspan 1 -sticky w -padx {4 0} -pady 2
   #	scale $c.days -from 0 -to 366 -tickinterval 30 -orient horizontal -variable ::dayscert -showvalue true
@@ -5124,9 +5124,12 @@ set ltsp [cframe new $c.listKind -type ccombo -stroke gray85 -fontsize 2m -rx 1m
 #grid $c.kind $c.listKind -row 7 -column 0 -columnspan 3 -sticky nwse
 
   grid $c.l0 -row 8 -column 0 -sticky w -padx {4 0} -pady {0 2m}
-  grid $c.ftype -row 8 -column 1 -columnspan 2 -sticky nswe -padx {4 4} -pady {0 2m}
-  grid $c -row 1 -column 0 -columnspan 4 -sticky wsen -padx 0m -pady {0 0}
+  grid $c.ftype -row 8 -column 1 -columnspan 2 -sticky nswe -padx {1m 3m} -pady {0 2m}
+#Размещение фрейма Выпуск сертификата по запросу
+  grid $c -row 1 -column 0 -columnspan 5 -sticky wsen -padx {0m 1} -pady {0 0}
+puts "Выпуск сертификата: c=$c"
 set c_years $c
+  grid rowconfigure $c 1 -weight 1
   set c $c_old
   ########
   label $c.lsep -text "Работа с сертификатами из файлов" -font TkDefaultFontBold -bg skyblue -highlightthickness 0 -highlightbackground skyblue -highlightcolor skyblue
@@ -6739,8 +6742,8 @@ proc page_token {c} {
     set clfr1 [cframe new $c.lfr1 -type clframe -text "Выберите операцию с токеном:" -rx 1m -strokewidth 0.5m]
 #puts "PAGE_TOKEN=$clfr1 c=$c"
 
-    $clfr1 boxtext
     $clfr1 config -fillnormal white -fontsize 3.5m -fillbox wheat -stroke "#5d8fc8"
+    $clfr1 boxtext
 # -fillnormal "#43cafa"
 # -fillbox cyan
 
@@ -6771,10 +6774,10 @@ proc page_token {c} {
   grid $c.lfr1 -in $c -row 0 -column 0 -sticky wsen -padx "10m 10m" -pady 3m
 #  ttk::label .lfortok -textvariable laboptok -background wheat
 #  ttk::labelframe $c.lfr2 -labelwidget .lfortok
-    set clfr1 [cframe new $c.lfr2 -type clframe -text "Для инициализации токена заполните следующие поля:" -rx 1m -strokewidth 0.5m]
+    set clfr1 [cframe new $c.lfr2 -type clframe -text "Для инициализации токена заполните следующие поля:" -rx 1m -strokewidth 0.5m -fontsize 3.5m]
     set ::labfr $clfr1
+    $clfr1 config -fillnormal "#ffffff" -fillbox wheat -stroke "#5d8fc8"
     $clfr1 boxtext
-    $clfr1 config -fillnormal "#ffffff" -fontsize 3.5m -fillbox wheat -stroke "#5d8fc8"
 
   label $c.lfr2.labTok -font FontNSN -justify left -text "Введите метку токена"  -anchor w 
   #-width 20
@@ -9284,7 +9287,7 @@ set caent [cframe new $c.pca -type centry -stroke gray85 -fontsize 2m -rx 1m]
     grid columnconfigure $c 1 -weight 1
     label $c.lyear -text "Определите срок действия сертификата (в годах и днях):"  -bg skyblue
 set mm3 [winfo pixels $c 3m]
-    grid $c.lyear -row 5 -column 0 -columnspan 3 -sticky we -padx {1m 0} -pady 0
+    grid $c.lyear -row 5 -column 0 -columnspan 3 -sticky we -padx {1m 2m} -pady 0
     spinbox $c.years -from 0 -to 25 -state readonly -textvariable ::yearcert -justify right -width 5 -highlightthickness 0 -readonlybackground snow -font "-size $mm3" -foreground black -bd 0
     grid $c.years -row 6 -column 0 -columnspan 3 -sticky w -padx {0 1m} -pady 0
 #    ttk::label $c.ld -textvariable ::dayscert2
@@ -9296,8 +9299,8 @@ set mm3 [winfo pixels $c 3m]
 #    grid $c.ld -row 6 -column 0 -columnspan 1 -sticky e -padx 0 -pady 2
     grid $c.days -row 6 -column 0 -columnspan 3 -sticky e -padx {0 0} -pady 0
     set clfr12 [cframe new $c.lfr12 -type clframe -text "Пароль для контейнера PKCS#12:" -rx 1m -strokewidth 0.5m]
-    $clfr12 boxtext
     $clfr12 config -fillnormal snow -fontsize 3.5m -fillbox wheat -stroke "#5d8fc8"
+    $clfr12 boxtext
 
     label $c.lfr12.lpw -text "Пароль для PKCS#12:"  -anchor w -font TkDefaultFontBold
 #    entry $c.pw  -show * -textvariable ::pw -highlightthickness 1 -highlightbackground skyblue -highlightcolor skyblue
@@ -9669,7 +9672,7 @@ foreach {a b} $::list_but {
   } else {
     set labgl [cbutton new .st.fr1.fra82.b$i -type rect -strokewidth 0 -fillnormal white  -command {} -stroke {} -strokeenter "#f5f5f5" -fillenter "#d9e8f6" -width 2.8c -height 5m -state normal]
   }
-  $labgl changestrwidth
+#  $labgl changestrwidth
     set ::fra82b($i) $labgl
     $labgl config -fontfamily "$::svgFont" -fontsize 3.5m -fontweight normal
 $labgl config -command "changecolorpress1 [set i];[set a]"
@@ -9837,22 +9840,15 @@ set ::gfilent [$::fra82b(1) config -fillenter]
 set ::gfilpres [$::fra82b(1) config -fillpress]
 $::fra82b(0) config -fillnormal "#b4ccea"
 
-#Проверить для SVG
-#.st.fr1.fra82.b$i configure -image vgrlines_v
-#.st.fr1.fra82.b11 configure -image vgrlines_cloud
-
 ttk::style configure TFrame -background  white -highlightthickness 0
-#ttk::frame .st.fr1.fra82.stend -pad 0 -padding 0 -style TFrame 
 frame .st.fr1.fra82.stend -background  white -highlightthickness 0
 
 
 #ttk::button .st.fr1.fra82.stend.bute -text "  Выход  "  -image exitCA_16x16 -compound left -command {exit} -style MyBorder.TButton -padding 0
 set labgl [cbutton new .st.fr1.fra82.stend.bute -type ellipse  -strokewidth 1 -text "Выход" -command {exitarm "Вы действительно\nхотите выйти?"} -width 3c]
-#set labgl [cbutton new .st.fr1.fra82.stend.bute -type round  -strokewidth 1 -text "Выход" -command {exit}]
 
 #ttk::label .st.fr1.fra82.stend.lab -image endfunc_24x24 -compound left  -borderwidth 0 -background white
 set labgl [ibutton new .st.fr1.fra82.stend.lab -text "" -width 1.5c -fillenter "##" -fillnormal white  -command {} -strokewidth 0 -stroke {} -fillpress "##"  -pad "0 0 0 0"]
-#  -fillenter "##"
 #Стрелка вниз и вправо
 if {$::svg2can::matrix == "::tkp::matrix"} { 
     set  ii [.st.fr1.fra82.stend.lab create group -m {{1 0} {0 1} {0 0}} ]
@@ -9869,10 +9865,8 @@ set ::labend $labgl
 [$labgl canvas] delete $ii
 
 pack .st.fr1.fra82.stend.lab -side left -pady {0 0} -padx "1.6m 0"  -fill none -expand 0 -anchor nw
-###pack $tekfr.stfirst.br -side left -pady 0 -padx 0 -anchor w
 pack .st.fr1.fra82.stend.bute -side left -pady {3.0m 0} -padx {1m 1c} -anchor nw -fill both -expand 1
 pack .st.fr1.fra82.forbut -side top  -padx {0 0} -pady {0 0} -anchor center -ipady 0 -fill both -expand 1
-#    pack $tekfr.forbut -side top  -padx {0 0} -pady {0 0} -anchor w -fill both -expand 1
 
 pack .st.fr1.fra82.stend -side top -padx {0 0} -anchor nw -fill x -pady {0 } -ipady 0 -expand 1
 $labgl config -pad "1 0 -2 0"
@@ -9886,14 +9880,9 @@ update
 #after 30
 puts "WIDTH fr1 [winfo width .st.fr1]"
 set wfr1 [winfo width .st.fr1]
-#labelframe .st.fr3 -relief flat -text "Выберите библиотеку PKCS#11 для токена" -font TkDefaultFontBold -bg snow -bd 3 -pady 3 -highlightthickness 2 -highlightbackground #5d8fc8  -highlightcolor #5d8fc8
-    set clfr [cframe new .st.fr3 -type clframe -text "Выберите библиотеку PKCS#11 для токена" -height 3.5c -rx 2 -strokewidth 2]
-# -width $wfr1
-    [$clfr canvas] configure -background "#eff0f1"
+    set clfr [cframe new .st.fr3 -type clframe -text "Выберите библиотеку PKCS#11 для токена" -height 3.5c -rx 2 -strokewidth 2 -fillnormal snow -fontsize 3.5m -fillbox cyan -stroke "#5d8fc8" -background "#eff0f1"]
+    set ::frlib  $clfr
     $clfr boxtext
-    $clfr config -fillnormal snow -fontsize 3.5m -fillbox cyan -stroke "#5d8fc8"
-
-
 
 label .st.fr3.lablib -relief flat -text "Библиотека PKCS#11:" -font TkDefaultFontBold -bg snow -anchor w -padx 0
 pack .st.fr3.lablib -in .st.fr3 -side left -expand 0 -fill none -padx 1.5m -ipady 0 -pady {5m 2m}

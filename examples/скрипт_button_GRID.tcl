@@ -98,9 +98,10 @@ pack $t.rdch.but4 -in $t.rdch  -padx 1c -pady "5m 5m" -fill both -expand 1 -anch
 grid [$clfrv canvas] -in $t.c -row 1  -column 1 -padx "5m 5m" -pady 1c -sticky nswe -ipadx 1c
 
 
-set clfrv [cbutton new $t.rdch1 -type frame -rx 5m -strokewidth 1 -stroke gray76 -fillnormal snow -bg yellow]
+set clfrv [cframe new $t.rdch1 -type clframe -text "Кнопки circle и  square" -rx 5m -strokewidth 1 -stroke gray76 -fillnormal snow -bg yellow -fillbox cyan]
+$clfrv boxtext
 
-set rc0 [cbutton new $t.rdch1.lab -type rect  -text "Кнопки circle и  square" -rx 2m -state disabled -bg snow -fontweight bold]
+set rc0 [cbutton new $t.rdch1.lab -type rect -text "Кнопки circle и  square" -rx 2m -state disabled -bg snow -fontweight bold]
 
 
 set rc1 [cbutton new $t.rdch1.but1 -type circle  -text Circle1]
@@ -112,7 +113,7 @@ set rc5 [cbutton new $t.rdch1.but5 -type circle  -text Круг]
 #set rc6 [cbutton new $t.rdch1.but6 -type square  -text Квадрат]
 set rc6 [cbutton create Квадрат $t.rdch1.but6 -type square -text Квадрат ]
 [$rc6 canvas] configure -bg [$clfrv config -fillnormal]
-$rc0 pack -in [$clfrv canvas] -padx 2m -pady "3m 0"
+$rc0 pack -in [$clfrv canvas] -padx 2m -pady "5m 0"
 $rc1 pack -in [$clfrv canvas] -padx 1c -pady "5m 0" -anchor nw
 $rc2 pack -in [$clfrv canvas] -padx 1c -pady "5m 0" -anchor nw
 $rc5 pack -in [$clfrv canvas] -padx 1c -pady "5m 0" -fill both -expand 1 -anchor nw

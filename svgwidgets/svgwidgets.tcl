@@ -3941,12 +3941,23 @@ set ::methscaleGroup {
     }
 #Масштабирования шрифта
     if {[catch {$wcan itemcget $id -fontsize} result]==0} {
+#puts "scaleGroup: [lindex [$wcan itemcget $id -tag] 3]"
 	set u $id
         set fsize [expr {$FontS($u,fontsize)*$Canv(xscale)}]
         if {$fsize != $result} {
             $wcan itemconfigure $id -fontsize $fsize
-        }
-      }
+	}
+	set idtag [lindex [$wcan itemcget $id -tag] 3]
+	set obj "[string range $idtag 7 end]"
+	if {[string range $obj 0 2 ] == "Obj"} {
+	    set rid "::oo::$obj"
+	} else {
+	    set rid "::$obj"
+	}
+	if {[$rid type] == "clframe"} {
+	    $rid boxtext
+	}
+    }
    }
     catch {unset FontS}
   }
@@ -5803,15 +5814,22 @@ oo::class create cframe {
 	if {$hy1 <= [expr {$swidth * 2.0}] || $wx1 <= [expr {$swidth * 2.0}]} {
 	    return
 	}
-	set x1 [expr {$wx - $swidth / 2.0}]
-	set y1 [expr {$hy - $swidth / 2.0}]
+	set x1 [expr {$wx - $swidth / 0.5}]
+	set y1 [expr {$hy - $swidth / 0.5}]
 	if {$tbut == "clframe"} {
-	    $wcan itemconfigure $idt -fontsize [winfo fpixels $wcan $Options(-fontsize)]
+#Масштабирование шрифта
+	    set x1 [expr {$wx - $swidth / 2.0}]
+	    set y1 [expr {$hy - $swidth / 2.0}]
+	    lassign [$wcan bbox $idt] tx0 ty0 tx1 ty1
+	    lassign [$wcan bbox $idr] rx0 ry0 rx1 ry1
+	    if {[expr {$tx1 - $tx0}] > [expr {$rx1 - $rx0}] || [expr {$ty1 - $y0}] > [expr {$ry1 - $ry0}] } {
+		$wcan itemconfigure $idt -fontsize [winfo fpixels $wcan $Options(-fontsize)]
+	    }
 	    $wcan itemconfigure $idr -strokewidth [winfo fpixels $wcan $Options(-strokewidth)]
 
 	    set fonts [$wcan itemcget $idt -fontsize]
 	    set wstr [$wcan itemcget $idr -strokewidth]
-	    $wcan coords $idr [expr {$swidth / 2.0}] [expr {($fonts + $wstr) / 2.0}] $x1 $y1
+	    $wcan coords $idr [expr {$wstr / 2.0}] [expr {($fonts + $wstr) / 2.0}] [expr {$x1 - $wstr}] [expr {$y1 - $wstr/2.0}]
 	} else {
 	    $wcan coords $idr [expr {$swidth / 2.0}] [expr {$swidth / 2.0}] $x1 $y1
 	}
@@ -5850,14 +5868,30 @@ oo::class create cframe {
     if {$tbut != "clframe"} {
 	return
     }
-    if {[info exists bidt]} {
-	$wcan delete $bidt
+    if {$fr == 1} {
+	lassign [$wcan coords $idt] xc yc
+	$wcan coords $idt $xc 0
     }
-
     foreach {xt0 yt0 xt1 yt1} [$wcan bbox $idt] {break}
     if {[info exist yt1]} {
-	set bidt [$wcan create [set prect] $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags [list Rectangle boxtext $canvasb $btag] -stroke ""] 
-	$wcan lower $bidt $idt
+	if {[info exists bidt]} {
+	    $wcan coords $bidt $xt0 $yt0 $xt1 $yt1
+	} else {
+	    set bidt [$wcan create [set prect] $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags [list Rectangle boxtext $canvasb $btag] -stroke ""] 
+	    $wcan lower $bidt $idt
+	}
+	if {[info exists idt]} {
+	    foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
+#puts "x0=$x0 y0=$y0 x1=$x1 y1=$y1"
+	    set fonts [$wcan itemcget $idt -fontsize]
+	    set wstr [$wcan itemcget $idr -strokewidth]
+	    lassign [$wcan coords $idt] x0t y0t
+	    if {$fr == 1 } {
+		$wcan coords $idr $x0  [expr {($fonts + $wstr) / 2.0}] $x1 $y1
+	    } else {
+		$wcan coords $idr $x0  [expr {$y0t + ($fonts + $wstr) / 2.0}] $x1 $y1
+	    }
+	}
     }
   }
 
@@ -5932,10 +5966,19 @@ oo::class create cframe {
     		if {$tbut == "clframe"} {
     		    set Options($option) $value
 		    if {[info exists idt]} {
+    foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
+#puts "x0=$x0 y0=$y0 x1=$x1 y1=$y1"
+    set swidth [$wcan itemcget $idr -strokewidth]
 			$wcan itemconfigure $idt -fontsize [winfo fpixels $wcan $value]
 			if {[info exists bidt]} {
 			    my boxtext
 			}
+
+	    set fonts [$wcan itemcget $idt -fontsize]
+	    set wstr [$wcan itemcget $idr -strokewidth]
+	    lassign [$wcan coords $idt] x0t y0t
+	    $wcan coords $idr [expr {$x0 - $swidth / 2.0 + $wstr / 2.0}] [expr {$y0t + ($fonts + $wstr) / 2.0}] $x1 $y1
+
 		    }
 		} elseif {$tbut == "centry" || $tbut == "cspin" || $tbut == "ccombo"} {
     		    set Options($option) $value

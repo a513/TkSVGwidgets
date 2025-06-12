@@ -214,3 +214,4 @@ bind $t <ButtonRelease-3> {selwsvg %W %X %Y}
 update
 set vrc1 1
 set vrc4 1
+console hide
