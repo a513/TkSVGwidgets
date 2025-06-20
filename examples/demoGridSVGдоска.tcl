@@ -116,20 +116,25 @@ puts "Проблемы с ходом: сюда ходить нельзя, кле
     if {$::tstep == "snow" } {
 	set ::tstep "red"
 	$::ared  config -fillnormal cyan
-	$::asnow config -fillnormal gradient1
+	if {$svgwidget::tkpath != "::tko::path"} {
+	    $::asnow config -fillnormal gradient1
+	} else {
+	    $::asnow config -fillnormal ::tko::gradient1
+	}
 
     } else {
 	set ::tstep "snow"
-	$::ared  config -fillnormal gradient1
+	if {$svgwidget::tkpath != "::tko::path"} {
+	    $::ared  config -fillnormal gradient1
+	} else {
+	    $::ared  config -fillnormal ::tko::gradient1
+	}
 	$::asnow config -fillnormal cyan
     }
     setcyan
 
-
-
-$oo config -fillnormal [$::fstep config -fillnormal] -fillenter [$::fstep config -fillenter] -fillpress [$::fstep config -fillpress]
-$::fstep config -fillnormal "" -fillpress "" -fillenter "##"
-
+    $oo config -fillnormal [$::fstep config -fillnormal] -fillenter [$::fstep config -fillenter] -fillpress [$::fstep config -fillpress]
+    $::fstep config -fillnormal "" -fillpress "" -fillenter "##"
 
     set sl1 [string range $bstart 3 3]
     set sl2 [string range $bstart 4 4]
@@ -142,7 +147,6 @@ $::fstep config -fillnormal "" -fillpress "" -fillenter "##"
 puts "sl1=$sl1 snl1=$snl1 snl1next=$snl1next tsnl1next=$tsnl1next"
 puts "Вы ($oldstep) сделали ход [string range [$::fstep canvas] 3 4] - [string range [$oo canvas] 3 4]"
 	set ::fstep ""
-
 }
 
 proc setcyan {} {
@@ -151,13 +155,25 @@ proc setcyan {} {
     for {set i 0} {$i < 8} {incr i} {
 	if {$::tstep == "red" } {
 	    ::oo::Obj$ared  config -fillnormal cyan
-	    ::oo::Obj$asnow config -fillnormal gradient1
+	    if {$svgwidget::tkpath != "::tko::path"} {
+		::oo::Obj$asnow config -fillnormal gradient1
+	    } else {
+		::oo::Obj$asnow config -fillnormal ::tko::gradient1
+	    }
 	} else {
-	    ::oo::Obj$ared  config -fillnormal gradient1
+	    if {$svgwidget::tkpath != "::tko::path"} {
+		::oo::Obj$ared  config -fillnormal gradient1
+	    } else {
+		::oo::Obj$ared  config -fillnormal ::tko::gradient1
+	    }
 	    ::oo::Obj$asnow config -fillnormal cyan
 	}
 	incr ared
 	incr asnow
+	if {$svgwidget::tkpath == "::tko::path"} {
+	    incr ared
+	    incr asnow
+	}
     }
 }
 
@@ -184,36 +200,24 @@ proc ci {id} {
     }
 	if {[lsearch $cwb $l] != -1} {
 	    if {$image ==  "checkerRed"} {
-		set bred [cbutton new .cb$id -type circle -width 10m -height 10m -text "" -strokewidth 1 -stroke "" -fillenter orangered -fillpress red1 -relcom 1]
-		.cb$id configure -bg black
+		set bred [cbutton new .cb$id -type circle -width 10m -height 10m -text "" -strokewidth 1 -stroke "" -fillenter orangered -fillpress red1 -relcom 1 -bg black]
 		set grad1 [[$bred canvas] gradient create radial -stops {{0 gray95} {1 gray70}} -radialtransition {0.6 0.4 0.5 0.7 0.3}]
 		set grad2 [[$bred canvas] gradient create radial -stops {{0 snow} {1 red}}]
 		$bred config -fillnormal $grad2
 #Цвет черных шашек
 		set ::bcolor [$bred config -fillpress ]
-#		 -command [subst {puts "$bred : .cb$id \$x \$y \[grid location .  \[expr {\$x - \[winfo rootx .\]}\] \[expr {\$y - \[winfo rooty .\]}\]]"}]
 	    } elseif {$image ==  "checkerWhite"} {
-		set bred [cbutton new .cb$id -type circle -width 10m -height 10m -text "" -strokewidth 1 -stroke ""  -fillenter gray84 -fillpress snow -relcom 1]
-		.cb$id configure -bg black
+		set bred [cbutton new .cb$id -type circle -width 10m -height 10m -text "" -strokewidth 1 -stroke ""  -fillenter gray84 -fillpress snow -relcom 1 -bg black]
 		set grad1 [[$bred canvas] gradient create radial -stops {{0 gray95} {1 gray70}} -radialtransition {0.6 0.4 0.5 0.7 0.3}]
 		set grad2 [[$bred canvas] gradient create radial -stops {{0 snow} {1 red}}]
 		$bred config -fillnormal $grad1
 #Цвет белых шашек
 		set ::wcolor [$bred config -fillpress ]
-
-#		 -command [subst {puts "$bred : .cb$id \$x \$y \[winfo containing \$x \$y \]"}]
-		
 	    } else {
-#		set bred [ibutton new .cb$id -width 10m -height 10m -text "" -fillnormal black -image "$image" -strokewidth 1 -stroke "" -relcom 1]
-		set bred [cbutton new .cb$id -type circle -width 10m -height 10m -text "" -strokewidth 1 -stroke ""  -fillnormal "" -fillenter "" -fillpress "" -relcom 1]
+		set bred [cbutton new .cb$id -type circle -width 10m -height 10m -text "" -strokewidth 1 -stroke ""  -fillnormal "" -fillenter "" -fillpress "" -relcom 1 -bg black]
 		set grad1 [[$bred canvas] gradient create radial -stops {{0 gray95} {1 gray70}} -radialtransition {0.6 0.4 0.5 0.7 0.3}]
 		set grad2 [[$bred canvas] gradient create radial -stops {{0 snow} {1 red}}]
-		.cb$id configure -bg black
-
-
-#		$bred config  -command [subst {puts "$bred : .cb$id \$x \$y \[winfo containing \$x \$y \]"}]
 	    }
-#		$bred config  -command [subst {puts "$bred : .cb$id \$x \$y \[winfo containing \$x \$y \]"}]
 		$bred config  -command [subst {step $bred  .cb$id  \[winfo containing \$x \$y \]}] -relcom 0
 	} else {
 	    return "x"
@@ -276,11 +280,9 @@ proc initPos {} {
 	incr j
 #    grid [n $i] x x x x x x x x [n 1$i] -sticky nws
     }
-set ::tstep snow
+    set ::tstep snow
     setcyan
 }
-
-
 
 . configure -height 450 -width 450
 grid propagate . 0
@@ -290,8 +292,6 @@ grid [a nw] [a A1] [a B1] [a C1] [a D1] [a E1] [a F1] [a G1] [a H1] [a ne] -stic
 grid configure .frnw -sticky nw
 grid configure .frne -sticky nw
 for {set i 8} {$i > 0} {incr i -1} {
-
-#    grid [n $i] [ci a$i] [ci b$i] [ci c$i] [ci d$i] [ci e$i] [ci f$i] [ci g$i] [ci h$i] [n 1$i] -sticky nws
     grid [n $i] x x x x x x x x [n 1$i] -sticky nws
 }
 #Низ доски
@@ -299,25 +299,16 @@ grid [a sw] [a A] [a B] [a C] [a D] [a E] [a F] [a G] [a H] [a se] -sticky ne
 grid configure .frsw -sticky nw
 grid configure .frse -sticky nw
 
-#grid [button .b -text Close -command exit -bd 4] -row 6 -column 3 -rowspan 2 -columnspan 2
-
-
 grid columnconfigure . "0 1 2 3 4 5 6 7 8 9" -weight 3 -uniform a
 grid columnconfigure . "0 9" -weight 1
 grid rowconfigure . "1 2 3 4 5 6 7 8 " -weight 1 -uniform b
-#grid rowconfigure . 0 -weight 1 
-#grid rowconfigure . 9 -weight 1 
-
-#	wm resizable . 0 0
 
 initPos
 update
-#after 2000
-#initPos
-
 
 wm minsize . 450 450
-#wm iconphoto . checkerWhite
+wm iconphoto . checkerWhite
 wm title . "Шашки с svg-фигурами"
 wm geometry . +200+100
 setcyan
+

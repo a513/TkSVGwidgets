@@ -4004,8 +4004,14 @@ set ::methscaleGroup {
         if {$fsize != $result} {
             $wcan itemconfigure $id -fontsize $fsize
 	}
-	set idtag [lindex [$wcan itemcget $id -tag] 3]
+	set ootag [$wcan itemcget $id -tag]
+	if {[lindex $ootag 0] == "boxText"} {
+	    set idtag [lindex [lindex $ootag 1] 1]
+	} else {
+	    set idtag [lindex $ootag 3]
+	}
 	set obj "[string range $idtag 7 end]"
+#puts "scaleGroup: $wcan=$wcan id=$id tag=$ootag OBJ=$obj"
 	if {[string range $obj 0 2 ] == "Obj"} {
 	    set rid "::oo::$obj"
 	} else {
@@ -4020,7 +4026,6 @@ set ::methscaleGroup {
   }
   method resizeGroup {} {
     eval "bind $wcan <Configure> {[self] scaleGroup %w %h; [self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
-#    eval "bind $wcan <Configure> {[self] scaleGroup %w %h; [self] resize %w %h 0; [self] config -fillopacity \[[self] config -fillopacity]}"
   }
 }
 oo::define ibutton {

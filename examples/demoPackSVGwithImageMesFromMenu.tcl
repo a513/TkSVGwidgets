@@ -163,7 +163,12 @@ pack propagate $t 0
 $t configure -bg cyan
 frame $t.frame -bg yellow
 pack $t.frame -fill both -expand 1 -padx 2m -pady 2m 
-tkp::canvas $t.c
+if {[info exist ::svgwidget::tkpath]} {
+    [set ::svgwidget::tkpath] $t.c -bd 0 -highlightthickness 0
+} else {
+    tkp::canvas $t.c -bd 0 -highlightthickness 0
+}
+
 set svgf [folderbrown $t.c]
 set svge [iconExitL $t.c "tan1"]
 set mside [list up left down right up left down right up left down right]
