@@ -124,7 +124,8 @@ set grforb1 [[$b1 canvas] gradient create radial -method pad -units bbox -stops 
 
 #[$b1 canvas ] configure -bg [$t.c cget -bg]
 #Или
-$t.frame configure -bg [$t.c cget -bg]
+#$t.frame configure -bg [$t.c cget -bg]
+$b1 config -bg [$rfr config -fillnormal]
 
 set bg [$b1 config -fillnormal]
 set xa1 [cbutton create Прямоугольник $t.frame.but1 -type rect  -text Прямоугольник -fontweight bold -compound left]
@@ -154,7 +155,9 @@ set clfrv [cframe new $t.rdch -type clframe -text "radio/check кнопки" -rx
 set gradCloud [[$clfrv canvas] gradient create linear -method pad -units bbox \
     -stops { { 0.05 "#87ceeb" 1.00} { 0.17 "#ffffff" 1.00} { 0.29 skyblue 1.00} { 0.87 "#ffffff" 1.00} { 1.00 skyblue 1.00}} -lineartransition {1.00 0.00 0.75 1.00} ]
 
-[$clfrv canvas] configure -background [$t.c cget -background]
+#[$clfrv canvas] configure -background [$t.c cget -background]
+$clfrv config -background [$rfr config -fillnormal]
+
 $clfrv boxtext
 $clfrv config -fontsize 3.5m -fillbox cyan
 

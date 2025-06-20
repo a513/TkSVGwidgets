@@ -24,11 +24,11 @@ namespace eval ::svgwidget {
     }
 
 proc clearclass {{wsclass "cbutton ibutton mbutton cmenu cframe"}}  {
-    foreach {wclass} $wsclass {
+    foreach {wdclass} $wsclass {
 	set listoo -1
-	catch {set listoo [info class instances $wclass]}
+	catch {set listoo [info class instances $wdclass]}
 	if {$listoo == -1} {
-    	    error "svgwidget::clearclass: Unknown class=$wclass: must be \"\[cbutton\] \[ibutton\] \[mbutton\] \[cmenu\] \[cframe\]\""
+    	    error "svgwidget::clearclass: Unknown class=$wdclass: must be \"\[cbutton\] \[ibutton\] \[mbutton\] \[cmenu\] \[cframe\]\""
     	    return
 	}
 	foreach {oo} $listoo {
@@ -37,9 +37,9 @@ proc clearclass {{wsclass "cbutton ibutton mbutton cmenu cframe"}}  {
     }
 }
 proc destroyclass {{wsclass "cbutton ibutton mbutton cmenu cframe"}}  {
-    foreach {wclass} $wsclass {
-	if {[catch {$wclass destroy}] == 1} {
-    		error "svgwidget::destroyclass: Unknown class=$wclass: must be \"\[cbutton\] \[ibutton\] \[mbutton\] \[cmenu\] \[cframe\]\""
+    foreach {wdclass} $wsclass {
+	if {[catch {$wdclass destroy}] == 1} {
+    		error "svgwidget::destroyclass: Unknown class=$wdclass: must be \"\[cbutton\] \[ibutton\] \[mbutton\] \[cmenu\] \[cframe\]\""
     		return
 	}
     }
@@ -199,6 +199,7 @@ oo::class create cbutton {
 #idt - текст
 #idr - прямоугольник вокруг кнопки
 #idm - маркер radio/check button
+#idbg - прямоугольник для эмуляции -background у холста
 #idg - группв, объединяющая idr,idt и $idm
 #Переменные для check и radio должны быть глобальными, т.е. начинаться с ::  !!!!!!
   variable wcan
@@ -208,6 +209,7 @@ oo::class create cbutton {
   variable idm
   variable idt
   variable tbut
+  variable idbg
   variable nexttag
   variable onemm2px
   variable canvasb
@@ -262,6 +264,7 @@ oo::class create cbutton {
 # Отступ слева, ширина, отступ сверху, отступ снизу
     set  Options(-ipad) [list 1m 1m 1m 1m]
     set Options(-strokewidth) 1
+#    set Options(-strokeopacity) 1.0
     set fr 0
     set Options(-x) 0
     set Options(-y) 0
@@ -456,6 +459,7 @@ oo::class create cbutton {
 	set pxr [winfo fpixels $wcan $pxr]
 	set pyl [winfo fpixels $wcan $pyl]
 	set pyr [winfo fpixels $wcan $pyr]
+
 	switch $type {
 	    rect -
 	    round -
@@ -523,6 +527,7 @@ oo::class create cbutton {
 	    }
 	}
     }
+
     set x1 [winfo fpixels $wcan $Options(-x)]
     set y1 [winfo fpixels $wcan $Options(-y)]
     unset Options(-x)
@@ -542,9 +547,12 @@ oo::class create cbutton {
 	$wcan configure -height $entwidth
     }
 
+    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
     if {$fr} {    
 	set ch [$wcan cget -height]
 	set cw [$wcan cget -width]	
+#Эмуляция background для холста
+	set idbg [$wcan create [set prect] $x1 $y1 [expr {$x1 + $cw}] [expr {$y1 + $ch}] -stroke {} -strokewidth 0 -fill chocolate -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]] 
     } else {
 	set ch [winfo fpixels $wcan $Options(-height)]
 	set cw [winfo fpixels $wcan $Options(-width)]
@@ -557,7 +565,6 @@ oo::class create cbutton {
     set yr2 [expr {$y1 + $hrr}]
 
 #puts "cbutton type=$type x1=$x1 y1=$y1"
-    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
 
     set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 
@@ -621,6 +628,10 @@ set coordsidr [$wcan coords $idr]
     }
 
     if {$fr == 1} {
+	lassign [$wcan coords $idbg] x0 y0 x1 y1
+	$wcan coords $idbg $x0 $y0 [my config -width] [my config -height]
+	$wcan lower $idbg $idr
+    
 	if {$tbut == "frame"} {
 	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
 #	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillopacity \[[self] config -fillopacity]}"
@@ -1046,6 +1057,11 @@ if {0} {
 	}
     }
 }
+    if {[info exists idbg] && $fr == 1} {
+	lassign [$wcan coords $idbg] x1 y1 x2 y2
+	$wcan coords $idbg $x1 $y1 [winfo width $wcan] [winfo height $wcan]
+    } 
+
 
   }
 
@@ -1077,15 +1093,16 @@ if {0} {
 #puts "Error args length: $args"
       error "use is: <object> config ?-option value?...\nargs=$args" 
     }
-
-    foreach {option value} $args {
+    foreach {option value} "$args" {
         switch $option \
         {
 	    -background -
 	    -bg {
 		if {$fr} {
 		    set  Options(-background) $value
-		    $wcan configure -background $value
+    		    if {[info exists idr]} {
+			$wcan itemconfigure $idbg -fill $value
+		    }
 		}
 	    }
     	    -menu {
@@ -1661,9 +1678,14 @@ if {[$wcan bbox $isvg] != ""} {
 		set  Options($option) $value
 		set val [winfo fpixels $wcan $value]
 		set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
+			if {[info exists idbg] && $fr == 1} {
+			    lassign [$wcan coords $idbg] x1 y1 x2 y2
+			    set x2 [expr {$x1 + $val}]
+			    $wcan coords $idbg $x1 $y1 $x2 $y2
+			} 
 		if { $tbut == "frame"} {
 		    if {[info exists idr]} {
-    		set Options($option) $value
+    			set Options($option) $value
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 			set x2 [expr {$x1 + $val}]
 			$wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2}]  [expr {$y2 - $strwidth }]
@@ -1768,6 +1790,11 @@ if {[$wcan bbox $isvg] != ""} {
 		set val [winfo fpixels $wcan $value]
 		set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 #Размер масштабирования
+			if {[info exists idr] && $fr == 1} {
+			    lassign [$wcan coords $idbg] x1 y1 x2 y2
+			    set y2 [expr {$y1 + $val}]
+			    $wcan coords $idbg $x1 $y1 $x2 $y2
+			} 
 		if {$tbut == "frame"} {
 		    if {[info exists idr]} {
 			foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
@@ -1971,7 +1998,7 @@ if {[$wcan bbox $isvg] != ""} {
 		}
     	    }
     	    -strokeopacity {
--    		set Options($option) $value
+    		set Options($option) $value
 		if {[info exists idr]} {
 		    if { $tbut != "check" && $tbut != "radio"} {
 			$wcan itemconfigure $idr $option $value
@@ -2147,11 +2174,12 @@ if {[$wcan bbox $isvg] != ""} {
 
   destructor {
     if {[winfo exists $wcan]} { 
-
-	$wcan bind $idor <Enter> {}
-	$wcan bind $idor <Leave> {}
-	$wcan bind $idor <ButtonPress-1> {}
-	$wcan bind $idor <ButtonRelease-1> {}
+	if {[info exist idor]} {
+	    $wcan bind $idor <Enter> {}
+	    $wcan bind $idor <Leave> {}
+	    $wcan bind $idor <ButtonPress-1> {}
+	    $wcan bind $idor <ButtonRelease-1> {}
+	}
 	$wcan bind $idr <Enter> {}
 	$wcan bind $idr <Leave> {}
 	$wcan bind $idr <ButtonPress-1> {}
@@ -2200,6 +2228,7 @@ oo::class create ibutton {
 #idor - прозрачный прямоугольник вокруг картинки
 #idi - картинка
 #idh - подсказка
+#idbg - прямоугольник для эмуляции -background у холста
   variable wcan
   variable Canv
   variable idr
@@ -2207,13 +2236,14 @@ oo::class create ibutton {
   variable idt
   variable idi
   variable idh
+  variable idbg
   variable nexttag
   variable onemm2px
   variable canvasb
   variable btag
   variable fr
   variable wclass
-    variable Options
+  variable Options
   variable wlast
   variable hlast
   variable wpad
@@ -2369,13 +2399,17 @@ oo::class create ibutton {
     set x2 [expr {$x1 + $wr }]
     set y2 [expr {$y1 + $hr }]
 
+    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
+    if {$fr == 1} {
+	set idbg [$wcan create [set prect] $x1 $y1 [expr {$x1 + $wr}] [expr {$y1 + $hr}] -stroke {} -strokewidth 0 -fill chocolate -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]]
+    }
     set idr [$wcan create [set prect] $x1 $y1 $x2 $y2 -strokelinecap butt -stroke {} -strokewidth 0]
     my changestrwidth
 
     foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
-    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
 
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -strokelinejoin $Options(-strokelinejoin) -stroke $Options(-stroke)  -rx $Options(-rx) -tags [list Rectangle obj $canvasb $btag [linsert $btag end rect] utag$idr] -fill {}
+    
 
     set idr "utag$idr"
 #Метка кнопки
@@ -2434,14 +2468,12 @@ oo::class create ibutton {
 	foreach {x1 y1 x2 y2} [$wcan bbox $btag] {break}
 	set wlast [expr {$x2 + $x1 * 1.5}]
 	set hlast [expr {$y2 + $y1 * 1.5}]
-    }
-    if {$fr == 1} {
+
 	eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
+	lassign [$wcan coords $idbg] x0 y0 x1 y1
+	$wcan coords $idbg $x0 $y0 [my config -width] [my config -height]
+	$wcan lower $idbg $idr
     }
-
-#    set $Options(-image) $imageOrig
-#    my config -image $Options(-image)
-
   }
 
   method canvas {} {
@@ -2581,8 +2613,13 @@ oo::class create ibutton {
     set nheight [winfo fpixels $wcan $hy]
 
 #puts "my config -height $nheight -width $nwidth"
-    my config -width $nwidth
-    my config -height $nheight -width [my config -width]
+    my config -width $nwidth  -height $nheight
+#    my config -height $nheight -width [my config -width]
+    if {[info exists idbg] && $fr == 1} {
+	lassign [$wcan coords $idbg] x1 y1 x2 y2
+	$wcan coords $idbg $x1 $y1 [winfo width $wcan] [winfo height $wcan]
+    } 
+
   }
 
   method press {} {
@@ -2682,7 +2719,11 @@ oo::class create ibutton {
 #Чтение значения аттрибута
 	if {[llength $args] == 1} {
 #puts "config $args : $Options($args)"
-	    return $Options($args)
+	    if {$args == "-bg"} {
+		return $Options(-background)
+	    } else {
+		return $Options($args)
+	    }
 	}
 #puts "Error args length: $args"
       error "use is: <object> config ?-option value?...\nargs=$args" 
@@ -2693,7 +2734,9 @@ oo::class create ibutton {
 	    -bg {
 		if {$fr} {
 		    set  Options(-background) $value
-		    $wcan configure -background $value
+    		    if {[info exists idbg]} {
+			$wcan itemconfigure $idbg -fill $value
+		    }
 		}
 	    }
     	    -menu {
@@ -2992,6 +3035,11 @@ oo::class create ibutton {
 		set val [winfo fpixels $wcan $value]
 		set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 		if {[info exists idi]} {
+			if {[info exists idbg] && $fr == 1} {
+			    lassign [$wcan coords $idbg] x1 y1 x2 y2
+			    set x2 [expr {$x1 + $val}]
+			    $wcan coords $idbg $x1 $y1 $x2 $y2
+			} 
 		    foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 		    set x2 [expr {$x1 + $val}]
 		    $wcan coords $idr $x1 $y1 [expr {$x2 - $strwidth / 2}] $y2
@@ -3020,6 +3068,11 @@ oo::class create ibutton {
 		set val [winfo fpixels $wcan $value]
 		set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 		if {[info exists idi]} {
+			if {[info exists idbg] && $fr == 1} {
+			    lassign [$wcan coords $idbg] x1 y1 x2 y2
+			    set y2 [expr {$y1 + $val}]
+			    $wcan coords $idbg $x1 $y1 $x2 $y2
+			} 
 		    foreach {x1 y1 x2 y2} [$wcan coords $idr] {break}
 		    set y2 [expr {$y1 + $val}]
 		    $wcan coords $idr $x1 $y1 $x2 [expr {$y2 - $strwidth / 2}]
@@ -3327,9 +3380,9 @@ set ::methodman {
 
 #Все svg-объекты
     set allobj ""
-    foreach {wclass} "cbutton ibutton mbutton cmenu cframe" {
+    foreach {wdclass} "cbutton ibutton mbutton cmenu cframe" {
 	set listoo -1
-	set listoo [info class instances $wclass]
+	set listoo [info class instances $wdclass]
 	foreach {oo} $listoo {
 	    foreach ww $slaves {
 		if {[$oo canvas] == $ww } {
@@ -3417,6 +3470,10 @@ set ::methodman {
     $wcan delete "fon"
     set fon [$wcan create [set pimage] 0 0 -image $screencan -anchor nw  -tags {fon} ]
     $wcan lower $fon
+    if {[info exist idbg]} {
+	$wcan lower $idbg
+    }
+
     if {$most == 0} {
 	wm attributes $rwin -topmost 0
     	update
@@ -3985,6 +4042,7 @@ oo::class create mbutton {
 #iidt - текст
 #idr - прямоугольник вокруг кнопки
 #idm - маркер radio/check button
+#idbg - прямоугольник для эмуляции -background у холста
 #idg - группв, объединяющая idr,idt и $idm
 #Переменные для check и radio должны быть глобальными, т.е. начинаться с ::  !!!!!!
 
@@ -3993,6 +4051,7 @@ oo::class create mbutton {
   variable idm
   variable idt
   variable idg
+  variable idbg
   variable tbut
   variable cbut
   variable cbut1
@@ -4206,11 +4265,13 @@ oo::class create mbutton {
     }   
 #puts "TYPE=$type x1=$x1 y1=$y1 x2=$x2 y2=$y2"
     set d [my coordspath "$x1 $y1" "$x2 $y2" $rx "$Options(-tongue)" $type]
-#puts "TYPE=$type path=$d"
+    if {$fr} {
+#Эмуляция background для холста
+	set idbg [$wcan create [set prect] $x1 $y1 $x2 $y2 -stroke {} -strokewidth 0 -fill chocolate -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]] 
+    }
     set idr [$wcan create path  "$d" -stroke {} -strokewidth 0] 
-#$wcan lower $idr
     set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
-    $wcan itemconfigure $idr -fill white -stroke black -strokewidth $strwidth  -tags [list Rectangle obj $canvasb $btag [linsert $btag end frame] utag$idr]
+    $wcan itemconfigure $idr -fill white -stroke black -strokewidth $strwidth -tags [list Rectangle obj $canvasb $btag [linsert $btag end frame] utag$idr]
     set idr "utag$idr"
 #puts "MBUTTON: btag=$btag"
     set tbox [my placetext $wcan "$Options(-text)" $xt $yt $anc]
@@ -4227,7 +4288,6 @@ oo::class create mbutton {
 
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke)
 #Сдвигается почему-то idr?????
-#    my config [array get Options]
 
     if {$type == "yesno"} {
 	set wyesno [expr {$x2 - $x1}]
@@ -4255,7 +4315,6 @@ oo::class create mbutton {
 
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) yes"
 	$cbut1 config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) no"
-
 	my config -state disabled
 	$cbut config -state normal
 	$cbut1 config -state normal
@@ -4283,7 +4342,6 @@ oo::class create mbutton {
 	}
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4
 
-
 #Переменная erm для ожидания ответа от пользователя (нажатия кнрпки Ок)
 #	$cbut config -command "global erm; [self] destroy; [set cbut] destroy; set erm 1"
 	$cbut config  -command "variable $Options(-variable); [set cbut] destroy;[self] destroy;set $Options(-variable) yes"
@@ -4309,11 +4367,14 @@ oo::class create mbutton {
 	foreach {x0 y0 x1 y1} [$wcan bbox 0] {break}
 #	$wcan configure -width [expr {$x1 + $x0}] -height [expr {$y1 + $y0}]
 	$wcan configure -width [expr {$x1}] -height [expr {$y1}]
+	lassign [$wcan coords $idbg] x0 y0 x1 y1
+	$wcan coords $idbg $x0 $y0 [my config -width] [my config -height]
+	$wcan lower $idbg $idr
+
     } else {
 	$wcan delete IDOR
     }
     if {$Options(-command) != ""} {
-#	set cmd [my config -command]
 	set cmd "variable $Options(-variable);$Options(-command);set $Options(-variable) yes"
 	my config -command $cmd
     }
@@ -4708,7 +4769,11 @@ oo::class create mbutton {
 #Чтение значения аттрибута
 	if {[llength $args] == 1} {
 #puts "config $args : $Options($args)"
-	    return $Options($args)
+	    if {$args == "-bg"} {
+		return $Options(-background)
+	    } else {
+		return $Options($args)
+	    }
 	}
 #puts "Error args length: $args"
       error "use is: <object> config ?-option value?...\nargs=$args" 
@@ -4721,7 +4786,9 @@ oo::class create mbutton {
 	    -bg {
 		if {$fr} {
 		    set  Options(-background) $value
-		    $wcan configure -background $value
+    		    if {[info exists idbg]} {
+			$wcan itemconfigure $idbg -fill $value
+		    }
 		}
 	    }
     	    -type -
@@ -4811,6 +4878,11 @@ oo::class create mbutton {
 		    set xx [winfo fpixels $wcan $value]
 		    set xx [expr {$xx + $strwidth * 2.0 }]
 		    $wcan configure $option $xx
+			if {[info exists idbg]} {
+			    lassign [$wcan coords $idbg] x1 y1 x2 y2
+			    set x2 [expr {$x1 + $val}]
+			    $wcan coords $idbg $x1 $y1 [$wcan cget -width] [$wcan cget -height]
+			} 
 		}
 	    }
 	    -deselect {
@@ -5402,7 +5474,11 @@ if {$fr == 1}  {
 #Чтение значения аттрибута
 	if {[llength $args] == 1} {
 #puts "config $args : $Options($args)"
-	    return $Options($args)
+	    if {$args == "-bg"} {
+		return $Options(-background)
+	    } else {
+		return $Options($args)
+	    }
 	}
 #puts "cframe Error args length: $args"
       error "use is: <object> config ?-option value?...\nargs=$args" 
@@ -5515,10 +5591,15 @@ oo::class create cframe {
   variable canvasb
   variable btag
   variable tbut
+#idt - текст
+#idr - прямоугольник вокруг кнопки
+#idbg - прямоугольник для эмуляции -background у холста
+#idg - группв, объединяющая idr,idt и $idm
   variable idr
   variable idt
   variable bidt
   variable idtb
+  variable idbg
   variable geotop 
   variable wclass
   variable onemm2px
@@ -5593,6 +5674,7 @@ oo::class create cframe {
     set Options(-rx) 		2m
     set Options(-fillnormal) 	""
     set Options(-stroke)	cyan
+    set Options(-strokeopacity) 1.0
 #    set Options(-width)		10c
 #    set Options(-height)	7c
     set Options(-width)		10m
@@ -5643,7 +5725,7 @@ oo::class create cframe {
 	    if {$fr == 1} {
 		destroy $wcan
 	    }
-    	    error "mbutton: Unknown type=$type: must be clframe, ccombo, cspin, centry, frame"
+    	    error "cframe: Unknown type=$type: must be clframe, ccombo, cspin, centry, frame"
 	}
     }
     my config $args
@@ -5749,14 +5831,19 @@ oo::class create cframe {
 	set cw [winfo fpixels $wcan $Options(-width)]
     }
 #puts "ch=$ch cw=$cw ycoords=$ycoords xc0=$xc0 yc0=$yc0 strwidth=$strwidth"
+    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
+    if {$fr} {
+	set ch [$wcan cget -height]
+	set cw [$wcan cget -width]	
+#Эмуляция background для холста
+	set idbg [$wcan create [set prect] $xc0 $yc0 [expr {$xc0 + $cw}] [expr {$yc0 + $ch}] -stroke {} -strokewidth 0 -fill $Options(-background) -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]] 
+    }
     if {$fr == 1 || $tbut == "clframe" } {
 	set idr [$wcan create [set prect] $xc0 [expr {$yc0 + $ycoords}] [expr {$xc0 + $cw}] [expr {$yc0 + $ch - $ycoords}] -stroke {} -strokewidth 0] 
     } else {
 	set idr [$wcan create [set prect] $xc0 $yc0 [expr {$xc0 + $cw}] [expr {$yc0 + $ch + $ycoords}] -stroke {} -strokewidth 0] 
     }
     my changestrwidth
-
-    set btag "canvasb[string range [self] [expr {[string last "::" [self]] + 2}] end]"
 
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -rx $crx -tags [list Rectangle obj $canvasb $btag $tbut [linsert $btag end $tbut] utag$idr]
     my changestrwidth $strwidth
@@ -5780,6 +5867,9 @@ oo::class create cframe {
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 	}
+#	lassign [$wcan coords $idbg] x0 y0 x1 y1
+	$wcan coords $idbg 0 0 [my config -width] [my config -height]
+	$wcan lower $idbg $idr
     }
 #puts "[self]"
     return self
@@ -5859,6 +5949,9 @@ oo::class create cframe {
 	foreach {x1 y1 x2 y2} [$wcan bbox $btag] {break}
 	$wcan configure -width [expr {$x2 + $x1}] -height [expr {$y2 + $y1}]
     }
+    if {[info exists idbg] && $fr == 1} {
+	$wcan coords $idbg 0 0 [winfo width $wcan] [winfo height $wcan]
+    } 
   }
 
   method canvas {} {
@@ -5928,7 +6021,9 @@ oo::class create cframe {
 	    -bg {
 		if {$fr} {
 		    set  Options(-background) $value
-		    $wcan configure -background $value
+    		    if {[info exist idbg]} {
+			$wcan itemconfigure $idbg -fill $value
+		    }
 		}
 	    }
 	    -x -
@@ -6295,11 +6390,11 @@ namespace eval ::gengrad {
   }
 
   proc cleargengrad {{wsclass "cbutton ibutton mbutton cmenu cframe"}}  {
-    foreach {wclass} $wsclass {
+    foreach {wdclass} $wsclass {
 	set listoo -1
-	catch {set listoo [info class instances $wclass]}
+	catch {set listoo [info class instances $wdclass]}
 	if {$listoo == -1} {
-    	    error "svgwidget::cleargengrad: Unknown class=$wclass: must be \"\[cbutton\] \[ibutton\] \[mbutton\] \[cmenu\] \[cframe\]\""
+    	    error "svgwidget::cleargengrad: Unknown class=$wdclass: must be \"\[cbutton\] \[ibutton\] \[mbutton\] \[cmenu\] \[cframe\]\""
     	    return
 	}
 	foreach {oo} $listoo {

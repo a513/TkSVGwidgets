@@ -49,20 +49,6 @@ switch -- $::tcl_platform(platform) {
 
 set ::I 0
 
-image create photo verchlefttoright_22x24 -data {
-  iVBORw0KGgoAAAANSUhEUgAAABYAAAAYCAYAAAD+vg1LAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAB3RJTUUH4wsCCSkSOfPvOgAAAB1p
-  VFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABA0lEQVRIx+2VPU7DQBBGnyMjIEYiUWoatgLOQpEiVzCHyg2iSC64gqsUbhKgWpp0UbLCMrsGYTEU
-  QRRBNsTCUgSMNNpiPr1dzc4PIkKZx3EsVfEqb9GQ/TJwURS1wZ6IlAattQRB8PPg3c/xPEUWFlMmXljMPEW2BhsH4yndpWO0KVw6RuMpXeNqvPikw1WvDdGMgckJPy7M
-  CaMZg157ran1eekTXN8hL6/Qv0ABRDfovRZcnuEdH4DW+lM6lFLel1XxkHMa3aK9d6kI9M9RnUPu4Xvg0iGychIOJyLDicjKSbjtEKqs48fn9Xm0/+caZNOyLGsGnCSJ
-  NAL2ff9/g+ww+A0jlOBr1hYU8QAAAABJRU5ErkJggg==
-}
-image create photo verchlefttoright1_24x24 -data {
-  iVBORw0KGgoAAAANSUhEUgAAABYAAAAYCAYAAAD+vg1LAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAB3RJTUUH4wsCCSERaCM0iAAAAB1p
-  VFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAh0lEQVRIx+2UTQqAIBCFNTpTLQTrZHW2N+i+TvRatarsRyaIFGY18iHfzNOQNEcVQmCqn6rKKJ0C
-  1gdbku+9WEQoIlRRMQ6DyYIfLTgA9l1HAI9CkmzmwE8vAGDbNJyn6Ra8fqIvxrhx75yzlxyrqVAZXi6U5H7y1v313ttvRDo1/fIf/wC8ALIT6A9a9x29AAAAAElFTkSu
-  QmCC
-}
-
 image create photo vgrlines_v -data {
   iVBORw0KGgoAAAANSUhEUgAAACUAAAAYCAYAAAB9ejRwAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAB3RJTUUH4wsBDi4wtCiBcgAAAB1p
   VFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAQklEQVRIx+3SwQ0AIAgEQWLs6tqHuqAD48MYorsFHPPAcpG758l294Y1DBQoUKBAvYKatw9GRC+U
@@ -326,22 +312,6 @@ image create photo egais_83x36 -data {
   3wSdfql0aU1iqyVCyGRvMkeWtwG78aJpe5/cM+uum5xVGjmzILaY15iWie24Lf00JmNmAez/A9S2TYdPjiBnAAAAAElFTkSuQmCC
 }
 
-image create photo butborder_1 -data {
-  iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAAmJLR0QA/4ePzL8A
-  AAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfiBwgQIAv+vLqMAAAARElEQVQ4
-  y+3UMRXAMAwD0VNegRhGtmLPZhhmolJwlk6+WX+VzHHRK3j1HBdbPZDGqz+HrWJx
-  2YABA34FQbo7Tge6vZkPvOMTzlppi8IAAAAASUVORK5CYII=
-}
-
-image create photo butborder -data {
-  iVBORw0KGgoAAAANSUhEUgAAAFQAAAAYCAYAAABk8drWAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAB3RJTUUH4woCESwgowaRhwAAAB1p
-  VFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABk0lEQVRYw+2Zr0+CURSG33uFKz8dzkGgyLQZKGx2G0IjmggmGv8GhUZyjESksVG0WdzEiWLDYSHA
-  DIqg3wXuMSjbF/38Ptp5/oRn73vPObuicfUY+VqYabs3wutMQwoB5u8YIuyFFfLpJAJ+GfXN9WraePnE7umJiQbVBATJmhwgYPSnjtev72RxPzhFrtKhbN9alYe6xXb+
-  R3moW9m+tcpVOiTf5hqk1KSaUoXSwOK+O6Q0sEQ1pQqk1ORtriHFz5spAaB2uE2syBk2Z1IIwe+l10gAIOJgumXt8FcoC3Ev1JZQnkRebE/2yguOqOuEClvlwT49MGpL
-  6GK5ZCEuWTvktWkza5NhE66nvOGEbi6hPJU8mEnECd1YQjmgHq9NfMt7fMszHlbeEIEAAwBnt2M+6x2ydkaAMUSQsZAf0tLxYnfcamYS3H2HNDMJKnbHLWnpeCzkh6h1
-  7uni+QPh4yNjlH8CIn4GnCCEkXoRn908yfODCET98iEys1bTdm+E968lfyM7xBBhJ+BDPp1EeHsr+g3JAqn15VL+ugAAAABJRU5ErkJggg==
-}
-
 image create photo icon_openfile_18x16 -data {
   iVBORw0KGgoAAAANSUhEUgAAABIAAAAQCAYAAAAbBi9cAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wYXCDgNebfI9AAAAgZJ
   REFUOMuNkz9PFUEUxX/3zuxbQAlSkGhhaWEwRhNbY6Extmhi7Kz5CH4P/RZY2FnYEG20sKOSaExEBNTn44+P3Tdzr8U8Hw8k4G0mszvn5PzO7MrrO/PcfLXCSfPm3pXr
@@ -471,17 +441,6 @@ M845 587 c-118 -46 -185 -141 -185 -265 0 -102 80 -213 177 -246 113
 set ::userpc [parsepath $TPtemp]
 #Соотношение ширины к высоте - 1.26
 
-
-if {0} {
-ttk::style element create RoundedLabelFrame image \
-{labelframeBorderME focus labelframeBorderME} \
--border 4 -sticky nsew
-ttk::style layout RoundedLabelFrame {
-  RoundedLabelFrame -sticky nsew
-}
-ttk::style configure RoundedLabelFrame -padding 10
-}
-
 ttk::style configure TPanedwindow -sashwidth 200 -showhandle 1
 ttk::style configure TPanedWindow -sashwidth 200 -showhandle 1
 
@@ -510,84 +469,6 @@ encoding dirs "$dd $mydir"
 set myDir $mydir
 set ::px2mm [winfo fpixels . 1m]
 set ::signedCert ""
-
-array set Imy []
-    array set colors {
-	-frame          "#d8d8d8"
-	-lighter        "#fcfcfc"
-	-darker         "#9e9e9e"
-
-        -fg             "#31363b"
-        -bg             white
-        
-        -disabledfg     "#bbcbbe"
-        -disabledbg     "#e7e8ea"
-        
-        -selectbg       "#3daee9"
-        -selectfg       "white"
-        
-        -window         "#eff0f1"
-        -focuscolor     "#3daee9"
-        -checklight     "#94d0eb"
-    }
-#############SCROLLBAR###############################
-set Imy(scrollbar-slider-horiz) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAAB4AAAAUCAYAAACaq43EAAAABmJLR0QA/wD/AP+g
-vaeTAAAAfElEQVRIie3NsRHCMBAAwXtZQwFICW6BmgxdmMzMQCnK6IcWHFlUIHgH
-DFSAlPCbXHhgjPkR2d/um20XrwgDsKv8mwVSLsvkg48XhbHy8KNXOAUfcQqHRtMv
-haN7ty2BpxNIrccvNPlclin4iMIA9JWfs0B6lHyu/DHmn6xkVh1tCWue8gAAAABJ
-RU5ErkJggg==
-}]
-set Imy(scrollbar-slider-vert) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAABmJLR0QA/wD/AP+g
-vaeTAAAAmElEQVRIie3WsQ3CMBCF4d9gMQB2ATNkH7rAFkAVJBglHftkBKgSBogs
-jsoSCslJQHuvuye9z60dSoprs1jO4wVHCYiDuktt1WyKfmrjNTD4eBbY51vgEHwE
-OE5tZhoosB3pdtpGBYH1SLf6B/w6BhpooIEGGmhgzn1YOLj9DDqoh90T+ejeo/5t
-utRWwUcEyvzAI3UnbfMCMEIfS/u3nUUAAAAASUVORK5CYII=
-}]
-set Imy(scrollbar-trough-horiz-active) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAADgAAAAUCAYAAADY6P5TAAAABmJLR0QA/wD/AP+g
-vaeTAAAAy0lEQVRYhe3TuwrCQBAF0DsTQxQNsfHV24mSD7CwzT9bWPgBabRKaaGC
-jyCCGDdro5IoFkI0BuZ0O9PcyzKAEEII8RY9D1x3VEfp1INhOFrHnEeoTxFxDKVC
-XMoz35/skzsj+eh6nmWej0MQVQH9Uv5/aQJRBYbq2IP+YhsE6r5J/ZC9DNsAzJ/n
-y47prA+t5CBVkJn1b/N8X6pg2LRXAKKcsmQhunV4SN3gNghUp9HdEKsaMVtFuUMi
-jknrHUWWP5+Oj3nnEUIIURhXog40I5tPlhsAAAAASUVORK5CYII=
-}]
-set Imy(scrollbar-slider-horiz-active) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAAB4AAAAUCAYAAACaq43EAAAABmJLR0QA/wD/AP+g
-vaeTAAAAeUlEQVRIie3SMRKCMBBA0b8ZBvqYRu6G3kI7dOAoORNXoEL6OOMsDXoC
-k4Z9F/jNB2PMn8hzmurTO4woHXDO3JsV4tosfeVTGIBb5uBXK3D3KeAELoWiPwJX
-B2jpMPBxCrF8V2O1NkvvU0CgA9rMxX2u1yNzx5gj2QA2vRzmr3lMjwAAAABJRU5E
-rkJggg==
-}]
-set Imy(scrollbar-slider-insens) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAABmJLR0QA/wD/AP+g
-vaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gwcCgIqrH07jQAAAGlJ
-REFUSMft1sEJgDAQRNG/agVqF+nHIu0nXSTYQEg8iIiga1DwtHPbgXnnFZS42dO3
-I8h2CxBTwE/udtNo4NAdGEDZOyUqWCq7avBNDDTQQAMNNNDA/0D5Al6N88PvoIIx
-hRMqwJKiCq47KxE+Y3DNVgAAAABJRU5ErkJggg==
-}]
-set Imy(scrollbar-trough-vert-active) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAABQAAAA4CAYAAAD959hAAAAABmJLR0QA/wD/AP+g
-vaeTAAAAsUlEQVRYhe3XoQ7CMBQF0NuNUgzZFPwACswcFrsvnsXiZkDxA6BYMJSy
-DoNYUtYtDYbsPnn77kntA0Y3om9hlecqud6XAFAt5pdzUehgMMt2aTPVWwDyExnx
-VIey3N+6OpH3e5PHpoUBgITUa1/FD8Zx4jaiNBhsGuu8f8sGgyFDkCBBggQJEiRI
-kCBBgn8FChHZIdlgEHVdOZm1nZdoP/iaHQGYVmJg1MlX+fkBPsJ5A6faL2J/SI4T
-AAAAAElFTkSuQmCC
-}]
-set Imy(scrollbar-slider-vert-active) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAABmJLR0QA/wD/AP+g
-vaeTAAAAkElEQVRIie3WsQ3CMBCF4d8I4d64gBkyU2ALoAoRjJKZMgJUwb3TmMqi
-uZwEtPe6e9L73NqhpB/HzXaOdwotUAoMyU9d3zTz0matgSHHG3Cqt4NzyBHgsrRZ
-aaCDg9AdtY0KAnuh2/0Dfh0DDTTQQAMNNLDmKXSPn8ECg9AK3Sfq3yb5qQs54qCt
-DyT/umqbN9ezHkQrVDt+AAAAAElFTkSuQmCC
-}]
-set Imy(scrollbar-slider-insens) [image create photo  -data {
-iVBORw0KGgoAAAANSUhEUgAAAAYAAAAeCAYAAAAPSW++AAAABmJLR0QA/wD/AP+g
-vaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAANUlEQVQoz2NkYGBgsFnz8j8DEjgS
-Is7IiC4IA0wMOMBQk2DCoZrpHxaJf8PJ58NdghFXogYAqmYNCjdUXn0AAAAASUVO
-RK5CYII=
-}]
 
 proc folderbrown {canv} {
     set grfolder [$canv create group]
@@ -629,35 +510,6 @@ L 24.272312499999998 16.8226875 C 23.8265625 17.6645625 23.2323125 18.407625 22.
 }
 
 msgcat::mclocale ru
-if {[tk windowingsystem] != "win32"} {
-#Сделать для ARM, целые
-#set sx 2
-set sx [expr {int ([tk scaling] / 1.33333)}]
-#set sy 2
-set sy $sx
-::FE::scaleImage $Imy(scrollbar-slider-vert-active) $sx $sy
-::FE::scaleImage $Imy(scrollbar-slider-insens) $sx $sy
-::FE::scaleImage $Imy(scrollbar-trough-vert-active) $sx $sy
-::FE::scaleImage $Imy(scrollbar-slider-vert) $sx $sy
-
-::FE::scaleImage $Imy(scrollbar-trough-horiz-active) $sy $sx
-::FE::scaleImage $Imy(scrollbar-slider-horiz) $sy $sx
-::FE::scaleImage $Imy(scrollbar-slider-horiz-active) $sy $sx
-::FE::scaleImage $Imy(scrollbar-slider-insens) $sy $sx
-}
-
-#Вид scrollbar-ов: 0 - оригинальный, 1 - типа breeze
-ttk::style layout Vertical.TScrollbar {
-    VerticalMY.Scrollbar.trough -sticky ns -children {
-        VerticalMY.Scrollbar.thumb -expand true
-    }
-}
-
-ttk::style layout Horizontal.TScrollbar {
-    HorizontalMY.Scrollbar.trough -sticky ew -children {
-        HorizontalMY.Scrollbar.thumb -expand true
-    }
-}
 
 ttk::style map MyBorder.TButton -background [list disabled white pressed gray64 active skyblue !active #e2e2e1]
 
@@ -671,9 +523,7 @@ ttk::style configure TCheckbutton  -background white
 ttk::style configure My.TCheckbutton  -foreground red
 ttk::style configure TLabelframe -background  white
 ttk::style configure Me.TEntry -background  white
-#skyblue
 ttk::style configure TLabelframe.Label -background  white
-#skyblue
 ttk::style configure TRadiobutton  -background white -pad 0
 
 option add *Label.background	white interactive
@@ -1103,7 +953,6 @@ proc prettyPrintLength {out data_var len_deritem lenp_var indefinitep_var lv raw
   return $lenLen;
 }
 
-
 proc prettyPrintTag {out src_var end codep_var level raw} {
   if {[catch {$out tag configure tagAsn -foreground blue } res]} {
     return -1
@@ -1419,25 +1268,19 @@ proc wrapunwrap {labgl} {
     set ::wrapup 0
 #Стрелка вниз
     set gri [$tekfr.stfirst.br create path "M 2 0 L 2 10 M 0 16 L 2 24 L 4 16 M 2 30 L 2 40"  -strokewidth 0.2 -strokeopacity 1 -parent $ii -stroke black]
-#    set ii [$tekfr.stfirst.br create path "M 0 0 L 0 10 M -2 16 L 0 24 L 2 16 M 0 30 L 0 40"]
 
     pack forget $tekfr.stend
     pack $tekfr.forbut -side top  -padx {0 0} -pady {0 0} -anchor center -fill both -expand 1
     pack $tekfr.stend -side top -padx {0 0} -anchor w
-#    $tekfr.stfirst.br configure -image verchlefttoright_22x24
     lower [$::crown canvas]
   } else {
     set ::wrapup 1
 #Стрелка вправо
-#    set ii [$tekfr.stfirst.br create path "M 0 0 L 0 9 M -2 15 L 2 20 L -2 25 M 4 20 L 6 20 M 0 30 L 0 40"]
     set gri [$tekfr.stfirst.br create path "M 2 0 L 2 9 M 0 15 L 4 20 L 0 25 M 2 30 L 2 40" -strokewidth 0.2 -strokeopacity 1 -parent $ii -stroke black]
     pack forget $tekfr.forbut;
-#    $tekfr.stfirst.br configure -image verchlefttoright1_24x24
-#place [$::crown canvas] -in $tekfr -x 11 -y 85 -relwidth 0.9 -relheight 0.8
     raise [$::crown canvas]
   }
     $labgl config -image "$tekfr.stfirst.br $ii"
-#     -pad "1m 0 0 0"
     $tekfr.stfirst.br delete $ii
 }
 
@@ -9739,7 +9582,7 @@ $labgl config -command "changecolorpress1 [set i];[set a]"
 #    label ".st.fr1.fr2_list$i.lab" -bg white  -image logoLC
 #Картинка с токенами и пером
 puts "logoLC lab height=[winfo height .st.fr1.fr2_list$i] width=[winfo width .st.fr1.fr2_list$i]"
-    set lablc [ibutton new  .st.fr1.fr2_list$i.lab -image logoLC -text ""  -fillnormal cyan  -command ""  -stroke cyan -fillenter "##"  -width 14c -height 4c -pad 4m]
+    set lablc [ibutton new  .st.fr1.fr2_list$i.lab -image logoLC -text ""  -fillnormal cyan  -command ""  -stroke cyan -fillenter "##"  -width 14c -height 4c -pad 4m -bg white]
     set ::lablc $lablc
 puts "logoLC lab height=[winfo height .st.fr1.fr2_list$i] width=[winfo width .st.fr1.fr2_list$i] lablc=$lablc canvas=.st.fr1.fr2_list$i.lab"
 #Убираем оконтовку. На её месте будет текст: Электронная. И делаему прямоугольника закругленные углы. Для это типа ibutton их делают после создания виджета
@@ -10087,7 +9930,7 @@ pack .st.fr3.browser -in .st.fr3 -side right -padx {1m 2m} -pady {4m 1m} -fill n
 #После тестирования убрать
 #.st.labMain configure -bg yellow
 
-set labMain0 [ibutton new  .st.labMain.logo -image logoTok -text "" -fillenter "##" -fillpress "##" -fillnormal "" -stroke ""  -width 20m]
+set labMain0 [ibutton new  .st.labMain.logo -image logoTok -text "" -fillenter "##" -fillpress "##" -fillnormal "" -stroke ""  -width 20m -bg "#eff0f1"]
 #eff0f1
 #$labMain0 config  -width 20m -height 1c -strokewidth 0
 $labMain0 config  -height 1c -strokewidth 0
@@ -12632,12 +12475,6 @@ proc ::setTekFrame {tekFr newTekFr i} {
   if {[.st.fr1.fra82.b$i cget -state] == "disabled"} {
     return
   }
-if {0} {
-  if {$i != 0 && $i != 4 && $i != 6 && $i != 8 && $i != 9 && $i != 10 && $i < 11} {
-    #    set prez [::updatetok]
-  }
-}
-  #  if {$::pressBut == $i} {}
   if {$::pressBut == $i && $i == 0} {
     return
   }
@@ -14395,20 +14232,7 @@ if {[string range $::tcl_platform(machine) 0 2] == "arm" || [tk windowingsystem]
     $cmenu1 config -fillnormal $g_norm
 }
 wm overrideredirect . 1
-#m state . withdraw
 update
-if {0} {
-after 200
-set xx [expr {[winfo rootx .st] - [winfo rootx .]}]
-set yy [expr {[winfo rooty .st] - [winfo y .]}]
-if {[tk windowingsystem] != "win32"} {
-    $cmenu1 place -in .st -x 0 -y 0 -relwidth 1 -relheight 1
-} else {
-    place [$cmenu1 canvas] -in .st -x 0 -y 0 -relwidth 1 -relheight 1
-}
-}
-#m state . normal
-#update
 
 set minw [winfo width .]
 set minh [winfo height .]
