@@ -5909,28 +5909,25 @@ oo::class create cframe {
 	if {$hy1 <= [expr {$swidth * 2.0}] || $wx1 <= [expr {$swidth * 2.0}]} {
 	    return
 	}
-	set x1 [expr {$wx - $swidth / 0.5}]
-	set y1 [expr {$hy - $swidth / 0.5}]
+	set x1 [expr {$wx - $swidth / 2.0}]
+	set y1 [expr {$hy - $swidth / 2.0}]
 	if {$tbut == "clframe"} {
 #Масштабирование шрифта
-	    set x1 [expr {$wx - $swidth / 2.0}]
-	    set y1 [expr {$hy - $swidth / 2.0}]
 	    lassign [$wcan bbox $idt] tx0 ty0 tx1 ty1
 	    lassign [$wcan bbox $idr] rx0 ry0 rx1 ry1
 	    if {[expr {$tx1 - $tx0}] > [expr {$rx1 - $rx0}] || [expr {$ty1 - $y0}] > [expr {$ry1 - $ry0}] } {
 		$wcan itemconfigure $idt -fontsize [winfo fpixels $wcan $Options(-fontsize)]
 	    }
 	    $wcan itemconfigure $idr -strokewidth [winfo fpixels $wcan $Options(-strokewidth)]
-
 	    set fonts [$wcan itemcget $idt -fontsize]
 	    set wstr [$wcan itemcget $idr -strokewidth]
-	    $wcan coords $idr [expr {$wstr / 2.0}] [expr {($fonts + $wstr) / 2.0}] [expr {$x1 - $wstr}] [expr {$y1 - $wstr/2.0}]
+	    $wcan coords $idr [expr {$wstr / 2.0}] [expr {($fonts + $wstr) / 2.0}] $x1 $y1
 	} else {
 	    $wcan coords $idr [expr {$swidth / 2.0}] [expr {$swidth / 2.0}] $x1 $y1
 	}
     } else {
-	set x1 [expr {$x0 + $wx - $swidth * 0}]
-	set y1 [expr {$y0 + $hy - $swidth * 0}]
+	set x1 [expr {$x0 + $w}]
+	set y1 [expr {$y0 + $hy}]
 	$wcan coords $idr $x0 $y0 $x1 $y1
     }
 
