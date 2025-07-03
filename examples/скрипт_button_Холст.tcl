@@ -219,3 +219,4 @@ set vrc4 1
 set z1 0
 set z2 1
 bind $t.c <ButtonRelease-3> {selectwsvg %W %x %y}
+bind [$went entry] <ButtonRelease-3> "puts \"Выбран svg-виджет: $went\""
