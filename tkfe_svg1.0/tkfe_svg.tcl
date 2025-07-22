@@ -1536,8 +1536,8 @@ set zz [winfo toplevel $w]
     } else {
 	$fm.dirs.t column "#0" -stretch 1 -width 150 -anchor w
     }
-	ttk::scrollbar $fm.dirs.y -command [list $fm.dirs.t yview]
-	ttk::scrollbar $fm.dirs.x -orient horizontal -command [list $fm.dirs.t xview]
+	ttk::scrollbar $fm.dirs.y -command [list $fm.dirs.t yview] -style My.Vertical.TScrollbar
+	ttk::scrollbar $fm.dirs.x -orient horizontal -command [list $fm.dirs.t xview] -style My.Horizontal.TScrollbar
     $fm.dirs.t configure -xscroll [list [namespace current]::hidescroll $fm.dirs.x ]
     $fm.dirs.t configure -yscroll [list [namespace current]::hidescroll $fm.dirs.y ]
 
@@ -1558,8 +1558,8 @@ set zz [winfo toplevel $w]
 #    eval "$::FE::folder(panedwindow) forget 0"
     $f3 forget $fm.dirs
 
-    ttk::scrollbar $fm.files.y -orient vertical -command "$fm.files.t yview"
-    ttk::scrollbar $fm.files.x -orient horizontal -command "$fm.files.t xview"
+    ttk::scrollbar $fm.files.y -orient vertical -command "$fm.files.t yview" -style My.Vertical.TScrollbar
+    ttk::scrollbar $fm.files.x -orient horizontal -command "$fm.files.t xview" -style My.Horizontal.TScrollbar
 if {0} {
     if {$typefb != "dir"} {
       ttk::treeview $fm.files.t -columns {fullpath type size date dateorig permissions} -displaycolumns {size date permissions} 
