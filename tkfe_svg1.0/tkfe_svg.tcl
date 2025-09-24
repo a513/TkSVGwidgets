@@ -1418,7 +1418,6 @@ return $::cmenubut
 		set ::FE::folder(details) $::FE::data(-details)
 	}
     }
-#    set ::FE::folder(foldersfirst) $::FE::data(-foldersfirst)
     set ::FE::folder(hiddencb) $::FE::data(-hidden)
 #parray ::FE::folder
     if {$::FE::folder(history) == ""} {
@@ -1428,18 +1427,17 @@ return $::cmenubut
     set wres [wm resizable .]
     if {$typew == "frame"} {
 	frame $w -bg #d9D9D9
-set zz [winfo toplevel $w]
-#	destroy $w
+	set zz [winfo toplevel $w]
 	all_busy_hold $zz
-#	frame $w -bg #d9D9D9
 	raise $w 
 	if {$zz == "."} {
 	    eval "bind $zz <Configure> {catch {lower ._Busy $::FE::folder(w)}}"
-#	    eval "bind $zz <Configure> {catch {lower [set w]_Busy $::FE::folder(w)}}"
 	    bind $::FE::folder(w) <Enter> {if {[winfo exist ._Busy]} {event generate ._Busy <ButtonRelease>}}
 	} else {
-	    eval "bind $zz <Configure> {lower [set zz]._Busy $::FE::folder(w)}"
-	    bind $::FE::folder(w) <Enter> {if {[winfo exist [set zz]._Busy]} {event generate [set zz]._Busy <ButtonRelease>}}
+	    eval "bind $zz <Configure> {catch {lower [set zz]._Busy $::FE::folder(w)}}"
+
+	    set cmd [subst "if {\\\[winfo exist [set zz]._Busy]} {event generate [set zz]._Busy <ButtonRelease>}"]
+	    bind $::FE::folder(w) <Enter> [set cmd]
 	}
     } else {
       if {$::FE::folder(sepfolders)} {
@@ -1536,8 +1534,8 @@ set zz [winfo toplevel $w]
     } else {
 	$fm.dirs.t column "#0" -stretch 1 -width 150 -anchor w
     }
-	ttk::scrollbar $fm.dirs.y -command [list $fm.dirs.t yview] -style My.Vertical.TScrollbar
-	ttk::scrollbar $fm.dirs.x -orient horizontal -command [list $fm.dirs.t xview] -style My.Horizontal.TScrollbar
+	ttk::scrollbar $fm.dirs.y -command [list $fm.dirs.t yview]
+	ttk::scrollbar $fm.dirs.x -orient horizontal -command [list $fm.dirs.t xview]
     $fm.dirs.t configure -xscroll [list [namespace current]::hidescroll $fm.dirs.x ]
     $fm.dirs.t configure -yscroll [list [namespace current]::hidescroll $fm.dirs.y ]
 
@@ -1558,8 +1556,8 @@ set zz [winfo toplevel $w]
 #    eval "$::FE::folder(panedwindow) forget 0"
     $f3 forget $fm.dirs
 
-    ttk::scrollbar $fm.files.y -orient vertical -command "$fm.files.t yview" -style My.Vertical.TScrollbar
-    ttk::scrollbar $fm.files.x -orient horizontal -command "$fm.files.t xview" -style My.Horizontal.TScrollbar
+    ttk::scrollbar $fm.files.y -orient vertical -command "$fm.files.t yview"
+    ttk::scrollbar $fm.files.x -orient horizontal -command "$fm.files.t xview"
 if {0} {
     if {$typefb != "dir"} {
       ttk::treeview $fm.files.t -columns {fullpath type size date dateorig permissions} -displaycolumns {size date permissions} 

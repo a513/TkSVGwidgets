@@ -1,3 +1,4 @@
+
 package require Tk
 package require textutil
 package require http
@@ -1945,7 +1946,12 @@ wm title . "Криптографический АРМ на базе станда
 image create photo logoLC -file [file join $myDir "card_and_pero_pkcs11_pkcs12.png"]
 image create photo logoLCtok -file [file join $myDir "mtoken_withoutbg.png"]
 image create photo mecrown  -file [file join $myDir "mecrown.png"]
-set ::crown  [ibutton new .crown -text "" -fillnormal black -image mecrown]
+toplevel .st -bd 5  -background #eff0f1
+wm geometry .st [wm geometry .]
+wm geometry .st 900x700
+wm withdraw .
+
+set ::crown  [ibutton new .st.crown -text "" -fillnormal black -image mecrown]
 # -width 10m -height 10m
 
 image create photo exitCA_16x16 -data {
@@ -2461,9 +2467,9 @@ proc cagui::FileEntry {w args} {
   }
 
   if {![info exists opts(-filetypes)]} {
-    set buttoncommand [subst "catch {destroy {.canvas}}; feselectKDE $opts(-dialogtype) {.} $opts(-typewd) {$opts(-title)} {$opts(-initialdir)} $opts(-variable) {$opts(-defaultextension) *}"]
+    set buttoncommand [subst "catch {destroy {.canvas}}; feselectKDE $opts(-dialogtype) {.st} $opts(-typewd) {$opts(-title)} {$opts(-initialdir)} $opts(-variable) {$opts(-defaultextension) *}"]
   } else {
-    set buttoncommand [subst "catch {destroy {.canvas}}; feselectKDE $opts(-dialogtype) {.} $opts(-typewd) {$opts(-title)} {$opts(-initialdir)} $opts(-variable) \"$opts(-filetypes)\""]
+    set buttoncommand [subst "catch {destroy {.canvas}}; feselectKDE $opts(-dialogtype) {.st} $opts(-typewd) {$opts(-title)} {$opts(-initialdir)} $opts(-variable) \"$opts(-filetypes)\""]
   }
 
   frame $w
@@ -4875,10 +4881,10 @@ set vbut [ibutton new $c.fscr.viewscr -image ::img::view_18x16 -text ""  -fillno
 
 $vbut config -fillenter "" -stroke "" 
 
-  set lc "bind $c.fscr.viewscr <Enter> {.helpview configure -text \"Просмотр запроса\";place .helpview -in $c.fscr.e1 -relx 0.77 -rely 1.0}"
+  set lc "bind $c.fscr.viewscr <Enter> {.st.helpview configure -text \"Просмотр запроса\";place .st.helpview -in $c.fscr.e1 -relx 0.77 -rely 1.0}"
   set lc [subst $lc]
   eval $lc
-  bind $c.fscr.viewscr <Leave> {place forget .helpview}
+  bind $c.fscr.viewscr <Leave> {place forget .st.helpview}
   pack $c.fscr.viewscr -side right -padx {1 3} -pady "1m 1m" -expand 0 -fill none
   grid $c.fscr -row 0 -column 0 -columnspan 4 -sticky wsen -padx {0 0} -pady {0 0}
   grid columnconfigure $c 1 -weight 1
@@ -4932,10 +4938,10 @@ set crbut1 [cbutton new "$c.ftype.typePem" -type radio  -value 1 -variable ::for
 #  ttk::entry $c.bc  -textvariable ::pointca
 set ptca [cframe new $c.bc -type centry -stroke gray85 -fontsize 2m -rx 1m]
 [$ptca entry] configure -textvariable ::pointca
-  set lc "bind $c.lbc <Enter> {.helpview configure -text \"Точка выдачи сертификата УЦ\";place .helpview -in $c.lbc -relx 1.0 -rely 0.5}"
+  set lc "bind $c.lbc <Enter> {.st.helpview configure -text \"Точка выдачи сертификата УЦ\";place .st.helpview -in $c.lbc -relx 1.0 -rely 0.5}"
   set lc [subst $lc]
   eval $lc
-  bind $c.lbc <Leave> {place forget .helpview}
+  bind $c.lbc <Leave> {place forget .st.helpview}
   grid $c.l1 -row 1 -column 0 -sticky w -padx {1m 0} -pady {4m 0}
   grid $c.e1 -row 1 -column 1 -columnspan 3 -sticky nswe -padx {0 2m} -pady {4m 0}
   grid columnconfigure $c 1 -weight 1
@@ -4999,10 +5005,10 @@ set vbut [ibutton new $c.fcrt.viewcrt -image ::img::view_18x16 -text ""  -fillno
 #$vbut config -width 6m -height 5.5m 
 $vbut config -fillenter "" -stroke "" 
 
-  set lc "bind $c.fcrt.viewcrt <Enter> {.helpview configure -text \"Просмотр сертификата\";place .helpview -in $c.fcrt.e2 -relx 0.70 -rely 1.0}"
+  set lc "bind $c.fcrt.viewcrt <Enter> {.st.helpview configure -text \"Просмотр сертификата\";place .st.helpview -in $c.fcrt.e2 -relx 0.70 -rely 1.0}"
   set lc [subst $lc]
   eval $lc
-  bind $c.fcrt.viewcrt <Leave> {place forget .helpview}
+  bind $c.fcrt.viewcrt <Leave> {place forget .st.helpview}
   pack $c.fcrt.viewcrt -side right -padx {2 0} -pady "1m 1m" -expand 0 -fill none
   ########
 
@@ -5155,10 +5161,10 @@ set vbut [ibutton new $c.fcrt.viewcrt -image ::img::view_18x16 -text ""  -fillno
 #$vbut config -width 6m -height 5.5m 
 $vbut config -fillenter "" -stroke "" 
 
-  set lc "bind $c.fcrt.viewcrt <Enter> {.helpview configure -text \"Просмотр ASN1-структуры\";place .helpview -in $c.fcrt.e2 -relx 1.0 -rely -0.5 -anchor ne}"
+  set lc "bind $c.fcrt.viewcrt <Enter> {.st.helpview configure -text \"Просмотр ASN1-структуры\";place .st.helpview -in $c.fcrt.e2 -relx 1.0 -rely -0.5 -anchor ne}"
   set lc [subst $lc]
   eval $lc
-  bind $c.fcrt.viewcrt <Leave> {place forget .helpview}
+  bind $c.fcrt.viewcrt <Leave> {place forget .st.helpview}
   pack $c.fcrt.viewcrt -side right -padx {2 0} -pady "1m 1m" -expand 0 -fill none
   ########
 #  ttk::labelframe $c.lfr1 -text "Формат файла с ASN1-структурой" -labelanchor n
@@ -5365,11 +5371,11 @@ proc ::sign_file {w typekey} {
       return
     }
   }
-  .topclock.lclock configure -text "Начался процесс подписания\n\nдокумента из файла\n\n[file tail $doc_for_sign]\n\nПодождите некоторое время!"
-  .topclock configure -text "Идет процесс подписания" 
+  .st.topclock.lclock configure -text "Начался процесс подписания\n\nдокумента из файла\n\n[file tail $doc_for_sign]\n\nПодождите некоторое время!"
+  .st.topclock configure -text "Идет процесс подписания" 
 global vars
-#after 0  place .topclock -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 3.0 -relwidth 3.5
-after 0  place .topclock -in .st -x 250 -y 160
+#after 0  place .st.topclock -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 3.0 -relwidth 3.5
+after 0  place .st.topclock -in .st -x 250 -y 160
 # -width $vars(center)
 #update
 #after 2500
@@ -5384,10 +5390,10 @@ after 0  place .topclock -in .st -x 250 -y 160
 if {1} {
 #    tk busy forget ".st.fr1"
 #    tk busy forget ".st.fr3"
-#    place forget .topclock
+#    place forget .st.topclock
 #update
 after 20
-	set erlib [mbutton new ".stmessage" -type msg -fillnormal aquamarine -text "Документ успешно подписан.\nПодпись сохранена в файле:\n$f_sign" -command ""]
+	set erlib [mbutton new ".st.stmessage" -type msg -fillnormal aquamarine -text "Документ успешно подписан.\nПодпись сохранена в файле:\n$f_sign" -command ""]
 	set herlib [expr {int([winfo fpixels [$erlib canvas] [$erlib config -height]])}]
 	eval "$erlib config -command {global erm;$erlib destroy;set erm 1;}"
 #	tk busy hold ".st.fr1"
@@ -5397,14 +5403,14 @@ after 20
 	$erlib place -x $werlib -y $herlib
 	tk busy forget ".st.fr1"
 	tk busy forget ".st.fr3"
-	place forget .topclock
+	place forget .st.topclock
 	return
  }
   
-    tk_messageBox -title "Подписать документ" -message "Документ успешно подписан." -detail "Подпись сохранена в файле:\n$f_sign" -icon info  -parent .topclock
+    tk_messageBox -title "Подписать документ" -message "Документ успешно подписан." -detail "Подпись сохранена в файле:\n$f_sign" -icon info  -parent .st.topclock
     tk busy forget ".st.fr1"
     tk busy forget ".st.fr3"
-    place forget .topclock
+    place forget .st.topclock
     return
   }
   if {$err != 0} {
@@ -5417,7 +5423,7 @@ after 20
     tk busy forget ".st.fr3"
   }
 
-  place forget .topclock
+  place forget .st.topclock
 }
 
 proc page_pkcs7_sign {c} {
@@ -5522,13 +5528,13 @@ set ltsp [cframe new $c.listTSP -type ccombo -stroke gray85 -fontsize 2m -rx 1m 
   pack $c.e1.l1 -side left  -padx {0 4} -pady {4 4}
   #  grid $c.l1 -row 0 -column 0 -sticky w -padx {4 0} -pady {4 4}
   grid $c.e1 -row 0 -column 0 -columnspan 2 -sticky nwse -padx {4 0} -pady {4 4}
-  eval "bind $c.e1.but <Enter> {.helpupdate configure -text {Выбрать документ для подписи};place .helpupdate -in $c.e1.but -relx 1.0 -rely 1.0 -anchor ne}"
-  bind $c.e1.but <Leave> {place forget .helpupdate}
+  eval "bind $c.e1.but <Enter> {.st.helpupdate configure -text {Выбрать документ для подписи};place .st.helpupdate -in $c.e1.but -relx 1.0 -rely 1.0 -anchor ne}"
+  bind $c.e1.but <Leave> {place forget .st.helpupdate}
 
   grid $c.l2 -row 1 -column 0 -sticky w -padx {4 0} -pady {4 4}
   grid $c.e2 -row 1 -column 1 -sticky nwse -padx {4 0} -pady {4 4}
-  eval "bind $c.e2.but <Enter> {.helpupdate configure -text {Выбрать каталог для подписи};place .helpupdate -in $c.e2.but -relx 1.0 -rely 1.0 -anchor ne}"
-  bind $c.e2.but <Leave> {place forget .helpupdate}
+  eval "bind $c.e2.but <Enter> {.st.helpupdate configure -text {Выбрать каталог для подписи};place .st.helpupdate -in $c.e2.but -relx 1.0 -rely 1.0 -anchor ne}"
+  bind $c.e2.but <Leave> {place forget .st.helpupdate}
   grid $c.lfr0 -row 3 -column 0 -columnspan 2 -sticky sn -padx {10 10} -pady {10 4}
   grid columnconfigure $c 1 -weight 1
 
@@ -6132,10 +6138,10 @@ proc page_pkcs7_view {c} {
   pack $c.fr0.l1  -padx 0 -pady 0 -side left  -expand 0 -fill x
   pack $c.fr0.e1 -side right  -padx {2 1} -pady {1 0} -ipady 1  -expand 1 -fill x
 
-  set lc "bind $c.fr0.e1.but <Enter> {.helpview configure -text \"Выбор файла с ЭП\";place .helpview -in $c.fr0.e1.entry -relx 1.0 -rely 1.0 -anchor ne}"
+  set lc "bind $c.fr0.e1.but <Enter> {.st.helpview configure -text \"Выбор файла с ЭП\";place .st.helpview -in $c.fr0.e1.entry -relx 1.0 -rely 1.0 -anchor ne}"
   set lc [subst $lc]
   eval $lc
-  bind $c.fr0.e1.but <Leave> {place forget .helpview}
+  bind $c.fr0.e1.but <Leave> {place forget .st.helpview}
 
 
   ##############
@@ -6182,10 +6188,10 @@ puts "PKCS7_CAdes_BES: crbut0=$crbut0 crbut1=$crbut1"
   -initialdir $::lastDoc \
   -filetypes $ft \
   -icon signeddoc.svg
-  set lc "bind $c.e2.but <Enter> {.helpview configure -text \"Выбор подписанного документа\";place .helpview -in $c.e2.entry -relx 1.0 -rely 1.0 -anchor ne}"
+  set lc "bind $c.e2.but <Enter> {.st.helpview configure -text \"Выбор подписанного документа\";place .st.helpview -in $c.e2.entry -relx 1.0 -rely 1.0 -anchor ne}"
   set lc [subst $lc]
   eval $lc
-  bind $c.e2.but <Leave> {place forget .helpview}
+  bind $c.e2.but <Leave> {place forget .st.helpview}
   ############
   frame $c.fr1 -relief flat -pady 0
   label $c.fr1.labCert -text "Подписанты:" -anchor w -bg white
@@ -6206,10 +6212,10 @@ $vbut config  -stroke ""
     $c.fr1.viewcert delete $gri
 
 
-  set lc "bind $c.fr1.viewcert <Enter> {.helpview configure -text \"Просмотр сертификата подписанта\";place .helpview -in $c.fr1.listCert -relx 1.0 -rely 1.0 -anchor ne}"
+  set lc "bind $c.fr1.viewcert <Enter> {.st.helpview configure -text \"Просмотр сертификата подписанта\";place .st.helpview -in $c.fr1.listCert -relx 1.0 -rely 1.0 -anchor ne}"
   set lc [subst $lc]
   eval $lc
-  bind $c.fr1.viewcert <Leave> {place forget .helpview}
+  bind $c.fr1.viewcert <Leave> {place forget .st.helpview}
   pack $c.fr1.viewcert -side right -padx {4 3} -pady "1m 1m" -expand 0 -fill none
   grid $c.fr1 -row 3 -column 0 -columnspan 1 -sticky wsen -padx {1m 0.25m} -pady {0 0}
   ########
@@ -6371,7 +6377,7 @@ proc p11conf {c} {
       if {$::pkcs11_status == 0} {
 after 20
 	set mesd "Токен проинициализирован ранее.\nПовторная инициализация приведет \nк потере данных\n \nБудете продолжать?\n "
-	set erlib [mbutton new ".stmessage" -type yesno -fillnormal aquamarine -text "$mesd" -command "" -stroke yellow -strokewidth 1m]
+	set erlib [mbutton new ".st.stmessage" -type yesno -fillnormal aquamarine -text "$mesd" -command "" -stroke yellow -strokewidth 1m]
 	set herlib [expr {int([winfo fpixels [$erlib canvas] [$erlib config -height]])}]
 	tk busy hold ".st.fr1"
 	tk busy hold ".st.fr3"
@@ -6527,7 +6533,7 @@ after 20
     4 {
 after 20
 	set mesd "Токен может содержать данные\nОчистка токена приведет \nк потере этих данных\n \n       Будете продолжать?\n "
-	set erlib [mbutton new ".stmessage" -type yesno -fillnormal aquamarine -text "$mesd" -command "" -stroke yellow -strokewidth 1m]
+	set erlib [mbutton new ".st.stmessage" -type yesno -fillnormal aquamarine -text "$mesd" -command "" -stroke yellow -strokewidth 1m]
 	set herlib [expr {int([winfo fpixels [$erlib canvas] [$erlib config -height]])}]
 	tk busy hold ".st.fr1"
 	tk busy hold ".st.fr3"
@@ -6718,8 +6724,8 @@ proc page_pkcs12 {c} {
   -filetypes $ft
   pack $c.fr0.l1  -padx 0 -pady 0 -side left  -expand 0 -fill x
   pack $c.fr0.e1 -side right  -padx {2 1} -pady {1 0} -ipady 1  -expand 1 -fill x
-  eval "bind $c.fr0.e1.but <Enter> {.helpupdate configure -text {Выбрать контейнер PKCS#12};place .helpupdate -in $c.fr0.e1.but -relx 1.0 -rely 1.0 -anchor ne}"
-  bind $c.fr0.e1.but <Leave> {place forget .helpupdate}
+  eval "bind $c.fr0.e1.but <Enter> {.st.helpupdate configure -text {Выбрать контейнер PKCS#12};place .st.helpupdate -in $c.fr0.e1.but -relx 1.0 -rely 1.0 -anchor ne}"
+  bind $c.fr0.e1.but <Leave> {place forget .st.helpupdate}
 
   grid $c.fr0 -row 0 -column 0 -columnspan 2 -sticky wsen -padx {2 0} -pady {1 1}
   grid columnconfigure $c 0 -weight 1
@@ -6727,8 +6733,8 @@ proc page_pkcs12 {c} {
   set ::nomacver 0
   set chbt1 [cbutton new $c.frc.mac -type check  -variable ::nomacver -text "nomacver" -textfill red]
 
-  eval "bind $c.frc.mac <Enter> {.helpupdate configure -text {Не контролировать целостность};place .helpupdate -in $c.frc.mac -relx 1.0 -rely 1.0 -anchor n}"
-  bind $c.frc.mac <Leave> {place forget .helpupdate}
+  eval "bind $c.frc.mac <Enter> {.st.helpupdate configure -text {Не контролировать целостность};place .st.helpupdate -in $c.frc.mac -relx 1.0 -rely 1.0 -anchor n}"
+  bind $c.frc.mac <Leave> {place forget .st.helpupdate}
 
   pack $c.frc.mac  -padx {0 1m} -pady {1m 0} -side left  -expand 0 -fill none
   #    label $c.frc.labCert -text "[mc {Certificate}]:" -font TkDefaultFontBold -anchor w -width 0 -bg white
@@ -6745,9 +6751,9 @@ set vbut [ibutton new $c.frc.viewcert -image ::img::view_18x16 -text ""  -fillno
 #$vbut config -width 6m -height 5.5m 
 $vbut config -stroke "" 
 
-  .helpview config -bg "#ffe0a6"
-  bind $c.frc.viewcert <Enter> {.helpview configure -text "Просмотр сертификата";place .helpview -in .st.fr1.fr2_list8.frc.listCert -relx 0.70 -rely 1.0}
-  bind $c.frc.viewcert <Leave> {place forget .helpview}
+  .st.helpview config -bg "#ffe0a6"
+  bind $c.frc.viewcert <Enter> {.st.helpview configure -text "Просмотр сертификата";place .st.helpview -in .st.fr1.fr2_list8.frc.listCert -relx 0.70 -rely 1.0}
+  bind $c.frc.viewcert <Leave> {place forget .st.helpview}
   pack $c.frc.viewcert -side right -padx {0 3} -pady "1m 1m" -expand 0 -fill none
   grid $c.frc -row 1 -column 0 -columnspan 2 -sticky wsen -padx {2 2} -pady {1 1}
   ###############################################
@@ -6805,14 +6811,14 @@ $vbut config -stroke ""
   label $c.e1.l1 -text "Документ:"
   pack $c.e1.l1 -side left  -padx {0 4} -pady {2 0}
   grid $c.e1 -row 2 -column 0 -columnspan 2 -sticky wne -padx {4 0} -pady {2 0}
-  eval "bind $c.e1.but <Enter> {.helpupdate configure -text {Выбрать документ для подписи};place .helpupdate -in $c.e1.but -relx 1.0 -rely 1.0 -anchor ne}"
-  bind $c.e1.but <Leave> {place forget .helpupdate}
+  eval "bind $c.e1.but <Enter> {.st.helpupdate configure -text {Выбрать документ для подписи};place .st.helpupdate -in $c.e1.but -relx 1.0 -rely 1.0 -anchor ne}"
+  bind $c.e1.but <Leave> {place forget .st.helpupdate}
 
   label $c.e2.l2 -text "Каталог для подписи:"
   pack $c.e2.l2 -side left  -padx {0 4} -pady {2 0}
   grid $c.e2 -row 3 -column 0 -columnspan 2 -sticky nswe -padx {0 0} -pady {2 2}
-  eval "bind $c.e2.but <Enter> {.helpupdate configure -text {Выбрать каталог для подписи};place .helpupdate -in $c.e2.but -relx 1.0 -rely 1.0 -anchor ne}"
-  bind $c.e2.but <Leave> {place forget .helpupdate}
+  eval "bind $c.e2.but <Enter> {.st.helpupdate configure -text {Выбрать каталог для подписи};place .st.helpupdate -in $c.e2.but -relx 1.0 -rely 1.0 -anchor ne}"
+  bind $c.e2.but <Leave> {place forget .st.helpupdate}
   grid $c.lfr0 -row 4 -column 0 -columnspan 2 -sticky sn -padx {4 2} -pady {2 2}
 
   grid $c.tsp -row 5 -column 0 -sticky wn -padx {1m 0} -pady {0.5m 0}
@@ -6928,7 +6934,7 @@ proc saveCert { typesave cont} {
   } else {
     set ft $typeCert
   }
-  set file [feselectKDE save {.} frame "$typeTitle" $::lastSave "" "$ft"]
+  set file [feselectKDE save {.st} frame "$typeTitle" $::lastSave "" "$ft"]
   if { $file == "" } {
     return;
   }
@@ -7435,7 +7441,7 @@ proc create_new_signer {cert_hex content typekey} {
 	    1 - 8 {
 		tk busy forget ".st.fr1"
 		tk busy forget ".st.fr3"
-		place forget .topclock
+		place forget .st.topclock
 		update
 		mesWarn $wm $wm.listTSP "up" "Ошибка при чтении URL:\n$url\n\n$error"
 	    
@@ -7907,7 +7913,7 @@ proc ::loadchain {cert type} {
     return -1
   }
   set data $cert
-  set dir [feselectKDE dir {.} frame "Выбор каталога для цепочки" $myHOME "" "*"]
+  set dir [feselectKDE dir {.st} frame "Выбор каталога для цепочки" $myHOME "" "*"]
   if {$typesys == "win32" } {
     if { "after#" == [string range $dir 0 5] } {
       set dir ""
@@ -8026,7 +8032,7 @@ proc ::verifysign {cert type} {
       } else {
         set ft $typeFile
       }
-      set caforver [feselectKDE open {.} frame "$titleS" $::lastDoc "" "$ft"]
+      set caforver [feselectKDE open {.st} frame "$titleS" $::lastDoc "" "$ft"]
       if {$caforver == ""} {
         return 0
       }
@@ -8153,31 +8159,31 @@ proc ::renamecert {pkcs11_id} {
 
   tk busy hold ".st.fr1"
   tk busy hold ".st.fr3"
-  place .topPinPw -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 3.0 -relwidth 3.5
+  place .st.topPinPw -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 3.0 -relwidth 3.5
 
   set lpas $::labpas
   set ::labpas  "Введите метку для сертификата"
-  pack forget .topPinPw.labFrPw.entryPw
-  pack forget .topPinPw.labFrPw.butPw
-  pack forget .topPinPw.labFrPw.butOk
-  pack .topPinPw.labFrPw.entryLb -fill x -expand 1 -padx 5 -pady 5  -ipady 2
-  pack .topPinPw.labFrPw.butPw .topPinPw.labFrPw.butLbOk -pady {0 5} -sid right -padx 5
+  pack forget .st.topPinPw.labFrPw.entryPw
+  pack forget .st.topPinPw.labFrPw.butPw
+  pack forget .st.topPinPw.labFrPw.butOk
+  pack .st.topPinPw.labFrPw.entryLb -fill x -expand 1 -padx 5 -pady 5  -ipady 2
+  pack .st.topPinPw.labFrPw.butPw .st.topPinPw.labFrPw.butLbOk -pady {0 5} -sid right -padx 5
 
-  .topPinPw.labFrPw.entryLb insert end  $nickCert
+  .st.topPinPw.labFrPw.entryLb insert end  $nickCert
 
-  focus .topPinPw.labFrPw.entryLb
+  focus .st.topPinPw.labFrPw.entryLb
   set yespas ""
   vwait yespas
-  pack forget .topPinPw.labFrPw.entryLb
-  pack forget .topPinPw.labFrPw.butPw
-  pack forget .topPinPw.labFrPw.butLbOk
-  pack .topPinPw.labFrPw.entryPw -fill x -expand 1 -padx 5 -pady 5  -ipady 2
-  pack .topPinPw.labFrPw.butPw .topPinPw.labFrPw.butOk -pady {0 5} -sid right -padx 5
-  .topPinPw.labFrPw.entryLb delete 0 end
-  .topPinPw.labFrPw.entryPw delete 0 end
-  .topPinPw.labFrPw.entryPw configure -show *
+  pack forget .st.topPinPw.labFrPw.entryLb
+  pack forget .st.topPinPw.labFrPw.butPw
+  pack forget .st.topPinPw.labFrPw.butLbOk
+  pack .st.topPinPw.labFrPw.entryPw -fill x -expand 1 -padx 5 -pady 5  -ipady 2
+  pack .st.topPinPw.labFrPw.butPw .st.topPinPw.labFrPw.butOk -pady {0 5} -sid right -padx 5
+  .st.topPinPw.labFrPw.entryLb delete 0 end
+  .st.topPinPw.labFrPw.entryPw delete 0 end
+  .st.topPinPw.labFrPw.entryPw configure -show *
   set ::labpas $lpas
-  place forget .topPinPw
+  place forget .st.topPinPw
   tk busy forget ".st.fr1"
   tk busy forget ".st.fr3"
 
@@ -8865,10 +8871,10 @@ proc ::workOp {} {
       chan configure $fd -translation binary
       set content [read $fd]
       close $fd
-      .topclock.lclock configure -text "Начался процесс подписания\n\nдокумента из файла\n\n[file tail $doc_for_sign]\n\nПодождите некоторое время!"
-      .topclock configure -text "Идет процесс подписания"
-#      place .topclock -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 0.0 -relwidth 3.5
-      after 0  place .topclock -in .st -x 280 -y 180 -relwidth 2
+      .st.topclock.lclock configure -text "Начался процесс подписания\n\nдокумента из файла\n\n[file tail $doc_for_sign]\n\nПодождите некоторое время!"
+      .st.topclock configure -text "Идет процесс подписания"
+#      place .st.topclock -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 0.0 -relwidth 3.5
+      after 0  place .st.topclock -in .st -x 280 -y 180 -relwidth 2
       tk busy hold ".st.fr1"
       tk busy hold ".st.fr3"
 
@@ -8879,7 +8885,7 @@ proc ::workOp {} {
         tk_messageBox -title [mc "Add signature"] -icon error -message [mc "Не удалось добавить подпись"]  -parent .
         tk busy forget ".st.fr1"
         tk busy forget ".st.fr3"
-        place forget .topclock
+        place forget .st.topclock
         return
       }
       set fd [open $p7s_fn w]
@@ -8890,7 +8896,7 @@ proc ::workOp {} {
       tk_messageBox -title [mc "Add signature"] -icon info -message [mc "Подпись добавлена"] -detail "Файл с подписями:\n$p7s_fn" -parent .
       tk busy forget ".st.fr1"
       tk busy forget ".st.fr3"
-      place forget .topclock
+      place forget .st.topclock
     }
     4 {
       variable ::lcerts
@@ -8899,7 +8905,7 @@ proc ::workOp {} {
         tk_messageBox -title [mc "Save certificates"] -icon info -message [mc "Нет сертификатов"] -detail "File=$p7s_fn" -parent .
         return
       }
-      set dir [feselectKDE dir {.} frame "Выберите папку для сертификатов" $::lastDir "" "*"]
+      set dir [feselectKDE dir {.st} frame "Выберите папку для сертификатов" $::lastDir "" "*"]
       #puts "Сохранить все сертификаты в каталоге=$dir"
       if {$typesys == "win32" } {
         if { "after#" == [string range $dir 0 5] } {
@@ -9120,10 +9126,10 @@ set ogr [cframe new $c.bc -type ccombo -stroke gray85 -fontsize 2m -rx 1m -textv
 set caent [cframe new $c.pca -type centry -stroke gray85 -fontsize 2m -rx 1m]
 [$caent entry] configure -textvariable ::pca
     [$caent entry] delete 0 end
-    set lc "bind $c.lpca <Enter> {.helpview configure -text \"Точка выдачи сертификата УЦ\";place .helpview -in $c.lpca -relx 1.0 -rely 0.5}"
+    set lc "bind $c.lpca <Enter> {.st.helpview configure -text \"Точка выдачи сертификата УЦ\";place .st.helpview -in $c.lpca -relx 1.0 -rely 0.5}"
     set lc [subst $lc]
     eval $lc
-    bind $c.lpca <Leave> {place forget .helpview}
+    bind $c.lpca <Leave> {place forget .st.helpview}
 
     grid $c.lpca -row 4 -column 0  -sticky nwse -padx {4 0} -pady 2
     grid $c.pca -row 4 -column 1 -sticky nwse -padx 0 -pady 2
@@ -9323,9 +9329,13 @@ puts "create_csr_list5 LIST1=$c p1=$p1"
 
 }
 
-frame .st -relief flat -bd 0 -background #eff0f1  -padx 5 -pady 5
+#Для CloudTk
+#frame .st -relief flat -bd 0 -background #eff0f1  -padx 5 -pady 5
+#toplevel .st -bd 5  -background #eff0f1
+wm geometry .st [wm geometry .]
+wm withdraw .
 
-pack .st -in . -fill both -side top -expand 1 -pady 0
+#pack .st -in . -fill both -side top -expand 1 -pady 0
 puts "PACK ST"
 #wm state . withdraw
 frame .st.fr1 -borderwidth 1 -relief flat -background white -highlightbackground #5d8fc8 -padx 0 -pady 0 -highlightthickness 2 -highlightcolor #5d8fc8
@@ -9367,19 +9377,19 @@ $selecttok.update delete $gri
 
 #$utok config -width 6m -height 6m 
 $utok config -stroke "" 
-label .helpupdate -text "Обновить список токенов" -anchor w -justify left
-.helpupdate config -bg #ffe0a6
-bind $selecttok.update <Enter> {.helpupdate configure -text "Обновить список токенов";place .helpupdate -in [$::seltok entry] -relx 1.0 -rely 1.0 -anchor ne}
-bind $selecttok.update <Leave> {place forget .helpupdate}
+label .st.helpupdate -text "Обновить список токенов" -anchor w -justify left
+.st.helpupdate config -bg #ffe0a6
+bind $selecttok.update <Enter> {.st.helpupdate configure -text "Обновить список токенов";place .st.helpupdate -in [$::seltok entry] -relx 1.0 -rely 1.0 -anchor ne}
+bind $selecttok.update <Leave> {place forget .st.helpupdate}
 
 
 pack $selecttok.lab  -side left -padx {0 1.3m} -pady 0 -expand 0 -fill both
 pack [$::seltok canvas] -side left -padx 0 -pady 0 -expand 1 -fill x
 pack $selecttok.update -side right -padx {1m 1m} -pady "1m 1m" -expand 0 -fill both
-label .tokinfo -textvariable ::tokeninfo -anchor w -justify left
-.tokinfo config -bg #ffe0a6
-bind [$::seltok entry] <Enter> {.tokinfo configure -text [mc "Choose info \nfor you \nToken"];place .tokinfo -in [$::seltok entry] -relx 0.0 -rely 1.0}
-bind [$::seltok entry] <Leave> {place forget .tokinfo}
+label .st.tokinfo -textvariable ::tokeninfo -anchor w -justify left
+.st.tokinfo config -bg #ffe0a6
+bind [$::seltok entry] <Enter> {.st.tokinfo configure -text [mc "Choose info \nfor you \nToken"];place .st.tokinfo -in [$::seltok entry] -relx 0.0 -rely 1.0}
+bind [$::seltok entry] <Leave> {place forget .st.tokinfo}
 frame .st.fr1.fr2_certs -pady 2 -bg white -highlightcolor skyblue -relief flat -highlightthickness 1 -highlightbackground skyblue
 set saveCert ".st.fr1.fr2_certs"
 label $saveCert.labCert -text "Сертификат:" -font TkDefaultFontBold -anchor w -width 0 -bg white
@@ -9400,11 +9410,11 @@ set gri [svg2can::SVGFileToCanvas $saveCert.viewcert $img]
 $utok config -isvg "$saveCert.viewcert $gri" -pad "0.5m 0.5m 0.0m 0.0m"
 $saveCert.viewcert delete $gri
 
-label .helpview -text "Просмотр сертификата" -anchor w -justify left
-.helpview config -bg #ffe0a6
-#bind $saveCert.viewcert <Enter> {.helpview configure -text "Просмотр сертификата";place .helpview -in $saveCert.listCert -relx 1.0 -rely 1.0 -anchor ne}
-bind $saveCert.viewcert <Enter> {.helpview configure -text "Просмотр сертификата";place .helpview -in [$::selcer canvas] -relx 1.0 -rely 1.0 -anchor ne}
-bind $saveCert.viewcert <Leave> {place forget .helpview}
+label .st.helpview -text "Просмотр сертификата" -anchor w -justify left
+.st.helpview config -bg #ffe0a6
+#bind $saveCert.viewcert <Enter> {.st.helpview configure -text "Просмотр сертификата";place .st.helpview -in $saveCert.listCert -relx 1.0 -rely 1.0 -anchor ne}
+bind $saveCert.viewcert <Enter> {.st.helpview configure -text "Просмотр сертификата";place .st.helpview -in [$::selcer canvas] -relx 1.0 -rely 1.0 -anchor ne}
+bind $saveCert.viewcert <Leave> {place forget .st.helpview}
 pack $saveCert.viewcert -side right -padx {0m 1m} -pady "0.5m 0.5m" -expand 0 -fill both
 
 ######################
@@ -9464,8 +9474,8 @@ $labfn config -isvg "$tekfr.stfirst.labgl $ii" -ipad "0 9.5m 1m 6m" -fontfamily 
 $tekfr.stfirst.labgl delete $ii
 set labgl [ibutton new $tekfr.stfirst.br -text "" -fillnormal white  -command {} -strokewidth 0 -stroke {} -fillenter "#d9e8f6" -width 6.5m]
 $labgl config  -pad "0 0 0 0"
-eval "bind $tekfr.stfirst.br <Enter> {.helpupdate configure -text {Щелкните по мне};place .helpupdate -in $tekfr.stfirst.labgl -relx 0.5 -rely 1.0 -anchor ne}"
-bind $tekfr.stfirst.br <Leave> {place forget .helpupdate}
+eval "bind $tekfr.stfirst.br <Enter> {.st.helpupdate configure -text {Щелкните по мне};place .st.helpupdate -in $tekfr.stfirst.labgl -relx 0.5 -rely 1.0 -anchor ne}"
+bind $tekfr.stfirst.br <Leave> {place forget .st.helpupdate}
 
 set ::stlabgl $labgl
 $labgl config -command "wrapunwrap [set labgl]" 
@@ -9898,10 +9908,10 @@ set labMain0 [ibutton new  .st.fr3.browser -text ""  -fillnormal white  -command
 #$labMain0 config -width 6m -height 4.5m 
 #$labMain0 config -fillenter "" -strokewidth 0 -stroke ""
 #-fillpress ""
-label .bh -text "Выберите библиотеку PKCS#11 для токена"
-.bh config  -bg #ffe0a6
-bind .st.fr3.browser <Enter> {.bh configure -text "Выберите библиотеку PKCS#11 для токена";place .bh -in [$::fr3ent entry] -relx 1.0 -rely -1.0 -anchor ne}
-bind .st.fr3.browser <Leave> {place forget .bh}
+label .st.bh -text "Выберите библиотеку PKCS#11 для токена"
+.st.bh config  -bg #ffe0a6
+bind .st.fr3.browser <Enter> {.st.bh configure -text "Выберите библиотеку PKCS#11 для токена";place .st.bh -in [$::fr3ent entry] -relx 1.0 -rely -1.0 -anchor ne}
+bind .st.fr3.browser <Leave> {place forget .st.bh}
 
 #pack .st.fr3.browser -in .st.fr3 -side left -padx {1m 2m} -pady {6.5m 4.5m} -fill none
 #Использовать карттинку SVG
@@ -9978,52 +9988,52 @@ pack .st.fr3 -in .st -side top -pady {1.5m 1m} -fill x -padx 0
 
 proc page_password {}  {
   set ::labpas  "PIN-код для токена XA"
-  ttk::label .lforpas -text "PIN-код для токена UX"  -textvariable ::labpas
+  ttk::label .st.lforpas -text "PIN-код для токена UX"  -textvariable ::labpas
 
   #Widget for enter PIN or Password
-  frame .topPinPw -relief flat -bd 3 -bg chocolate
-  labelframe .topPinPw.labFrPw -borderwidth 4 -labelanchor nw -relief groove -labelwidget .lforpas -foreground black -height 120 -width 200  -bg #eff0f1
-  pack .topPinPw.labFrPw -in .topPinPw  -anchor nw -padx 1m -pady 1m -fill both -expand 0
-  entry .topPinPw.labFrPw.entryPw -background snow -show * -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken
-  entry .topPinPw.labFrPw.entryLb -background snow -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken
-  pack .topPinPw.labFrPw.entryPw -fill x -expand 1 -padx 1m -ipady 2 -pady 2m
-  bind .topPinPw.labFrPw.entryPw <Key-Return> {readPw .topPinPw.labFrPw.entryPw}
-  bind .topPinPw.labFrPw.entryLb <Key-Return> {readPw .topPinPw.labFrPw.entryLb}
-  ttk::button .topPinPw.labFrPw.butPw  -command {global yespas;set yespas "no"; } -text "Отмена"
-  ttk::button .topPinPw.labFrPw.butOk  -command {readPw .topPinPw.labFrPw.entryPw} -text "Готово"
-  ttk::button .topPinPw.labFrPw.butLbOk  -command {readPw .topPinPw.labFrPw.entryLb} -text "Готово"
-  pack .topPinPw.labFrPw.butPw .topPinPw.labFrPw.butOk -pady {0 5} -sid right -padx 5 -pady {0 2m}
+  frame .st.topPinPw -relief flat -bd 3 -bg chocolate
+  labelframe .st.topPinPw.labFrPw -borderwidth 4 -labelanchor nw -relief groove -labelwidget .st.lforpas -foreground black -height 120 -width 200  -bg #eff0f1
+  pack .st.topPinPw.labFrPw -in .st.topPinPw  -anchor nw -padx 1m -pady 1m -fill both -expand 0
+  entry .st.topPinPw.labFrPw.entryPw -background snow -show * -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken
+  entry .st.topPinPw.labFrPw.entryLb -background snow -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken
+  pack .st.topPinPw.labFrPw.entryPw -fill x -expand 1 -padx 1m -ipady 2 -pady 2m
+  bind .st.topPinPw.labFrPw.entryPw <Key-Return> {readPw .st.topPinPw.labFrPw.entryPw}
+  bind .st.topPinPw.labFrPw.entryLb <Key-Return> {readPw .st.topPinPw.labFrPw.entryLb}
+  ttk::button .st.topPinPw.labFrPw.butPw  -command {global yespas;set yespas "no"; } -text "Отмена"
+  ttk::button .st.topPinPw.labFrPw.butOk  -command {readPw .st.topPinPw.labFrPw.entryPw} -text "Готово"
+  ttk::button .st.topPinPw.labFrPw.butLbOk  -command {readPw .st.topPinPw.labFrPw.entryLb} -text "Готово"
+  pack .st.topPinPw.labFrPw.butPw .st.topPinPw.labFrPw.butOk -pady {0 5} -sid right -padx 5 -pady {0 2m}
 }
 proc page_passwordSVG {}  {
     set ::newname  [mc "Enter a name for new folder"]
-#    ttk::label $fm.lforpas -text [mc "Enter a name for new folder"]  -textvariable ::newname
+#    ttk::label $fm.st.lforpas -text [mc "Enter a name for new folder"]  -textvariable ::newname
 
     #Widget for new Name
 #    labelframe $fm.topName -borderwidth 4 -labelanchor nw -relief groove -labelwidget $fm.lforpas -foreground black -height 120 -width 200  -bg #eff0f1
-    set clfr [cframe new .topPinPwSVG -type clframe -text $::newname -width 10c ]
+    set clfr [cframe new .st.topPinPwSVG -type clframe -text $::newname -width 10c ]
 #  -relwidth 0.5
     $clfr boxtext
     $clfr config -fillnormal yellow -fontsize 3.5m
 #    set g1 [$fm.topName gradient create linear -stops {{0 "#bababa"} {1 "#454545"}} -lineartransition {0 0 0 1}]
 
-    entry .topPinPwSVG.entryPw -background snow  -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow -show *
-    pack .topPinPwSVG.entryPw -fill x -expand 1 -padx 3m -ipady 2 -pady {6m 2m}
-    eval "bind .topPinPwSVG.entryPw <Key-Return> {readPw .topPinPwSVG.entryPw}"
+    entry .st.topPinPwSVG.entryPw -background snow  -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow -show *
+    pack .st.topPinPwSVG.entryPw -fill x -expand 1 -padx 3m -ipady 2 -pady {6m 2m}
+    eval "bind .st.topPinPwSVG.entryPw <Key-Return> {readPw .st.topPinPwSVG.entryPw}"
 #    ttk::button $fm.topName.butPw  -command {global yespas;set yespas "no"; } -text [mc "Cancel"]
-    set cbut [cbutton new .topPinPwSVG.butPw -type ellipse  -text "Отмена"  -fillnormal red  -command {global yespas;set yespas "no"; }]
+    set cbut [cbutton new .st.topPinPwSVG.butPw -type ellipse  -text "Отмена"  -fillnormal red  -command {global yespas;set yespas "no"; }]
 #    set g11 [$fm.topName.butPw gradient create linear -stops {{0 "#bababa"} {1 "#2adad4"}} -lineartransition {0 0 0 1}]
-    set g11 [.topPinPwSVG.butPw gradient create radial -stops {{0 "#00FFEB"} {1 "#03b1fc"}} -radialtransition {0.50 0.50 0.50 0.2 0.2}]
+    set g11 [.st.topPinPwSVG.butPw gradient create radial -stops {{0 "#00FFEB"} {1 "#03b1fc"}} -radialtransition {0.50 0.50 0.50 0.2 0.2}]
     $cbut config -fillnormal $g11 -fillopacity 1.0
     [$cbut canvas] configure -background [$clfr config -fillnormal]
 #    eval "ttk::button $fm.topName.butOk  -command {[namespace current]::readName $fm.topName.entryPw} -text [mc Done]"
-    set cbut [eval "cbutton new .topPinPwSVG.butOk -type ellipse  -text {Готово}  -fillnormal red  -command {[list puts \[.topPinPwSVG.entryPw get\] ];readPw .topPinPwSVG.entryPw}"]
+    set cbut [eval "cbutton new .st.topPinPwSVG.butOk -type ellipse  -text {Готово}  -fillnormal red  -command {[list puts \[.st.topPinPwSVG.entryPw get\] ];readPw .st.topPinPwSVG.entryPw}"]
     set ::butPwOK $cbut
 #    set g11 [$fm.topName.butOk gradient create linear -stops {{0 yellow} {1 cyan}} -lineartransition {0 0 0 1}]
-    set g11 [.topPinPwSVG.butOk gradient create radial -stops {{0 "#03b1fc"} {1 "#00FFEB"}} -radialtransition {0.50 0.50 0.50 0.8 0.8}]
+    set g11 [.st.topPinPwSVG.butOk gradient create radial -stops {{0 "#03b1fc"} {1 "#00FFEB"}} -radialtransition {0.50 0.50 0.50 0.8 0.8}]
     $cbut config -fillnormal $g11
     [$cbut canvas] configure -background [$clfr config -fillnormal]
 
-    pack .topPinPwSVG.butPw .topPinPwSVG.butOk -side right -padx 2m -pady {0 2m}
+    pack .st.topPinPwSVG.butPw .st.topPinPwSVG.butOk -side right -padx 2m -pady {0 2m}
     return $clfr
 }
 
@@ -10037,16 +10047,16 @@ proc read_password {tit} {
   }
   tk busy hold ".st.fr1"
   tk busy hold ".st.fr3"
-  place .topPinPw -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 3.0 -relwidth 3.5
+  place .st.topPinPw -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 3.0 -relwidth 3.5
   set yespas ""
-  focus .topPinPw.labFrPw.entryPw
+  focus .st.topPinPw.labFrPw.entryPw
   vwait yespas
   tk busy forget ".st.fr1"
   tk busy forget ".st.fr3"
   if {$tit != ""} {
     set ::labpas "$tit_orig"
   }
-  place forget .topPinPw
+  place forget .st.topPinPw
   update
   return $yespas
 }
@@ -10060,13 +10070,13 @@ proc read_pwSVG {tit type} {
     "password" {
 	$::page_pwSVG config -relwidth 12c -stroke chocolate
 	[$::page_pwSVG canvas].entryPw delete 0 end
-	$::butPwOK config -command {readPw .topPinPwSVG.entryPw}
+	$::butPwOK config -command {readPw .st.topPinPwSVG.entryPw}
 	[$::page_pwSVG canvas].entryPw configure -show * 
 	set wr [winfo width ".st.fr1.fr2_list0"]
 	set wrx [winfo x ".st.fr1.fr2_list0"]
     }
     "rename1" {
-	$::butPwOK config -command {readPw .topPinPwSVG.entryPw}
+	$::butPwOK config -command {readPw .st.topPinPwSVG.entryPw}
 	[$::page_pwSVG canvas].entryPw configure -show {}
     }
     default {
@@ -10081,7 +10091,7 @@ proc read_pwSVG {tit type} {
 	[$::page_pwSVG canvas].entryPw insert end  $nickCert
 	set lpas $::labpas
 	set ::labpas  "Введите метку для сертификата"
-	$::butPwOK config -command {readPw .topPinPwSVG.entryPw}
+	$::butPwOK config -command {readPw .st.topPinPwSVG.entryPw}
 	[$::page_pwSVG canvas].entryPw configure -show {}
 	update
 #	after 60
@@ -10120,7 +10130,7 @@ if {1} {
  
 #bind [$::page_pwSVG canvas] <Configure> {}
   set yespas ""
-#  focus .topPinPw.labFrPw.entryPw
+#  focus .st.topPinPw.labFrPw.entryPw
   focus [$::page_pwSVG canvas].entryPw
   tk busy hold ".st"
 #Поднимаем наше окно
@@ -10134,7 +10144,7 @@ if {1} {
   if {$tit != ""} {
     set ::labpas "$tit_orig"
   }
-#  place forget .topPinPw
+#  place forget .st.topPinPw
   place forget [$::page_pwSVG canvas]
 raise [$::page_pwSVG canvas]
   update
@@ -10229,8 +10239,8 @@ proc ::selectLib { w ent  type list } {
       set lastdir [string map {"\\" "/"} $tekdir]
     }
 
-#set file [feselectKDE "open" {.} "frame" {Выберите библиотеку PKCS11} "$lastdir" "" "$msk"]
-set file [feselectKDE "open" {.} "window" {Выберите библиотеку PKCS11} "$lastdir" "" "$msk"]
+set file [feselectKDE "open" {.st} "frame" {Выберите библиотеку PKCS11} "$lastdir" "" "$msk"]
+#set file [feselectKDE "open" {.st} "window" {Выберите библиотеку PKCS11} "$lastdir" "" "$msk"]
 
     #	    puts "FILE=$file"
     if {$typesys == "win32" } {
@@ -10421,11 +10431,11 @@ proc ::updatetok {} {
     	    set mestok "Внимание!\nUser-PIN заблокирован"
         }
         if {$mestok != ""} {
-	    set erlib [mbutton new ".message" -type down -fillnormal aquamarine -tongue "0.5 0.3 0.7 0m" -text "$mestok"]
-	    set herlib [expr {int([winfo fpixels ".message" [$erlib config -height]])}]
+	    set erlib [mbutton new ".st.message" -type down -fillnormal aquamarine -tongue "0.5 0.3 0.7 0m" -text "$mestok"]
+	    set herlib [expr {int([winfo fpixels ".st.message" [$erlib config -height]])}]
 	    tk busy hold ".st"
 	    set herlib [expr {[winfo height .] / 2 - $herlib / 2}]
-	    set werlib [expr {[winfo width .] / 2 - int([winfo fpixels ".message" [$erlib config -width]] / 2)}]
+	    set werlib [expr {[winfo width .] / 2 - int([winfo fpixels ".st.message" [$erlib config -width]] / 2)}]
 	    $erlib place -x $werlib -y $herlib
 	    tk busy forget ".st"
     	    return $slotflags
@@ -10447,13 +10457,13 @@ proc ::updatetok {} {
   }
   if {$i == 0} {
 #    tk_messageBox -title "Библиотека PKCS#11" -icon error -message "Нет ни одного подключенного токена!"
-    if {[winfo exists .message] == 0} {
+    if {[winfo exists .st.message] == 0} {
 	set mestok "Внимание!\n$::pkcs11_module\nНет ни одного подключенного токена!"
-	set erlib [mbutton new ".message" -type down -fillnormal aquamarine -tongue "0.5 0.3 0.7 0m" -text "$mestok"]
-	set herlib [expr {int([winfo fpixels ".message" [$erlib config -height]])}]
+	set erlib [mbutton new ".st.message" -type down -fillnormal aquamarine -tongue "0.5 0.3 0.7 0m" -text "$mestok"]
+	set herlib [expr {int([winfo fpixels ".st.message" [$erlib config -height]])}]
 	tk busy hold ".st"
 	set herlib [expr {[winfo height .] / 2 - $herlib / 2}]
-	set werlib [expr {[winfo width .] / 2 - int([winfo fpixels ".message" [$erlib config -width]] / 2)}]
+	set werlib [expr {[winfo width .] / 2 - int([winfo fpixels ".st.message" [$erlib config -width]] / 2)}]
 	$erlib place -x $werlib -y $herlib
 	tk busy forget ".st"
 	foreach j [list 1 3 5 7 12] {
@@ -10817,7 +10827,7 @@ proc readdistr {urldistr w} {
   global typesys
   global myHOME
   global vars
-  set dir [feselectKDE dir {.} frame "Каталог для дистрибутива" $myHOME "" "*"]
+  set dir [feselectKDE dir {.st} frame "Каталог для дистрибутива" $myHOME "" "*"]
 
   if {$typesys == "win32" } {
     if { "after#" == [string range $dir 0 5] } {
@@ -10827,11 +10837,11 @@ proc readdistr {urldistr w} {
   if {$dir == ""} {
     return
   }
-  .topclock.lclock configure -text "Начался процесс загрузки\n\nдистрибутива\n\n[file tail $urldistr]\n\nПодождите некоторое время!"
-  .topclock configure -text "Идет процесс загрузки"
-#  place .topclock -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 0.0 -relwidth 3.5
+  .st.topclock.lclock configure -text "Начался процесс загрузки\n\nдистрибутива\n\n[file tail $urldistr]\n\nПодождите некоторое время!"
+  .st.topclock configure -text "Идет процесс загрузки"
+#  place .st.topclock -in .st.fr1.fr2_certs.labCert  -relx 1.0 -rely 0.0 -relwidth 3.5
   # -width $vars(center)
-  after 0  place .topclock -in .st -x 280 -y 180 
+  after 0  place .st.topclock -in .st -x 280 -y 180 
   tk busy hold ".st.fr1"
   tk busy hold ".st.fr3"
 
@@ -10845,18 +10855,18 @@ proc readdistr {urldistr w} {
 	chan configure $fd -translation binary
 	puts -nonewline $fd $filedistr
 	close $fd
-#    tk_messageBox -title "Загрузить дистрибутив" -icon info -message "Дистрибутив сохранен в файле\n$f"  -parent .topclock
+#    tk_messageBox -title "Загрузить дистрибутив" -icon info -message "Дистрибутив сохранен в файле\n$f"  -parent .st.topclock
 	set mesd "Дистрибутив сохранен в файле\n \n$f\n "
 	set str cyan
     }
   } else {
-#    tk_messageBox -title "Загрузить дистрибутив" -icon info -message "Не удалось загрузить дистрибутив \n$urldistr"  -parent .topclock
+#    tk_messageBox -title "Загрузить дистрибутив" -icon info -message "Не удалось загрузить дистрибутив \n$urldistr"  -parent .st.topclock
     set mesd "Не удалось загрузить дистрибутив\n \n$urldistr\n "
     set str red
   }
 #################
 after 20
-	set erlib [mbutton new ".stmessage" -type msg -fillnormal aquamarine -text "$mesd" -command "" -stroke $str -strokewidth 1m]
+	set erlib [mbutton new ".st.stmessage" -type msg -fillnormal aquamarine -text "$mesd" -command "" -stroke $str -strokewidth 1m]
 	set herlib [expr {int([winfo fpixels [$erlib canvas] [$erlib config -height]])}]
 	eval "$erlib config -command {global erm;$erlib destroy;set erm 1;}"
 #	tk busy hold ".st.fr1"
@@ -10866,7 +10876,7 @@ after 20
 	$erlib place -x $werlib -y $herlib
 	tk busy forget ".st.fr1"
 	tk busy forget ".st.fr3"
-	place forget .topclock
+	place forget .st.topclock
 	return
 }
 
@@ -13406,7 +13416,7 @@ proc loadcrl {cert_hex type {win ""}} {
     } else {
       set ft $typeFile
     }
-    set filecrl [feselectKDE open {.} frame "$titleS" $::lastDoc "" "$ft"]
+    set filecrl [feselectKDE open {.st} frame "$titleS" $::lastDoc "" "$ft"]
 
     if {$filecrl == ""} {
       return
@@ -13459,7 +13469,7 @@ proc loadcrl {cert_hex type {win ""}} {
     tk_messageBox -title "Загрузка СОС/CRL" -icon info -message "СОС/CRL загружен из\n$filecrl" -detail $valc
     return
 }
-  set dir [feselectKDE dir {.} frame "Выберите папку для СОС/CRL" "$myHOME" "" "*"]
+  set dir [feselectKDE dir {.st} frame "Выберите папку для СОС/CRL" "$myHOME" "" "*"]
 
   if {$typesys == "win32" } {
     if { "after#" == [string range $dir 0 5] } {
@@ -13507,7 +13517,7 @@ proc loadcrl {cert_hex type {win ""}} {
     } else {
       set ft $typeFile
     }
-    set filecrl [feselectKDE open {.} frame "$titleS" $::lastDoc "" "$ft"]
+    set filecrl [feselectKDE open {.st} frame "$titleS" $::lastDoc "" "$ft"]
     if {$filecrl == ""} {
       return
     }
@@ -14078,7 +14088,7 @@ proc ::tick { } {
 proc reconfigure { w args } {
   variable vars
   # windows sends many reconfigure .c events
-  if { $w ne ".topclock" } {
+  if { $w ne ".st.topclock" } {
     return
   }
   after cancel $vars(afterid)
@@ -14089,8 +14099,8 @@ proc _reconfigure { } {
   global ttt
   variable vars
 
-  bind .topclock.fclock <Configure> {}
-  set sz [expr {min([winfo width .topclock.fclock],[winfo height .topclock.fclock])}]
+  bind .st.topclock.fclock <Configure> {}
+  set sz [expr {min([winfo width .st.topclock.fclock],[winfo height .st.topclock.fclock])}]
   set t [expr {round(double($sz)/[tk scaling]*1.388888888)}]
   set r [expr {round($t/2.2)}]
   if { $vars(oldr) != $r } {
@@ -14100,7 +14110,7 @@ proc _reconfigure { } {
   }
   update
   set ttt $r
-  bind .topclock <Configure> [list ::reconfigure %W]
+  bind .st.topclock <Configure> [list ::reconfigure %W]
 }
 
 proc drawClock { basesz } {
@@ -14110,8 +14120,8 @@ proc drawClock { basesz } {
   set vars(border) [pscale [expr {round(double($basesz)/10.0)}]]
   set vars(center) [expr {$vars(radius)+$vars(border)}]
 
-  if { ! [winfo exists .topclock.fclock.c] } {
-    set vars(canvas) [canvas .topclock.fclock.c \
+  if { ! [winfo exists .st.topclock.fclock.c] } {
+    set vars(canvas) [canvas .st.topclock.fclock.c \
     -background white \
     -highlightthickness 0 \
     -height 3c \
@@ -14126,7 +14136,7 @@ proc drawClock { basesz } {
   font configure clockfont -size [expr {round([pscale $sz])}]
 
   font configure labelfont -size [expr {round([pscale $sz])} + 4]
-  #  .topclock.lclock configure -font labelfont
+  #  .st.topclock.lclock configure -font labelfont
 
   $vars(canvas) create oval \
   $vars(border) $vars(border) \
@@ -14153,13 +14163,13 @@ proc guiclock { } {
   global typesys
   variable opts
   variable vars
-  set w ".topclock"
+  set w ".st.topclock"
   catch {destroy $w}
   set vars(program.tag) clock
 
   set vars(fgcol) black
   set vars(oldr) 0
-  labelframe .topclock -text "Идет процесс подписания" -bg white -relief groove -bd 3 -bg white  -highlightbackground chocolate -highlightcolor skyblue  -highlightthickness 5
+  labelframe .st.topclock -text "Идет процесс подписания" -bg white -relief groove -bd 3 -bg white  -highlightbackground chocolate -highlightcolor skyblue  -highlightthickness 5
 
   font create clockfont
   font create labelfont
@@ -14293,3 +14303,5 @@ for {set i 0} {$i < 13} {incr i} {
     $::fra82b($i) config -compound left 
 }
 #$::crcert config -fontsize 3.5m  -strokewidth 0.5m -rx 1m
+wm geometry .st [wm geometry .]
+wm state . withdraw
