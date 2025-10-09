@@ -1,7 +1,6 @@
-#!/usr/bin/wish
-
 package require svgwidgets
-package require wm
+catch {package require wm}
+tk busy hold .dsvg
 
 variable t
 set t ".test"
@@ -13,7 +12,6 @@ wm state $t normal
 proc exitarm {t mestok} {
 	variable ::erm
 	set erlib [mbutton new "$t.message" -type yesno  -fillnormal white -text "$mestok" ]
-
 	set herlib [expr {int([winfo fpixels "$t.message" [$erlib config -height]])}]
 	set werlib [expr {int([winfo fpixels "$t.message" [$erlib config -width]])}]
 	wm resizable $t 0 0
@@ -26,23 +24,23 @@ proc exitarm {t mestok} {
 	if {$rr != "yes"} {
 	    return
 	}
-	foreach {oo} [info class instances cbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances ibutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances mbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cmenu] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cframe] {
-	    $oo destroy
+	set allo "[info class instances cbutton] [info class instances ibutton] [info class instances mbutton] [info class instances cmenu]  [info class instances cframe]"
+	foreach {oo} $allo {
+	    set ind 0
+	    foreach omain $::listO {
+		if {"$oo" != "$omain"} {
+		    continue
+		}
+		set ind 1
+		break
+	    }
+	    if {$ind == 0} {
+		$oo destroy
+	    }
 	}
 	destroy $t
 	puts "Пример demoPackSVGwithImageMesFromMenu.tcl завершен."
+	tk busy forget .dsvg
 	return
 }
 
@@ -157,7 +155,7 @@ if {0} {
     }
 }
 
-wm title $t "demoPackSVGwithImageMesFromMenu"
+wm title $t "demoSVGbuttonWithImage"
 
 #Если хотим иметь окно 400x400
 $t configure -height 440 -width 440
@@ -191,7 +189,7 @@ for { set n 0 } {$n < 4} {incr n} {
 #	puts "[subst "cbutton new $t.frame.l$i -width 7m -height 7m -text $i -type $type $rx"]"
 	if {$i == 4 || $i == 8 || $i == 12 } {
 #	    set cb [eval [subst "cbutton new $t.frame.l$i -width 7m -height 7m -text {В\\nе\\nр\\nт\\n$i} -type $type $rx -compound top -ipad {1m 5m 1m 5m}"] ]
-	    set cb [eval [subst "cbutton new $t.frame.l$i -width 7m -height 7m -rotate 90 -text {Вертикаль $i} -type $type $rx -compound top -ipad {1m 5m 1m 5m}"] ]
+	    set cb [eval [subst "cbutton new $t.frame.l$i -width 7m -height 7m -rotate 90 -text {[mc Vertical] $i} -type $type $rx -compound top -ipad {1m 5m 1m 5m}"] ]
 	} elseif {$i == 8 || $i == 116 } {
 	    set cb [eval [subst "cbutton new $t.frame.l$i -width 7m -height 7m -text $i -type $type $rx -compound top -ipad {1m 5m 1m 5m}"] ]
 	} elseif {$i == 1 || $i == 5} {
@@ -203,15 +201,14 @@ for { set n 0 } {$n < 4} {incr n} {
 
 #Нажатие клавиши l1 - l4
 	if {$i > 0 && $i < 13} {
-	    set txt "mesWarnMenu $cb [lindex $mside $j] \{-- $cb -- \nВы нажали кнопку\n$t.frame.l$i\} "
+	    set txt "mesWarnMenu $cb [lindex $mside $j] \{-- $cb -- \n[mc {You clicked the button}]\n$t.frame.l$i\} "
 	    $cb config -command  "[set txt]"
 	}
-
         pack $t.frame.l$i -in $t.frame -side $sd -fill both -expand 1
     }
 }
 
-set cbut1 [cbutton new $t.frame.b  -text "Выход" -command {exitarm $t  "Вы действительно\n хотите выйти?"} -width 3c -rx 1m -ipad "1m 7m 2m 4m"]
+set cbut1 [cbutton new $t.frame.b  -text [mc "Выход"] -command {exitarm $t  [mc "Are you sure you\nwant to quit?"]} -width 3c -rx 1m -ipad "1m 7m 2m 4m"]
 
 set g1 [[$cbut1 canvas] gradient create linear -stops {{0 "#FF3B00"} {1 "#FFFF00"}} -lineartransition {0 0.50 1 0.50}]
 set g2 [[$cbut1 canvas] gradient create linear -stops {{0 "#FFFF00"} {1 "#FF3B00"}} -lineartransition {0 0.50 1 0.50}]
@@ -225,5 +222,7 @@ set minw [winfo width $t]
 set minh [winfo height $t]
 #wm minsize $t $minw $minh
 wm state . withdraw
+#wm protocol $t WM_DELETE_WINDOW {exitarm $t  [mc "Are you sure you\nwant to quit?"]}
+wm protocol $t WM_DELETE_WINDOW "$cbut1 invoke"
 
 

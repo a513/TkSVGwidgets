@@ -4,65 +4,60 @@ wm state . normal
 set ::bgold [. cget -bg]
 set ::geo [wm geometry .]
 set ::min [wm minsize .]
-#package require wm
+catch {package require wm}
 
 #. configure -bg yellow
-. configure -bg chocolate
 wm state . withdraw
 wm state . normal
-#wm protocol . WM_DELETE_WINDOW {exitarm . {Вы действительно\nхотите выйти?}}
+wm protocol . WM_DELETE_WINDOW {exitarm . [mc {Вы действительно\nхотите выйти?}]}
+set ::bgold [. cget -bg]
+set ::geo [wm geometry .]
+. configure -bg chocolate
+
 
 proc exitarm {t mestok} {
+	variable ::erm
+	set t1 $t
 	if {$t == "."} {
-	    set t1 ""
+	    set t ""
 	} else {
-	    set t1 $t
+	    set t $t
 	}
-	set erlib [mbutton new "$t1.message" -type yesno  -fillnormal white -text "$mestok" -textanchor n]
-	set herlib [expr {int([winfo fpixels "$t1.message" [$erlib config -height]])}]
-	set werlib [expr {int([winfo fpixels "$t1.message" [$erlib config -width]])}]
 
-#Главное окно неизменяемое
-	wm resizable $t 0 0
-	tk busy hold $t
-	set werlib [expr {[winfo width $t] / 2 - $werlib / 2}]
-	set herlib [expr {[winfo height $t] / 4 }]
-	eval bind . <Configure> \{raise $t1.message $t1._Busy\}
-#	set rr [$erlib place -in $t -x $werlib -y $herlib]
-	set rr [$erlib place -in $t -x 150 -y 170]
-	if {[tk busy status $t]} {
-	    tk busy forget $t
-	}
-	bind . <Configure> {}
+	set erlib [mbutton new "$t.message" -type yesno  -fillnormal white -text "$mestok" ]
+	set herlib [expr {int([winfo fpixels "$t.message" [$erlib config -height]])}]
+	set werlib [expr {int([winfo fpixels "$t.message" [$erlib config -width]])}]
+	tk busy hold .dsvg
+	set werlib [expr {[winfo width $t.game] / 2 - $werlib / 2}]
+	set herlib [expr {[winfo height $t.game] / 4 }]
+	set rr [$erlib place -in $t1 -x $werlib -y $herlib]
+	wm resizable $t1 0 0
 	if {$rr != "yes"} {
-	    wm resizable $t 1 1
 	    return
 	}
-#Убураем за собой!!!
-	foreach {oo} [info class instances cbutton] {
-	    $oo destroy
+	set allo "[info class instances cbutton] [info class instances ibutton] [info class instances mbutton] [info class instances cmenu]  [info class instances cframe]"
+	foreach {oo} $allo {
+	    set ind 0
+	    foreach omain $::listO {
+		if {"$oo" != "$omain"} {
+		    continue
+		}
+		set ind 1
+		break
+	    }
+	    if {$ind == 0} {
+		$oo destroy
+	    }
 	}
-	foreach {oo} [info class instances ibutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances mbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cmenu] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cframe] {
-	    $oo destroy
-	}
+#	destroy $t1
+	puts "Пример demoPackSVGwithImageMesFromMenu.tcl завершен."
+	tk busy forget .dsvg
 	destroy .game
-	wm resizable $t 1 1
-	wm geometry $t $::geo
-#	eval wm minsize $t $::min
+	wm resizable $t1 1 1
+	wm geometry $t1 $::geo
 	. configure -bg $::bgold
-	wm title . "Следующий пример"
-	if {$::argc > -1} {
-	    exit
-	}
+	wm state . withdraw
+	return
 }
 
 proc badmove {t wd mestok} {
@@ -305,7 +300,7 @@ proc a {id} {
     }
     set abut [cbutton new .game.fr$id -type rect -width 5m -height 5m -rotate $grad -text $text -fontweight bold]
     if {$id == "E"} {
-	$abut config -command {exitarm . "Вы действительно\nхотите выйти?"}
+	$abut config -command {exitarm . [mc "Вы действительно\nхотите выйти?"]}
     }
     if {$id == "A"} {
 	set ::asnow $abut
@@ -320,6 +315,7 @@ proc a {id} {
     return .game.fr$id
 }
 proc initPos {} {
+if {0} {
     foreach b [info class instances cbutton] {
 	if {[$b config -text] == ""} {
 	    $b destroy    
@@ -330,6 +326,24 @@ proc initPos {} {
 	    $b destroy    
 	}
     }
+}
+    set allo "[info class instances cbutton] [info class instances ibutton] [info class instances mbutton] [info class instances cmenu]  [info class instances cframe]"
+	foreach {oo} $allo {
+	    set ind 0
+	    foreach omain $::listO {
+		if {"$oo" != "$omain"} {
+		    continue
+		}
+		set ind 1
+		break
+	    }
+	    if {$ind == 0} {
+		if {[$oo config -text] == ""} {
+		    $oo destroy
+		}
+	    }
+    }
+
     
     set j 1
     for {set i 8} {$i > 0} {incr i -1} {

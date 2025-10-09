@@ -1,9 +1,5 @@
 package require svgwidgets
-package require wm
-#source "../SVGWIDGETS/svgwidgets.tcl"
-#package require canvas::gradient
-#set tkp::pixelalign 1
-#set tkp::depixelize 1
+#package require wm
 variable b1
 variable clfrv
 variable went 
@@ -15,6 +11,8 @@ variable vrc4
 
 variable z1
 variable z2
+
+tk busy hold .dsvg
 
 proc selectwsvg {win x y} {
     puts "$win $x $y"
@@ -88,26 +86,39 @@ proc foldercolor {canv fcol} {
     return $grfolder
 }
 
-proc exitarm {t} {
-	foreach {oo} [info class instances cbutton] {
-	    $oo destroy
+proc exitarm {t {mestok "XAXA"}} {
+	variable ::erm
+	set erlib [mbutton new "$t.message" -type yesno  -fillnormal white -text "$mestok" ]
+	set herlib [expr {int([winfo fpixels "$t.message" [$erlib config -height]])}]
+	set werlib [expr {int([winfo fpixels "$t.message" [$erlib config -width]])}]
+	wm resizable $t 0 0
+	set werlib [expr {[winfo width $t.c] / 2 - $werlib / 2}]
+	set herlib [expr {[winfo height $t.c] / 4 }]
+	set rr [$erlib place -in $t -x $werlib -y $herlib]
+	wm resizable $t 1 1
+	if {$rr != "yes"} {
+	    return
 	}
-	foreach {oo} [info class instances ibutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances mbutton] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cmenu] {
-	    $oo destroy
-	}
-	foreach {oo} [info class instances cframe] {
-	    $oo destroy
+	set allo "[info class instances cbutton] [info class instances ibutton] [info class instances mbutton] [info class instances cmenu]  [info class instances cframe]"
+	foreach {oo} $allo {
+	    set ind 0
+	    foreach omain $::listO {
+		if {"$oo" != "$omain"} {
+		    continue
+		}
+		set ind 1
+		break
+	    }
+	    if {$ind == 0} {
+		$oo destroy
+	    }
 	}
 	destroy $t
-	puts "Пример button_PACK завершен."
+	puts "Пример demoPackSVGwithImageMesFromMenu.tcl завершен."
+	tk busy forget .dsvg
 	return
 }
+
 
 wm state . withdraw
 variable t
@@ -119,7 +130,7 @@ toplevel $t
 #####################
 wm geometry $t 800x650+50+50
 wm minsize $t 700 500
-wm title $t "tcl/tk svg widgets canvas demo with resize"
+wm title $t "Tcl/Tk svg widgets canvas demo with resize"
 
 #tkp::canvas $t.c -bg yellow
 set tkpfr [cbutton new $t.c -type frame -strokewidth 0 -stroke "" -fillnormal yellow]
@@ -137,24 +148,24 @@ set bb [bind $t.c <Configure> ]
 
 set went [cframe new $t.c -type centry -rx 2m -height 7m  -x 110 -y 40 -width 500]
 [$went entry] delete 0 end
-[$went entry] insert 0 {Для генерации кода градиента используйте кнопку "Обновить градиент"}
+[$went entry] insert 0 [mc {To generate the gradient code, use the "Update Gradient" button.}]
 
 #SVG-фрейм
 set b1 [cbutton new $t.c -type frame -rx 5m -y 90 -height 340 -x 40 -width 260]
 set hrect 130
-set xa1 [cbutton create Прямоугольник $t.c -type rect  -text Прямоугольник -fontweight bold -x 80 -width 180 -y $hrect -height 45]
+set xa1 [cbutton create Прямоугольник $t.c -type rect  -text [mc Rectangle] -fontweight bold -x 80 -width 180 -y $hrect -height 45]
 set hrect [expr {$hrect + 45 + 20}]
-set xa2 [cbutton new $t.c -type round  -text Полукруглый -fontsize 3m -x 80 -width 180 -y $hrect -height 45]
+set xa2 [cbutton new $t.c -type round  -text [mc Semicircular] -fontsize 3m -x 80 -width 180 -y $hrect -height 45]
 set hrect [expr {$hrect + 45 + 20}]
-set xa3 [cbutton new $t.c -type ellipse  -text Эллипс -fontsize 5m -fontslant italic -x 80 -width 180 -y $hrect -height 45]
+set xa3 [cbutton new $t.c -type ellipse  -text [mc Ellipse] -fontsize 5m -fontslant italic -x 80 -width 180 -y $hrect -height 45]
 set hrect [expr {$hrect + 45 + 20}]
-set xa4 [cbutton new $t.c -type rect  -text Закругленный -fontsize 4m -rx 2m  -compound none -x 80 -width 180 -y $hrect -height 45 -ipad "1m 7m  3m 7m"]
+set xa4 [cbutton new $t.c -type rect  -text [mc Rounded] -fontsize 4m -rx 2m  -compound none -x 80 -width 180 -y $hrect -height 45 -ipad "1m 7m  3m 7m"]
 eval  [subst {$xa4 config -command {puts "Закруглеённый=[set xa4] Левый фрейм=[set b1]"}}]
 set img [foldercolor [$xa4 canvas] "blue" ]
 $xa4 config -image "[$xa4 canvas] $img"
 [$xa4 canvas] delete $img
 
-set clfrv [cframe new $t.c -type clframe -text "radio/check кнопки" -rx 1m -strokewidth 1 -stroke red -fillnormal snow -width 220 -height 340]
+set clfrv [cframe new $t.c -type clframe -text "radio/check [mc buttons]" -rx 1m -strokewidth 1 -stroke red -fillnormal snow -width 220 -height 340]
 $clfrv move 430 90
 $clfrv boxtext
 $clfrv config -fontsize 3.5m -fillbox cyan
@@ -169,12 +180,12 @@ set rc3 [cbutton new $t.c -type check  -text Check1 -variable vrc3 -x 500 -y $hr
 set hrect [expr {$hrect + 28 + $dy}]
 set rc4 [cbutton new $t.c -type check  -text Check2 -variable vrc4 -x 470 -y $hrect]
 set hrect [expr {$hrect + 28 + $dy}]
-set rc5 [cbutton new $t.c -type circle  -text Круг -x 500 -y $hrect]
+set rc5 [cbutton new $t.c -type circle  -text [mc Circle] -x 500 -y $hrect]
 set hrect [expr {$hrect + 28 + $dy}]
-set rc7 [ibutton create Картинка $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 470 -y $hrect -image "::tk::icons::error"]
+set rc7 [ibutton create Картинка $t.c -width 2c -height 1c -text [mc Image] -pad "1m 1m 1m 1m" -x 470 -y $hrect -image "::tk::icons::error"]
 #set rc7 [ibutton create Group $t.c -width 2c -height 1c -text Картинка -pad "1m 1m 1m 1m" -x 470 -y $hrect -image "::tk::icons::error"]
 set hrect [expr {$hrect + 28 + $dy + 15}]
-set rc6 [cbutton new $t.c -type square  -text Квадрат -ipad "1m 1m 1m 1m" -x 470 -y $hrect]
+set rc6 [cbutton new $t.c -type square  -text [mc Square] -ipad "1m 1m 1m 1m" -x 470 -y $hrect]
 eval  [subst {$rc6 config -command {puts "Квадрат=[set rc6] Правый фрейм=[set clfrv]"}}]
 set img [folderbrown [$rc6 canvas]]
 $rc6 config -image "[$rc6 canvas] $img"
@@ -182,7 +193,6 @@ $rc6 config -fillnormal cyan
 puts "Квадрат=$rc6"
 [$rc6 canvas] delete $img
 
-bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 if {$svgwidget::tkpath != "::tko::path"} {
     $tkpfr config -fillnormal gradient25
 } else {
@@ -190,14 +200,14 @@ if {$svgwidget::tkpath != "::tko::path"} {
 }
 update
 #Кнопка смены драдиента нв основном фрейме
-set xgrad [cbutton new $t.c -type round -x 2m -y 2m  -text {Обновить градиент} -command "variable tkpfr;updategrad \[\$tkpfr canvas] \[\$tkpfr config -fillnormal]" -width 150 -height 25]
+set xgrad [cbutton new $t.c -type round -x 2m -y 2m  -text [mc "Update gradient"] -command "variable tkpfr;updategrad \[\$tkpfr canvas] \[\$tkpfr config -fillnormal]" -width 150 -height 25]
 #$xgrad place -in $t.c -x 2m -y 2m
 #
 
 #Меню
 set menu [cmenu new $t.c -x 310 -y 440 -direction up ]
 $menu add check -text check1 -variable z2
-$menu add command -text Команда -command {puts "Нажали кнопку Команда"}
+$menu add command -text [mc Command] -command {puts "Нажали кнопку Команда"}
 $menu add radio -text radio1 -variable z1 -value 0
 $menu add radio -text radio2 -variable z1 -value 1
 set mbut [$menu add finish]
@@ -221,3 +231,5 @@ set z1 0
 set z2 1
 bind $t.c <ButtonRelease-3> {selectwsvg %W %x %y}
 bind [$went entry] <ButtonRelease-3> "puts \"Выбран svg-виджет: $went\""
+set tg [mc "Are you sure you\nwant to quit?"]
+wm protocol $t WM_DELETE_WINDOW "exitarm [set t]  \"[set tg]\""

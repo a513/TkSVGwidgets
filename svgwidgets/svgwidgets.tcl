@@ -4272,7 +4272,8 @@ oo::class create mbutton {
     set d [my coordspath "$x1 $y1" "$x2 $y2" $rx "$Options(-tongue)" $type]
     if {$fr} {
 #Эмуляция background для холста
-	set idbg [$wcan create [set prect] $x1 $y1 $x2 $y2 -stroke {} -strokewidth 0 -fill chocolate -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]] 
+#	set idbg [$wcan create [set prect] $x1 $y1 $x2 $y2 -stroke {} -strokewidth 0 -fill chocolate -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]] 
+	set idbg [$wcan create [set prect] $x1 $y1 $x2 $y2 -stroke {} -strokewidth 0 -fill red -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]] 
     }
     set idr [$wcan create path  "$d" -stroke {} -strokewidth 0] 
     set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
@@ -4311,11 +4312,11 @@ oo::class create mbutton {
 #puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn btag=$btag"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 2) / 3.0}]
 	if {$fr == 0} {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 -  $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno }] -text " Нет"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 -  $hyesno }] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno }] -text " [mc {No}]"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	} else {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno / 2 }] -text " Нет"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno / 2 }] -text " [mc No]"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	}
 
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) yes"
@@ -4341,9 +4342,9 @@ oo::class create mbutton {
 #	puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 1) / 2.0}]
 	if {$fr == 0} {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno }] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno }] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	} else {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text "Да"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	}
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4
 
@@ -7051,7 +7052,8 @@ namespace eval ::gengrad {
   wm maxsize .tpgradient 660 640
   wm minsize .tpgradient 600 430
   wm geometry .tpgradient 600x430+500+300
-  wm title .tpgradient {SVGWIDGETS: генерация градиента}
+  set tg [mc "gradient generation"]
+  wm title .tpgradient "SVGWIDGETS: $tg"
   wm protocol .tpgradient WM_DELETE_WINDOW {gengrad::cancelgradient}
 
   variable Gradienttype
@@ -7174,7 +7176,7 @@ namespace eval ::gengrad {
     spinbox $wtrrb.e6 -background {white} -textvariable Gradient(fy) -borderwidth 0 -highlightthickness 0 -buttonbackground "#d6d2d0" -foreground "#221f1e" -increment {0.01} -to {1.0} -width {4} -command {::gengrad::changetransition .tpgradient.frameFirst.canvas18}
     pack $wtrrb.e6 -anchor center -expand 0 -padx 1 -side left
 
-  label .tpgradient.frameFirst.frame0.label1 -background "#d6d2d0" -foreground "#221f1e" -relief {flat} -text {Тип градиента}
+  label .tpgradient.frameFirst.frame0.label1 -background "#d6d2d0" -foreground "#221f1e" -relief {flat} -text "[mc {Gradient type}]"
 
   pack .tpgradient.frameFirst.frame0.label1 -anchor n -expand 0 -fill none -padx 0 -pady 0 -side top
 
@@ -7184,7 +7186,7 @@ namespace eval ::gengrad {
   frame .tpgradient.frameFirst.frame0.linear -borderwidth {2} -relief {flat} -background yellow
   label .tpgradient.frameFirst.frame0.linear.lab -background "#d6d2d0" -foreground "#221f1e" -relief {flat} -text "Направление: "
 
-  set ::lmenu [cbutton create mlin .tpgradient.frameFirst.frame0.linear.direction -type rect -text " Шаблоны направлений" -fontsize 3.5m -compound left]
+  set ::lmenu [cbutton create mlin .tpgradient.frameFirst.frame0.linear.direction -type rect -text [mc "Direction patterns"] -fontsize 3.5m -compound left]
 
   set w ".tpgradient.frameFirst.frame0.linear.direction"
   set gr [$w create group]
@@ -7221,7 +7223,7 @@ pack .tpgradient.frameFirst.frame0.linear.direction -expand 0 -fill none  -padx 
 #Заготовки для градиента radial
 set arraypos {"Center" "Top" "Top-Right" "Right" "Bottom-Right" "Bottom" "Bottom-Left" "Left" "Top-Left" }
 frame .tpgradient.frameFirst.frame0.radial -borderwidth {0} -relief {flat} -background yellow
-label .tpgradient.frameFirst.frame0.radial.lab -background "#d6d2d0" -foreground "#221f1e" -relief {flat} -text "Позиция: "
+label .tpgradient.frameFirst.frame0.radial.lab -background "#d6d2d0" -foreground "#221f1e" -relief {flat} -text "[mc Position]: "
 
 variable varpos
 set  varpos [lindex $arraypos 0]
@@ -7248,7 +7250,8 @@ pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradie
     scrollutil::createWheelEventBindings all   
     set cf [$sf contentframe]
         
-    label $cf.label5 -background snow -foreground "#221f1e" -relief {flat} -text {Компоненты градиента}
+    set tg [mc "Gradient components"]
+    label $cf.label5 -background snow -foreground "#221f1e" -relief {flat} -text "$tg"
     pack $cf.label5 -expand 0 -fill none -padx 0 -pady 1m -side top -anchor center
 
     set i 0
@@ -7266,12 +7269,12 @@ pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradie
     incr i
     set buts ".tpgradient.frameStops.buts"
     frame $buts -borderwidth {2} -relief {flat} -background "#d6d2d0"
-    eval "cbutton create addst $buts.butadd -type round -command {global Gradient; ::gengrad::createstop $cf \$Gradient(i)} -text {Добавить слой} -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily \"$svgFont\""
+    eval "cbutton create addst $buts.butadd -type round -command {global Gradient; ::gengrad::createstop $cf \$Gradient(i)} -text \"[mc {Add layer}]\" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily \"$svgFont\""
 
-    cbutton create view $buts.butview -rx 2m -command {::gengrad::viewgradient ".tpgradient.frameFirst.canvas18"}  -text "Просмотр градиента" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
-    cbutton create ok $buts.butok -type ellipse -command {::gengrad::okgradient} -text "Готово" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
-    cbutton create canc $buts.butcan -type round -command {::gengrad::cancelgradient} -text "Cancel" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
-    eval "cbutton create delst $buts.butdel -command {::gengrad::deletestop $cf} -text {Удалить последний слой} -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily \"$svgFont\""
+    cbutton create view $buts.butview -rx 2m -command {::gengrad::viewgradient ".tpgradient.frameFirst.canvas18"}  -text "[mc {Gradient preview}]" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
+    cbutton create ok $buts.butok -type ellipse -command {::gengrad::okgradient} -text [mc "Accept"] -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
+    cbutton create canc $buts.butcan -type round -command {::gengrad::cancelgradient} -text [mc "Cancel"] -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily "$svgFont"
+    eval "cbutton create delst $buts.butdel -command {::gengrad::deletestop $cf} -text \"[mc {Remove last layer}]\" -strokenormal skyblue -strokewidth 0.5m -fontsize 4m -fontfamily \"$svgFont\""
 
     pack $buts.butview -anchor ne -expand 0 -fill x -padx 1m -pady "3m 1m" -side top
     pack $buts.butadd -anchor ne -expand 0 -fill x -padx 1m -pady 1m -side top
@@ -7305,14 +7308,14 @@ pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradie
 
     set wgrad ".viewrad"
     toplevel $wgrad -bg snow
-    wm title $wgrad "Кодогенерация градиента"
+    wm title $wgrad [mc "Gradient code generation"]
     wm withdraw $wgrad
     wm protocol $wgrad WM_DELETE_WINDOW [subst "wm withdraw $wgrad"]
     wm iconphoto $wgrad "$::gengrad::icongrad"
     wm iconphoto .tpgradient "$::gengrad::icongrad"
 
     wm geometry $wgrad 600x430+100+50
-    set ::vgrad [cframe create "Obj[incr ::gengrad::i]" $wgrad.can -type clframe -text "Просмотр градиента" -fontsize 5m -fillnormal yellow -bg snow -strokewidth 1m -stroke cyan]
+    set ::vgrad [cframe create "Obj[incr ::gengrad::i]" $wgrad.can -type clframe -text "[mc {Gradient preview}]" -fontsize 5m -fillnormal yellow -bg snow -strokewidth 1m -stroke cyan]
     $::vgrad boxtext
     pack $wgrad.can -fill both -expand 1 -padx 1m -pady {1m 0m}
     update

@@ -329,6 +329,21 @@ proc wm::Release {w x y} {
 proc wm::Close {w} {
     variable map
     set top [winfo toplevel $w]
+#Проверяем wm protokol $w WM_DELETE_WINDOW
+    if {[wm protocol $top WM_DELETE_WINDOW] != ""} {
+	eval [wm protocol $top WM_DELETE_WINDOW]
+	return
+    }
+#Ищем и проверяем родное окно
+    set ind [lsearch $map $top]
+    if {$ind != -1} {
+	incr ind -1
+	set owin [lindex $map $ind]
+	if {[wm protocol $owin WM_DELETE_WINDOW] != ""} {
+	    eval [wm protocol $owin WM_DELETE_WINDOW]
+	    return
+	}
+    }
     destroy $top
 }
 

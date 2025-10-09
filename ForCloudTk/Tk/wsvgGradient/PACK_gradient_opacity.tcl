@@ -2,41 +2,45 @@ package require svgwidgets
 #package require canvas::gradient
 variable tkpfr
 
-proc exitarm {t} {
-	if {$t == "."} {
-	    set t1 ""
-	} else {
-	    set t1 $t
-	}
-	set erlib [mbutton new "$t1.message" -type yesno  -fillnormal white -text "Вы действительно\nхотите выйти?" -textanchor n -strokewidth 3]
-	set g4 [$t1.message gradient create linear -method pad -units bbox -stops { { 0.00 #ffffff 1} { 1.00 #dbdbdb 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
-	$erlib config -fillnormal $g4
-	set herlib [expr {int([winfo fpixels "$t1.message" [$erlib config -height]])}]
-	set werlib [expr {int([winfo fpixels "$t1.message" [$erlib config -width]])}]
+catch {package require wm}
+tk busy hold .dsvg
 
-#Главное окно неизменяемое
+proc exitarm {t } {
+	variable ::erm
+	set mestok [mc "Are you sure you\nwant to quit?"]
+	set erlib [mbutton new "$t.message" -type yesno  -fillnormal white -text "$mestok" ]
+	set herlib [expr {int([winfo fpixels "$t.message" [$erlib config -height]])}]
+	set werlib [expr {int([winfo fpixels "$t.message" [$erlib config -width]])}]
 	wm resizable $t 0 0
-	tk busy hold $t
-	set werlib [expr {[winfo width $t] / 2 - $werlib / 2}]
-	set herlib [expr {[winfo height $t] / 4 }]
-#	eval bind . <Configure> \{raise $t1.message $t1._Busy\}
+	tk busy hold "$t.frame"
+	set werlib [expr {[winfo width $t.frame] / 2 - $werlib / 2}]
+	set herlib [expr {[winfo height $t.frame] / 4 }]
 	set rr [$erlib place -in $t -x $werlib -y $herlib]
-	if {[tk busy status $t]} {
-	    tk busy forget $t
-	}
-#	bind . <Configure> {}
+	tk busy forget "$t.frame"
+	wm resizable $t 1 1
 	if {$rr != "yes"} {
-	    wm resizable $t 1 1
 	    return
 	}
-#Подчищаем за собою
-#	svgwidget::clearclass "cbutton ibutton mbutton cmenu cframe"
-	svgwidget::clearclass
-
+	set allo "[info class instances cbutton] [info class instances ibutton] [info class instances mbutton] [info class instances cmenu]  [info class instances cframe]"
+	foreach {oo} $allo {
+	    set ind 0
+	    foreach omain $::listO {
+		if {"$oo" != "$omain"} {
+		    continue
+		}
+		set ind 1
+		break
+	    }
+	    if {$ind == 0} {
+		$oo destroy
+	    }
+	}
 	destroy $t
-	puts "Пример button_PACK_gradient завершен."
+	puts "Пример PACK_gradient_opacity.tcl завершен."
+	tk busy forget .dsvg
 	return
 }
+
 
 proc updatewin {went clfrv } {
     opacity 
@@ -93,7 +97,7 @@ destroy $t
 toplevel $t
 wm state $t withdraw
 wm state $t normal
-wm protocol $t WM_DELETE_WINDOW {exitarm $t }
+wm protocol $t WM_DELETE_WINDOW "exitarm [set t] "
 wm title $t "tcl/tk pack gradient and opacity demo"
 
 wm geometry $t 800x600+150+150
@@ -180,7 +184,6 @@ $bel place -in $t.c -x 10c -y 2m
 set ::bb $bel
 set ::uu $upwin
 
-bind .test <Destroy> {if {"%W" == ".test"} {catch {exitarm .test}}}
 puts "::rc1=$::rc1"
 update
 #$bel invoke
