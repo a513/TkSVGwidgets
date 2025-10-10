@@ -410,6 +410,10 @@ proc wm::enterBut {win x y} {
 	    } elseif {$x >= $x0r && $y >= $y0b} {
 		$win configure -cursor "bottom_right_corner"
 		set  State(arrow) "se"
+	    } else {
+		$win configure -cursor ""
+		set  State(arrow) ""
+	    
 	    }
 	}
     }
@@ -469,17 +473,19 @@ proc wm::relBut {win x y} {
 	    }
 	}
 
+	$win configure -cursor $State(cursor)
 	wm geometry $win "$geom"
 	set State(geom) ""
 	set State(pressed) 0
-	$win configure -cursor $State(cursor)
+update
     }
 }
 
 bind Toplevel <Button-1> {wm::pressBut %W %X %Y}
 bind Toplevel <ButtonRelease-1> {wm::relBut %W %X %Y}
-bind Toplevel <Enter> {wm::enterBut %W %X %Y}
 bind Toplevel <Leave> {wm::leaveBut %W %X %Y}
+#bind Toplevel <Enter> {wm::enterBut %W %X %Y}
+bind Toplevel <Motion> {wm::enterBut %W %X %Y}
 
 bind WmTitlebar <Button-1> {wm::Select %W %X %Y}
 bind WmTitlebar <B1-Motion> {wm::Drag %W %X %Y}
