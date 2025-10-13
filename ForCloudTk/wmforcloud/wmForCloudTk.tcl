@@ -1,7 +1,34 @@
 # A simple window manager in Tcl/Tk for use with CloudTk
 # Copyright (c) Schelte Bron.  Freely redistributable.
+# Copyright (c) Vladimir Orlov.  Freely redistributable.
 
 package provide wm 1.0
+
+namespace eval winfo {
+    package require Tk
+    if {[namespace which winfo] eq "::winfo"} {
+        rename winfo winfo
+    }
+    # Create a new winfo command
+    namespace ensemble create -unknown ::winfo::unknown -subcommands {
+	width height
+    }
+    variable map {}
+
+}
+proc winfo::width {window} {
+     tailcall winfo width [wm::window $window]
+}
+
+proc winfo::height {window } {
+    tailcall winfo height [wm::window $window]
+}
+# winfo command implementation
+proc winfo::unknown {cmd sub args} {
+    # Forward any unknown subcommands to the original wm command
+    return [list winfo::winfo $sub]
+}
+
 
 namespace eval wm {
     package require Tk
@@ -24,8 +51,9 @@ namespace eval wm {
 
     # Create a new wm command
     namespace ensemble create -unknown ::wm::unknown -subcommands {
-        deiconify geometry iconphoto maxsize minsize
-        overrideredirect stackorder title withdraw state
+        deiconify geometry iconphoto minsize maxsize
+        overrideredirect stackorder title withdraw
+        resizable state
     }
 
     namespace export toplvl
@@ -35,6 +63,8 @@ namespace eval wm {
     variable map {}
     variable State 
     set State(pressed) 0
+    set State(arrow) {}
+    set State(cursor) "top_left_arrow"
     # A default icon
     variable icon [image create photo -data {
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABy0lEQVQ4y42TzWvT
@@ -49,6 +79,16 @@ namespace eval wm {
         wO8SM4XCFzGZVEyOMDg4rIuu52UAqGHPvx9AQhCExXg8vggg8b+GsA4MAAal1LRt
         G0HKPZ/JcZyS4zjpILv/AO1ascYM+PVRAAAAAElFTkSuQmCC
     }]
+    variable iclose [image create photo -data {
+	iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAABK0lEQVQ4y5XUMU5C
+	QRAG4O+BiR2JPSaUwPMShnN4ARV7Y0M0ofYMngJIfOgFsDIWSuMBLDUSNmsBEh/i
+	4/lvsZnd/Dvzz8wONV1TscSa6qolzlwKXkXFSDQkLhJTe87clyAcuvZG9GBfGex7
+	ECuIW19fIIpU/BPrhKrdnL2rWkSo6uhpr+xUT2edEk3UV+/1vcuk4MDYh/7KZ91E
+	zBNoycwMtbSMzGRaq7uNBFJDQSYTDH6E9yeBprEgyDRz53WTRR1+1/R7TzaXI+/h
+	wEhwKxMMl/ILQmobmxloahpuF71I6+1Sairzvp7WnVx4c3cSN57Ao1NH7syLNBS1
+	xgYPBCFnf25rvlLd+ke+N9QnYcdUw6FxiS/a0fCS6LoqPQQqzqk58VJqzDw7VvsC
+	yiOQMwD0a10AAAAASUVORK5CYII=
+    }]
 }
 
 # Create a new toplevel command
@@ -56,6 +96,7 @@ proc wm::toplvl {name args} {
     variable toplvl
     variable map
     variable icon
+    variable iclose
     variable State
     if {[dict exists $args -class]} {
         if {[dict get $args -class] in {ComboboxPopdown}} {
@@ -71,7 +112,7 @@ proc wm::toplvl {name args} {
     set w [toplevel $parent.toplvl-[incr toplvl]]
     label $w.icon -image $icon
     label $w.title -text $child -font TkCaptionFont
-    label $w.close -text \u274C
+    label $w.close -text "" -image $iclose
     frame $w.frame -container 1
     decorate $w
     toplevel $name {*}$args -use [winfo id $w.frame]
@@ -176,9 +217,40 @@ proc wm::state {window {status ""}} {
 
 proc wm::geometry {window {geometry ""}} {
     if {[llength [info level 0]] > 2} {
-        tailcall wm geometry [window $window] $geometry
+	lassign [split $geometry "x"] w ost
+	lassign [split $ost "+"] h xw yw
+
+	lassign [wm::resizable $window] rw rh
+	if {$rw == 0 && $rh == 0} {
+	    return
+	}
+	lassign [wm minsize $window] minw minh
+	lassign [wm maxsize $window] maxw maxh
+	if {$minw > $w} {
+	    set w $minw
+	} elseif {$w > $maxw} {
+	    set w $maxw
+	}
+	if {$minh > $h} {
+	    set h $minh
+	} elseif {$h > $maxh} {
+	    set h $maxh
+	}
+#        tailcall wm geometry [window $window] $geometry
+
+        tailcall wm geometry [window $window] "[set w]x[set h]"
     } else {
         tailcall wm geometry [window $window]
+    }
+}
+
+proc wm::resizable {window args} {
+    if {[llength [info level 0]] > 2} {
+#        tailcall wm resizable [window $window] [set args]
+	set com [subst "tailcall wm resizable [window $window] [set args]"]
+	eval $com
+    } else {
+        tailcall wm resizable [window $window]
     }
 }
   #Увеличить/уменьшить картинку (отрицательное значение - уменьшение)
@@ -235,14 +307,23 @@ proc wm::iconphoto {window args} {
     }
 }
 
-proc wm::maxsize {window {width ""} {height ""}} {
+#proc wm::maxsize {window {width ""} {height ""}} {}
+proc wm::maxsize  {window {width ""} {height ""}} {
+    set com [info level 0]
+    if {[llength $com] > 1} {
+	set com "[lindex $com 0] [wm::window [lindex $com 1]] [lrange $com 2 end]"
+    }
+    tailcall wm {*}[set com]
     # Not yet implemented
-    tailcall wm {*}[info level 0]
+#    tailcall wm {*}[info level 0]
 }
 
 proc wm::minsize {window {width ""} {height ""}} {
-    # Not yet implemented
-    tailcall wm {*}[info level 0]
+    set com [info level 0]
+    if {[llength $com] > 1} {
+	set com "[lindex $com 0] [wm::window [lindex $com 1]] [lrange $com 2 end]"
+    }
+    tailcall wm {*}[set com]
 }
 
 proc wm::overrideredirect {window {boolean ""}} {
@@ -435,7 +516,11 @@ proc wm::relBut {win x y} {
 	set dy [expr {$y - $State(pressY)}]
 	lassign [split $State(geom) "x"] w ost
 	lassign [split $ost "+"] h xw yw
-
+	
+	lassign [wm::resizable $win] rw rh
+	if {$rw == 0 && $rh == 0} {
+	    set State(arrow) ""
+	}
 	set geom $State(geom)	
 	switch $State(arrow) {
 	    "nw" {
@@ -484,7 +569,6 @@ update
 bind Toplevel <Button-1> {wm::pressBut %W %X %Y}
 bind Toplevel <ButtonRelease-1> {wm::relBut %W %X %Y}
 bind Toplevel <Leave> {wm::leaveBut %W %X %Y}
-#bind Toplevel <Enter> {wm::enterBut %W %X %Y}
 bind Toplevel <Motion> {wm::enterBut %W %X %Y}
 
 bind WmTitlebar <Button-1> {wm::Select %W %X %Y}

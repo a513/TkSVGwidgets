@@ -3127,11 +3127,11 @@ oo::class create ibutton {
         catch {$wcan delete $idor}
 	if {[info exists Options(-isvg)]} {
 	    set isvg $Options(-isvg)
-	    eval "$wcan bind $isvg <Enter> {}"
-	    eval "$wcan bind $isvg <Leave> {}"
-	    eval "$wcan bind $isvg <ButtonPress-1> {}"
-	    eval "$wcan bind $isvg <ButtonRelease-1> {}"
-	    eval "$wcan delete $isvg"
+	    catch {$wcan bind $isvg <Enter> {}}
+	    catch {$wcan bind $isvg <Leave> {}}
+	    catch {$wcan bind $isvg <ButtonPress-1> {}}
+	    catch {$wcan bind $isvg <ButtonRelease-1> {}}
+	    catch {$wcan delete $isvg}
 	}
 	if {$fr} {
 	    destroy $wcan
