@@ -217,8 +217,8 @@ proc wm::state {window {status ""}} {
 
 proc wm::geometry {window {geometry ""}} {
     if {[llength [info level 0]] > 2} {
-	lassign [split $geometry "x"] w ost
-	lassign [split $ost "+"] h xw yw
+	lassign [split $geometry "+"] wxh xw yw
+	lassign [split $wxh "x"] w h
 
 	lassign [wm::resizable $window] rw rh
 	if {$rw == 0 && $rh == 0} {
@@ -226,19 +226,25 @@ proc wm::geometry {window {geometry ""}} {
 	}
 	lassign [wm minsize $window] minw minh
 	lassign [wm maxsize $window] maxw maxh
-	if {$minw > $w} {
-	    set w $minw
-	} elseif {$w > $maxw} {
-	    set w $maxw
+	set swin ""
+	if {$w != "" &&  $h != ""} {
+	    if {$minw > $w} {
+		set w $minw
+	    } elseif {$w > $maxw} {
+		set w $maxw
+	    }
+	    if {$minh > $h} {
+		set h $minh
+	    } elseif {$h > $maxh} {
+		set h $maxh
+	    }
+	    set swin "[set w]x[set h]"
 	}
-	if {$minh > $h} {
-	    set h $minh
-	} elseif {$h > $maxh} {
-	    set h $maxh
+	set wcoord ""
+	if {$xw != "" && $yw != ""} {
+	    set wcoord "+[set xw]+[set yw]"
 	}
-#        tailcall wm geometry [window $window] $geometry
-
-        tailcall wm geometry [window $window] "[set w]x[set h]"
+        tailcall wm geometry [window $window] "[set swin][set wcoord]"
     } else {
         tailcall wm geometry [window $window]
     }
@@ -307,15 +313,12 @@ proc wm::iconphoto {window args} {
     }
 }
 
-#proc wm::maxsize {window {width ""} {height ""}} {}
-proc wm::maxsize  {window {width ""} {height ""}} {
+proc wm::maxsize {window {width ""} {height ""}} {
     set com [info level 0]
     if {[llength $com] > 1} {
 	set com "[lindex $com 0] [wm::window [lindex $com 1]] [lrange $com 2 end]"
     }
     tailcall wm {*}[set com]
-    # Not yet implemented
-#    tailcall wm {*}[info level 0]
 }
 
 proc wm::minsize {window {width ""} {height ""}} {
