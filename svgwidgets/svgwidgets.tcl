@@ -6416,7 +6416,7 @@ namespace eval ::gengrad {
 	} else {
 	    set t1 $t
 	}
-	set erlib [mbutton create mesend "$t1.message" -type yesno  -fillnormal white -text "Вы действительно\nхотите выйти?" -textanchor n -strokewidth 3]
+	set erlib [mbutton create mesend "$t1.message" -type yesno  -fillnormal white -text [mc "Are you sure you\nwant to quit?"] -textanchor n -strokewidth 3]
 	set g4 [$t1.message gradient create linear -method pad -units bbox -stops { { 0.00 "#ffffff" 1} { 1.00 "#dbdbdb" 1}} -lineartransition {0.00 0.00 0.00 1.00} ]
 	$erlib config -fillnormal $g4
 	set herlib [expr {int([winfo fpixels "$t1.message" [$erlib config -height]])}]

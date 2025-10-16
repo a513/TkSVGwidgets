@@ -14,12 +14,10 @@ namespace eval winfo {
 	width height
     }
     variable map {}
-
 }
 proc winfo::width {window} {
      tailcall winfo width [wm::window $window]
 }
-
 proc winfo::height {window } {
     tailcall winfo height [wm::window $window]
 }
@@ -29,10 +27,7 @@ proc winfo::unknown {cmd sub args} {
     return [list winfo::winfo $sub]
 }
 
-
 namespace eval wm {
-    package require Tk
-
     # Move the original toplevel and wm commands into the wm namespace
     if {[namespace which toplevel] eq "::toplevel"} {
         rename toplevel toplevel
@@ -123,6 +118,7 @@ proc wm::toplvl {name args} {
     dict set map $name $w
     set State(geom) ""
     set State(pressed) 0
+    $name configure -cursor "top_left_arrow"
     return $name
 }
 
@@ -532,7 +528,7 @@ proc wm::relBut {win x y} {
 	    }
 	    "n" {
 		set dx 0
-		set geom [expr {$w + $dx}]x[expr {$h + $dy * -1}]		
+		set geom [expr {$w + $dx}]x[expr {$h + $dy * -1}]
 		append geom "+[expr {$xw + $dx}]+[expr {$yw + $dy}]"
 	    }
 	    "ne" {
@@ -541,7 +537,7 @@ proc wm::relBut {win x y} {
 	    }
 	    "w" {
 		set dy 0
-		set geom [expr {$w + $dx * -1}]x[expr {$h + $dy}]		
+		set geom [expr {$w + $dx * -1}]x[expr {$h + $dy}]
 		append geom "+[expr {$xw + $dx}]+$yw"
 	    }
 	    "e" {
