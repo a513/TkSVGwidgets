@@ -5609,6 +5609,7 @@ oo::class create cframe {
   variable geotop 
   variable wclass
   variable onemm2px
+  variable boxargs
 #fr = 0 кнопки создаются на внешнем холсте
 #fr - 1 кнопки создаются на внутреннем холсте для внешнего фрейма
   variable fr
@@ -5634,7 +5635,7 @@ oo::class create cframe {
 	set pimage "image"
 	set matrix "::tko::matrix"
     }
-
+    set boxargs ""
     set wcan $w
     set fr 0
     set wclass "cframe"
@@ -5960,32 +5961,80 @@ oo::class create cframe {
   method canvas {} {
     return $wcan
   }
-  method boxtext {} {
+  method boxtext {args} {
     if {$tbut != "clframe"} {
 	return
     }
+    if {$args != "" && [expr {[llength $args] % 2}]} {
+	error "metod boxtext, args missing: <obj clframe> boxtext \[option value... \[option value]] "
+    }
+    if {$args != ""} {
+	set boxargs $args
+    } else {
+	set args $boxargs
+    }
+    set ipadx [winfo fpixels $wcan 1m]
+    set ipady 0
+	set ind [lsearch $args "-ipadx"]
+	if {$ind > -1} {
+	    incr ind
+	    set ipadx [winfo fpixels $wcan [lindex $args $ind]]
+	}
+	set ind [lsearch $args "-ipady"]
+	if {$ind > -1} {
+	    incr ind
+	    set ipady [winfo fpixels $wcan [lindex $args $ind]]
+	}
     if {$fr == 1} {
 	lassign [$wcan coords $idt] xc yc
 	$wcan coords $idt $xc 0
     }
     foreach {xt0 yt0 xt1 yt1} [$wcan bbox $idt] {break}
     if {[info exist yt1]} {
+	set swid [$wcan itemcget $idr -strokewidth]
+	set xt0 [expr {$xt0 - $ipadx}]
+	set xt1 [expr {$xt1 + $ipadx}]
+	set yt0 [expr {$yt0 + $swid}]
+	set yt1 [expr {$yt1 + $ipady * 2}]
+	lassign [$wcan coords $idt] xc yc
+	$wcan coords $idt $xc [expr {$yc + $ipady + $swid / 2}]
+	array set ararg $args
+	foreach elm "-ipadx -ipady" {
+	    if {[info exist ararg($elm)]} {
+		unset ararg($elm)
+	    }
+	}
+	foreach elm "-rx -strokewidth" {
+	    if {[info exist ararg($elm)]} {
+		set ararg($elm) [winfo fpixels $wcan $ararg([set elm])]
+	    }
+	}
+	if {![info exist ararg(-strokewidth)]} {
+	    set ararg(-strokewidth) [$wcan itemcget $idr -strokewidth]
+	}
+	if {![info exist ararg(-stroke)]} {
+	    set ararg(-stroke) "[$wcan itemcget $idr -stroke]"
+	}
+	if {![info exist ararg(-fill)]} {
+	    set ararg(-fill) $Options(-fillbox)
+	}
 	if {[info exists bidt]} {
 	    $wcan coords $bidt $xt0 $yt0 $xt1 $yt1
+	    eval $wcan itemconfigure $bidt  [array get ararg]
 	} else {
-	    set bidt [$wcan create [set prect] $xt0 $yt0 $xt1 $yt1 -strokewidth 0 -fill $Options(-fillbox) -tags [list Rectangle boxtext $canvasb $btag] -stroke ""] 
+	    set cmd [subst "set bidt \[$wcan create [set prect] $xt0 $yt0 $xt1 $yt1 [array get ararg]]"]
+	    eval $cmd
 	    $wcan lower $bidt $idt
 	}
 	if {[info exists idt]} {
-	    foreach {x0 y0 x1 y1} [$wcan coords $idr] {break}
-#puts "x0=$x0 y0=$y0 x1=$x1 y1=$y1"
+	    lassign [$wcan coords $idr] x0 y0 x1 y1
 	    set fonts [$wcan itemcget $idt -fontsize]
 	    set wstr [$wcan itemcget $idr -strokewidth]
 	    lassign [$wcan coords $idt] x0t y0t
 	    if {$fr == 1 } {
-		$wcan coords $idr $x0  [expr {($fonts + $wstr) / 2.0}] $x1 $y1
+		$wcan coords $idr $x0  [expr {($fonts + $wstr * 0) / 2.0 + $wstr }] $x1 $y1
 	    } else {
-		$wcan coords $idr $x0  [expr {$y0t + ($fonts + $wstr) / 2.0}] $x1 $y1
+		$wcan coords $idr $x0  [expr {$y0t + ($fonts + $wstr * 0) / 2.0 + $wstr }] $x1 $y1
 	    }
 	}
     }
