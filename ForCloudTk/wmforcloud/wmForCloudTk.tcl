@@ -1,6 +1,6 @@
 # A simple window manager in Tcl/Tk for use with CloudTk
 # Copyright (c) Schelte Bron.  Freely redistributable.
-# Copyright (c) Vladimir Orlov.  Freely redistributable.
+# Copyright (c) Vladimir Orlov, 2025.  Freely redistributable.
 
 package provide wm 1.0
 
@@ -248,14 +248,14 @@ proc wm::geometry {window {geometry ""}} {
 
 proc wm::resizable {window args} {
     if {[llength [info level 0]] > 2} {
-#        tailcall wm resizable [window $window] [set args]
 	set com [subst "tailcall wm resizable [window $window] [set args]"]
 	eval $com
     } else {
         tailcall wm resizable [window $window]
     }
 }
-  #Увеличить/уменьшить картинку (отрицательное значение - уменьшение)
+
+#Увеличить/уменьшить картинку (отрицательное значение - уменьшение)
 proc wm::scaleImage {im xfactor {yfactor 0}} {
     set mode -subsample
     if {0} {
@@ -278,7 +278,6 @@ proc wm::scaleImage {im xfactor {yfactor 0}} {
     $im copy $t -shrink $mode $xfactor $yfactor
     image delete $t
 }
-
 
 proc wm::iconphoto {window args} {
     if {[lindex $args 0] eq "-default"} {
@@ -401,7 +400,9 @@ proc wm::Drag {w x y} {
 
 proc wm::Release {w x y} {
     variable State
-    after cancel $State(id)
+    if {[info exist State(id)]} {
+	after cancel $State(id)
+    }
     $w configure -cursor $State(cursor)
     set State(pressed) 0
 }
@@ -520,7 +521,7 @@ proc wm::relBut {win x y} {
 	if {$rw == 0 && $rh == 0} {
 	    set State(arrow) ""
 	}
-	set geom $State(geom)	
+	set geom $State(geom)
 	switch $State(arrow) {
 	    "nw" {
 		set geom [expr {$w + $dx * -1}]x[expr {$h + $dy * -1}]
@@ -542,7 +543,7 @@ proc wm::relBut {win x y} {
 	    }
 	    "e" {
 		set dy 0
-		set geom [expr {$w + $dx}]x[expr {$h + $dy}]	
+		set geom [expr {$w + $dx}]x[expr {$h + $dy}]
 	    }
 	    "sw" {
 		set geom [expr {$w + $dx * -1}]x[expr {$h + $dy}]
@@ -575,4 +576,3 @@ bind WmTitlebar <B1-Motion> {wm::Drag %W %X %Y}
 bind WmTitlebar <ButtonRelease-1> {wm::Release %W %X %Y}
 bind WmClose <Button-1> {wm::Close %W}
 bind WmCanary <Destroy> {wm::Destroy %W}
-
