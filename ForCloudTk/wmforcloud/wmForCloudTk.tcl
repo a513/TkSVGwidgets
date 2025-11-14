@@ -58,7 +58,8 @@ namespace eval wm {
     variable map {}
     variable State 
     set State(pressed) 0
-    set State(arrow) {}
+#    set State(arrow) {}
+    set State(arrow) {top_left_arrow}
     set State(cursor) "top_left_arrow"
     # A default icon
     variable icon [image create photo -data {
@@ -115,6 +116,7 @@ proc wm::toplvl {name args} {
     wm overrideredirect $w 1
     bindtags $w.title [list $w.title WmTitlebar $w all]
     bindtags $w.close [list $w.close WmClose $w all]
+    bindtags $w.icon [list $w.icon WmIcon $w all]
     dict set map $name $w
     set State(geom) ""
     set State(pressed) 0
@@ -386,7 +388,9 @@ proc wm::Select {w x y} {
 
 proc wm::Drag {w x y} {
     variable State
-    if {!$State(pressed)} return
+    if {!$State(pressed)} {
+	return
+    }
 
     $w configure -cursor fleur
     set dx [expr {$x - $State(pressX)}]
@@ -494,12 +498,12 @@ proc wm::enterBut {win x y} {
 	    } else {
 		$win configure -cursor ""
 		set  State(arrow) ""
-	    
 	    }
-	}
+	} 
     }
   }
 }
+
 proc wm::leaveBut {win x y} {
     variable State
   if {$State(pressed) == 0} {
@@ -576,3 +580,7 @@ bind WmTitlebar <B1-Motion> {wm::Drag %W %X %Y}
 bind WmTitlebar <ButtonRelease-1> {wm::Release %W %X %Y}
 bind WmClose <Button-1> {wm::Close %W}
 bind WmCanary <Destroy> {wm::Destroy %W}
+
+bind WmClose <Enter> {%W configure -cursor top_left_arrow}
+bind WmIcon <Enter> {%W configure -cursor top_left_arrow}
+bind WmTitlebar <Enter> {%W configure -cursor top_left_arrow}
