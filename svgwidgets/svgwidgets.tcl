@@ -7,6 +7,8 @@ if {[catch {package require tko}]} {
 }
 
 package require treectrl
+package require msgcat
+namespace import ::msgcat::mc
 
 namespace eval ::svgwidget {
     set treemenu [list ]
@@ -634,12 +636,11 @@ set coordsidr [$wcan coords $idr]
     
 	if {$tbut == "frame"} {
 	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillnormal \[[self] config -fillnormal]}"
-#	    eval "bind $wcan  <Configure> {[self] scaleGroup %w %h;[self] resize %w %h 0; [self] config -fillopacity \[[self] config -fillopacity]}"
 	} else {
 	    eval "bind $wcan  <Configure> {[self] resize %w %h 0}"
 	}
     }
-$wcan coords $idr "$coordsidr"
+    $wcan coords $idr "$coordsidr"
 #puts "COORDS 1: SELF=[self]: idr=$idr= [$wcan coords $idr] strokewidth=[$wcan itemcget $idr -strokewidth]"
   }
 
@@ -650,8 +651,6 @@ $wcan coords $idr "$coordsidr"
   method type {} {
     return $tbut
   }
-
-  
 
   method mcoords {} {
 #Добавляем 0.5 для сохранения позиции???
@@ -710,39 +709,51 @@ $wcan coords $idr "$coordsidr"
   }
 
   method enter {} {
-	if {$tbut == "frame"} { return}
-	variable Options
-	if {$tbut == "check" || $tbut == "radio"} {
-	    set fok [$wcan itemcget $idr -fill] 
-	    if {$fok == $Options(-fillok)} {
+    if {$tbut == "frame"} { return}
+    variable Options
+    if {$tbut == "check" || $tbut == "radio"} {
+	set fok [$wcan itemcget $idr -fill] 
+	if {$fok == $Options(-fillok)} {
+	    return
+	}
+    } elseif {[info exist Options(-menu)] && $Options(-menu) != ""} {
+	if {$Options(-displaymenu) != "enter" } {
+	    return
+	}
+	if {[[my config -menu] canvastype] == "unique"} {
+	    foreach {xm ym } [my showmenu] {break}
+	    if {$xm == -1 && $ym == -1} {
+		puts "Method enter -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+		catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
 		return
 	    }
-	} elseif {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	    if {$Options(-displaymenu) != "enter" && $Options(-displaymenu) != "enterhidden"} {
-		return
-	    }
-	    if {$Options(-displaymenu) == "enter"} {
-		foreach {xm ym } [my showmenu] {break}
-	    } else {
+	} else {
 		set objm [my config -menu]
 		set teks [$objm config -state]
 		if {$teks == "normal"} {
+		    foreach {xm ym } [my showmenu] {break}
 		    $objm config -state hidden
 		} elseif {$teks == "hidden"} {
 		    $objm config -state normal
+		    update
+		    foreach {xm ym } [my showmenu] {break}
+		    $objm move 0 0
+		    set tag0 [[lindex [$objm menulist] 0] tag]
+		    lassign  [[$objm canvas] bbox $tag0] xf1 yf1  xf2 yf2
+		    $objm move [expr {$xm - $xf1}] [expr {$ym - $yf1}]
 		}
-	    }
-#	    puts "Method enter -> showmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
-	} 
-	if {$Options(-fillenter) == "##"} {
-	    return
 	}
+#	puts "Method enter -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+    } 
+    if {$Options(-fillenter) == "##"} {
+	return
+    }
+    set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
+    my changestrwidth [expr {$strwidth + $strwidth / 2.0}]
 
-	set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
-	my changestrwidth [expr {$strwidth + $strwidth / 2.0}]
-
-	catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
+    catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
   }
+  
   method leave {} {
     variable Options
 	if {$tbut == "frame"} { return}
@@ -796,10 +807,10 @@ $wcan coords $idr "$coordsidr"
 	}
     }
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	if {$Options(-displaymenu) != "release" && $Options(-displaymenu) != "releasehidden"} {
+	if {$Options(-displaymenu) != "release" } {
 	    return
 	}
-	if {$Options(-displaymenu) == "release"} {
+	if {[[my config -menu] canvastype] == "unique"} {
 	    foreach {xm ym } [my showmenu] {break}
 	    if {$xm == -1 && $ym == -1} {
 		puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
@@ -810,11 +821,18 @@ $wcan coords $idr "$coordsidr"
 		set objm [my config -menu]
 		set teks [$objm config -state]
 		if {$teks == "normal"} {
+		    foreach {xm ym } [my showmenu] {break}
 		    $objm config -state hidden
 		} elseif {$teks == "hidden"} {
 		    $objm config -state normal
+		    update
+		    foreach {xm ym } [my showmenu] {break}
+		    $objm move 0 0
+		    set tag0 [[lindex [$objm menulist] 0] tag]
+		    lassign  [[$objm canvas] bbox $tag0] xf1 yf1  xf2 yf2
+		    $objm move [expr {$xm - $xf1}] [expr {$ym - $yf1}]
 		}
-	    }
+	}
 #	puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
     }
     
@@ -1105,14 +1123,18 @@ if {0} {
 		    }
 		}
 	    }
+	    -frommenu -
     	    -menu {
 		if { $tbut != "check" &&  $tbut != "radio"} {
 		    set  Options($option) $value
+		    if {$value != ""} {
+			$value config -bmenu [self]
+		    }
 		}
     	    }
     	    -displaymenu {
-    		if {[lsearch [list "release" "enter" "releasehidden" "enterhidden"] $value] == -1} {
-    		    error "Error for displaymenu ($value): -displaymenu \[ release | enter | releasehidden | enterhidden\]"
+    		if {[lsearch [list "release" "enter" ] $value] == -1} {
+    		    error "Error for displaymenu ($value): -displaymenu \[ release | enter \]"
 		    continue
     		}
 		set  Options($option) $value
@@ -2521,10 +2543,10 @@ oo::class create ibutton {
 	return
     }
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	    if {$Options(-displaymenu) != "enter" && $Options(-displaymenu) != "enterhidden"} {
+	    if {$Options(-displaymenu) != "enter" } {
 		return
 	    }
-	    if {$Options(-displaymenu) == "enter"} {
+	    if {[my canvastype] == "unique"} {
 		foreach {xm ym } [my showmenu] {break}
 		if {$xm == -1 && $ym == -1} {
 		    puts "Method ibutton enter -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
@@ -2639,10 +2661,10 @@ oo::class create ibutton {
 	return
     }
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	if {$Options(-displaymenu) != "release" && $Options(-displaymenu) != "releasehidden"} {
+	if {$Options(-displaymenu) != "release" } {
 	    return
 	}
-	if {$Options(-displaymenu) == "release"} {
+	if {[my canvastype] == "unique"} {
 	    foreach {xm ym } [my showmenu] {break}
 	    if {$xm == -1 && $ym == -1} {
 		puts "Method ibutton release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
@@ -2743,8 +2765,8 @@ oo::class create ibutton {
 		    set  Options($option) $value
     	    }
     	    -displaymenu {
-    		if {[lsearch [list "release" "enter" "releasehidden" "enterhidden"] $value] == -1} {
-    		    error "Error for ibutton displaymenu ($value): -displaymenu \[ release | enter | releasehidden | enterhidden\]"
+    		if {[lsearch [list "release" "enter"] $value] == -1} {
+    		    error "Error for ibutton displaymenu ($value): -displaymenu \[ release | enter \]"
 		    continue
     		}
 		set  Options($option) $value
@@ -3322,10 +3344,13 @@ set ::methodman {
     if {$fr == 0} {
 	return
     }
-    if {$wclass == "mbutton" || $wclass == "cmenu"} {
-	foreach {x0 y0 x1 y1} [$wcan bbox 0] {break}
-#	$wcan configure -width [expr {$x1 + $x0}] -height [expr {$y1 + $y0}]
-	$wcan configure -width $x1  -height $y1
+    if {$wclass == "mbutton"} {
+	lassign [$wcan bbox [my move 0 0]] xm0 ym0 xm1 ym1
+	$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
+    }
+    if {$wclass == "cmenu"} {
+	lassign [$wcan bbox [[lindex [my menulist] 0] move 0 0]] xm0 ym0 xm1 ym1
+	$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
     }
 
     if {[winfo manager $wcan] == ""} {
@@ -3494,11 +3519,53 @@ set ::methodman {
  }
 
   method place {args} {
-# puts "MANAGER PLACE self=[self] args=\"$args\""
     append args " -bordermode outside"
-    my manager place $args
-raise $wcan
-    if {$wclass == "mbutton"} {
+#ДОДЕЛАТЬ!!! my config methodplace может не работать - не всегда есть
+    if {([my class] == "cmenu" && [my methodplace] == "window") || ([my class] == "mbutton" && [my methodplace] == "window")} {
+	set ind [lsearch $args "-x"]
+	if {$ind > -1} {
+	    incr ind
+	    set rx [winfo pixels $wcan [lindex $args $ind]]
+	}
+	set ind [lsearch $args "-y"]
+	if {$ind > -1} {
+	    incr ind
+	    set ry [winfo pixels $wcan [lindex $args $ind]]
+	}
+
+	set mtop [winfo toplevel [my canvas]]
+	pack [my canvas] -side top -anchor nw
+	wm geometry $mtop +$rx+$ry
+	if {[my class] == "cmenu"} {
+	    set mtag [[lindex [my menulist] 0] tag]
+	} else {
+	    set mtag [my tag]
+	}
+	lassign [[my canvas] bbox $mtag] x1 y1 x2 y2
+	set wid [expr {$x2 - $x1}]
+	set hei [expr {$y2 - $y1}]
+#Скриншот под меню
+	set screenwin [image create photo -width $wid -height $hei]
+	loupe $screenwin [expr {$rx + $wid / 2}] [expr {$ry + $hei / 2}] $wid $hei
+	set wc [my canvas]
+	$wc delete "fon"
+	set wfon [$wc create [set pimage] 0 0 -image $screenwin -anchor nw  -tags {fon} ]
+
+	wm state $mtop normal
+	raise $mtop
+	if {[my class] == "cmenu"} {
+	    $wc lower fon $mtag
+	} else {
+	    $wc raise fon "$mtag swgbg"
+	}
+#	bind $mtop <FocusOut> "[self] forget"
+#	focus -force $mtop
+    } else {
+	my manager place $args
+	raise $wcan
+    }
+
+    if {$wclass == "mbutton" && [info exist Options(-variable)]} {
 	vwait $Options(-variable)
 	return [set $Options(-variable)]
     }
@@ -3511,8 +3578,13 @@ raise $wcan
     my manager grid $args
   }
   method forget { } {
-    set man [winfo manager $wcan]
-    eval $man forget $wcan
+    if {([my class] == "cmenu" && [my methodplace] == "window") || ([my class] == "mbutton" && [my methodplace] == "window") } {
+	set mtop [winfo toplevel [my canvas]]
+	wm state $mtop withdraw
+    } else {
+	set man [winfo manager $wcan]
+	eval $man forget $wcan
+    }
   }
   method class {} {
     return $wclass
@@ -3523,7 +3595,17 @@ raise $wcan
     set args [[set man] info $wcan]
     eval "[self] $man $args"
   }
-
+  method tag {} {
+#Replace method   move 0 0
+    return $btag
+  }
+  method canvastype {} {
+    if {$fr == 1} {
+	return "unique"
+    } else {
+	return "shared"
+    }
+  }
 }
 oo::define ibutton {
     eval $::methodman
@@ -3535,24 +3617,29 @@ oo::define cbutton {
 set ::methshowmenu {
 
   method showmenu {} {
+#puts "SHOWMENU self=[self] START"
 #Виджет кнопки меню
-	set tlb [winfo toplevel [[self] canvas]]
+    set tlb [winfo toplevel [[self] canvas]]
 #Виджет собстаенно  меню 
-	set tlm [winfo toplevel [[my config -menu] canvas]]
-#	set x [winfo x $wcan]
-#	set y [winfo y $wcan]
-	set rootx [winfo rootx $wcan]
-	set rooty [winfo rooty $wcan]
-	set rootxtlb [winfo rootx $tlb]
-	set rootytlb [winfo rooty $tlb]
-	set x [expr {$rootx - $rootxtlb}]
-	set y [expr {$rooty - $rootytlb}]
-
-	set wb [winfo width $wcan] 
-	set hb [winfo height $wcan] 
-	foreach {x1m y1m x2m y2m} [[[my config -menu] canvas] bbox 0] {break}
-	set wm [expr {$x2m - $x1m}]
-	set hm [expr {$y2m - $y1m}]
+    set tlm [winfo toplevel [[my config -menu] canvas]]
+    set rootx [winfo rootx $wcan]
+    set rooty [winfo rooty $wcan]
+    set rootxtlb [winfo rootx $tlb]
+    set rootytlb [winfo rooty $tlb]
+    set btag [my tag]
+    foreach {x1m y1m x2m y2m} [[my  canvas] bbox $btag] {break}
+    set x [expr {$rootx - $rootxtlb + $x1m}]
+    set y [expr {$rooty - $rootytlb + $y1m}]
+    set btag [my tag]
+    foreach {x1m y1m x2m y2m} [[my  canvas] bbox $btag] {break}
+    set wb [expr {$x2m - abs($x1m)}]
+    set hb [expr {$y2m - abs($y1m)}]
+#puts "SHOWMEN: btag=$btag wb=$wb hb=$hb"
+    set mtag [[lindex [[my config -menu] menulist] 0] tag]
+	foreach {x1m y1m x2m y2m} [[[my config -menu] canvas] bbox $mtag] {break}
+	
+	set wm [expr {$x2m - abs($x1m)}]
+	set hm [expr {$y2m - abs($y1m)}]
 #puts "Method showmenu: x1m=$x1m y1m=$y1m x2m=$x2m y2m=$y2m wm=$wm hm=$hm tlb=$tlb tlm=$tlm"
 
 	set direct [[my config -menu] config -direction]
@@ -3585,7 +3672,8 @@ set ::methshowmenu {
 	    left {
 		if {$mtype} {
 		    set rootx [expr {$rootx + $wb}]
-		    set rooty [expr {$rooty + $hb / 2 - $hm / 2}]
+#		    set rooty [expr {$rooty + $hb / 2 - 0 * $hm / 2}]
+		    set rooty [expr {$rooty + $hb}]
 		} else {
 		    set x [expr {$x + $wb}]
 		    set y [expr {$y + $hb / 2 - $hm / 2}]
@@ -3594,7 +3682,8 @@ set ::methshowmenu {
 	    right {
 		if {$mtype} {
 		    set rootx [expr {$rootx - $wm}]
-		    set rooty [expr {$rooty + $hb / 2 - $hm / 2}]
+#		    set rooty [expr {$rooty + $hb / 2 - $hm / 2}]
+		    set rooty [expr {$rooty + $hb}]
 		} else {
 		    set x [expr {$x - $wm}]
 		    set y [expr {$y + $hb / 2 - $hm / 2}]
@@ -3607,26 +3696,43 @@ set ::methshowmenu {
 	set sttlb 0
 	
 	if {$mtype} {
+#puts "Method showmenu  1: mtype=$mtype tlm=$tlm STATE $tlm=[wm state $tlm] SELF=[self]"
 	  if {[wm state $tlm] != "normal"} {
-	    set mbut [[my config -menu] place -x $rootx -y $rooty ]
+	    [my config -menu] place -x $rootx -y $rooty
 	    place forget [[my config -menu] canvas]
 	    pack [[my config -menu] canvas] -side top -anchor nw
 	    wm geometry $tlm +$rootx+$rooty
-#	    set tlb [[my config -menu] config -lockwindow]
 	    set tlb [winfo toplevel $wcan]
 
 	    set ptlb [winfo toplevel $tlb]
 	    if {$ptlb == ""} {
 		set ptlb $tlb
 	    }
+#	    set ptlbw [winfo toplevel $ptlb]
+	    set ptlbw $ptlb
+	    set idfrom 1
+#set idmenu [my config -menu]
+	    set bbb [self]
+	    update
+	    while {$idfrom != -1} {
+		set idmenu [$bbb config -menu]
+	        set idbut [$idmenu config -bmenu]
+	        set ptlb [winfo toplevel [$idbut canvas]]
+	        set idfrom [lsearch [$idbut config] "-frommenu"]
+	        if {$idfrom != -1} {
+		    set bmm [$idbut config -frommenu]
+    		    set bbb [$bmm config -bmenu]
+#puts "Method showmenu 11: bbb(-bmenu)=$bbb bmm(-ftommenu)=$bmm idfrom=$idfrom"
+		}
+	    }
+
+	    set ptlbw $ptlb
+
 	    if {[tk busy status $ptlb]} {
 		set sttlb 1
 	    } else {
-		if {[winfo class [winfo toplevel [[self] canvas]]] != "femenu"} {
 		    tk busy hold $ptlb
-		}
 	    }
-	    set ptlbw [winfo toplevel $ptlb]
 	    set brel ""
 	    if {$ptlbw != $ptlb ||  $ptlb == "."} {
 		set brel [bind [set ptlb]_Busy <ButtonRelease>]
@@ -3637,31 +3743,82 @@ set ::methshowmenu {
 		set bconf [bind [set ptlb]._Busy <Configure>]
 		set bfoc [bind [set ptlb]._Busy <FocussOut>]
 	    }
+#puts "STTLB=$sttlb ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm self=[self]"
 	    if { $sttlb } {
 		if {$ptlbw != $ptlb ||  $ptlb == "."} {
-		    eval "bind [set ptlb]_Busy <ButtonRelease> {bind [set ptlb]_Busy <ButtonRelease> {$brel}; tk busy forget $ptlb; wm state $tlm withdraw}"
-		    eval "bind [set ptlb]_Busy <Configure> {bind [set ptlb] <Configure> {$bconf};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
-		    eval "bind [set ptlb] <FocusOut> {bind [set ptlb] <FocusOut> {$bfoc};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
+#puts "showmenu: sttlb=1 Window 1 ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm"
+			set bb "[lrange [split [bind [set ptlb]_Busy <Configure>] {;}] 0 end-2]"
+			lappend bb "wm state $tlm withdraw"
+			lappend bb "catch {tk busy forget $ptlb}"
+			lappend bb "bind [set ptlb] <FocusOut> {}"
+			set bb1 [join $bb ";"]
+			eval "bind [set ptlb]_Busy <Configure> {$bb1}"
+			eval "bind [set ptlb]_Busy <ButtonRelease> {$bb1}"
+			eval "bind [set ptlb] <FocusOut> {$bb1; bind [set ptlb] <FocusOut> {}}"
 		} else {
+#puts "showmenu: sttlb=1 Window 2 ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm"
 		    eval "bind [set ptlb]._Busy <ButtonRelease> {bind [set ptlb]._Busy <ButtonRelease> {$brel}; wm state $tlm withdraw;}"
-		    eval "bind [set ptlb]._Busy <Configure> {bind [set ptlb] <Configure> {$bconf};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
-		    eval "bind [set ptlb] <FocusOut> {bind [set ptlb] <FocusOut> {$bfoc};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
+		    set bb "[lrange [split [bind [set ptlb]._Busy <Configure>] {;}] 0 end-2]"
+		    lappend bb "wm state $tlm withdraw"
+		    lappend bb "catch {tk busy forget $ptlb}"
+		    lappend bb "bind [set ptlb] <FocusOut> {}"
+		    set bb1 [join $bb ";"]
+		    eval "bind [set ptlb]._Busy <Configure> {$bb1}"
+		    eval "bind [set ptlb] <FocusOut> {$bb1}"
 		}
 	    } else {
 		if {$ptlbw != $ptlb ||  $ptlb == "."} {
+#puts "showmenu: sttlb=0 Window 1 ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm"
 		    eval "bind [set ptlb]_Busy <ButtonRelease> {bind [set ptlb]_Busy <ButtonRelease> {$brel}; tk busy forget $ptlb; wm state $tlm withdraw};"
-		    eval "bind [set ptlb]_Busy <Configure> {bind [set ptlb] <Configure> {$bconf};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
-		    eval "bind [set ptlb] <FocusOut> {bind [set ptlb] <FocusOut> {$bfoc};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
+		    set bb "[lrange [split [bind [set ptlb]_Busy <Configure>] {;}] 0 end-2]"
+		    lappend bb "wm state $tlm withdraw"
+		    lappend bb "catch {tk busy forget $ptlb}"
+		    lappend bb "bind [set ptlb] <FocusOut> {}"
+		    set bb1 [join $bb ";"]
+		    eval "bind [set ptlb]_Busy <Configure> {$bb1}"
+		    eval "bind [set ptlb] <FocusOut> {$bb1}"
+#puts "showmenu: sttlb=0 Window 1 bb1=$bb1"
 		} else {
+#puts "showmenu: sttlb=0 Window 2 ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm"
 		    eval "bind [set ptlb]._Busy <ButtonRelease> {bind [set ptlb]._Busy <ButtonRelease> {$brel}; tk busy forget $ptlb; wm state $tlm withdraw};"
-		    eval "bind [set ptlb]._Busy <Configure> {bind [set ptlb] <Configure> {$bconf};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
-		    eval "bind [set ptlb] <FocusOut> {bind [set ptlb] <FocusOut> {$bfoc};catch {tk busy forget $ptlb}; wm state $tlm withdraw}"
+		    set bb "[lrange [split [bind [set ptlb]._Busy <Configure>] {;}] 0 end-2]"
+		    lappend bb "wm state $tlm withdraw"
+		    lappend bb "catch {tk busy forget $ptlb}"
+		    lappend bb "bind [set ptlb] <FocusOut> {}"
+		    set bb1 [join $bb ";"]
+		    eval "bind [set ptlb]._Busy <Configure> {$bb1}"
+		    eval "bind [set ptlb] <FocusOut> {$bb1}"
+#puts "showmenu: sttlb=0 Window 2 bb1=$bb1"
 		}
 	    }
+	    lassign [split [wm geometry $tlm] "+"]  wh rx ry
+#puts "WFrom tlm=$tlm wh=$wh rx=$rx ry=$ry"
+	    set mfin [lindex [[my config -menu] menulist] 0]
+	    set mtag [$mfin tag]
+	    lassign [[$mfin canvas] bbox $mtag] x1 y1 x2 y2
+	    set wid [expr {$x2 + $x1}]
+	    set hei [expr {$y2 + $y1}]
+#Скриншот под меню
+	    set screenwin [image create photo -width $wid -height $hei]
+	    loupe $screenwin [expr {$rx + $wid / 2}] [expr {$ry + $hei / 2}] $wid $hei
+	    set wc [[my config -menu] canvas]
+	    $wc delete "fon"
+	    set wfon [$wc create [set pimage] 0 0 -image $screenwin -anchor nw  -tags {fon} ]
+	    $wc lower $wfon
+#puts "WFON wc=$wc width=$wid height=$hei rx=$rx ry=$ry"
 	    wm state $tlm normal
+	    raise $tlm
+	  } else {
+	    wm state $tlm "withdraw"
 	  }
 	    return "$rootx $rooty"
+	} elseif {[[my config -menu] canvastype] == "shared"} {
+#puts "SHOWMENU: self=[self] shared=[my config -menu] x=$x y=$y wcan=$wcan"
+#Координаты кнопки
+#puts "SHOWMENU: RETURN shared rootx=$rootx rooty=$rooty x=$x y=$y"
+		return "$x $y"
 	} else {
+#puts "Method showmenu  2: mtype=$mtype"
 		if {[my config -displaymenu] == "enter"} {
 		    set tbind "<Enter>"
 		} else {
@@ -3678,21 +3835,23 @@ set ::methshowmenu {
 		}
 	    } else {
 		tk busy hold $tlb
+#		raise [my canvas]
 		set brel ""
 	    }
 	    if {[place info [[my config -menu] canvas]] == ""} {
 		set oom [my config -menu]
+#puts "Method showmenu  3: oom=$oom"
 		set clm [$oom class]
-		set mbut [$oom place -x $x -y $y ]
-
+		$oom place -x $x -y $y
+		raise [$oom canvas]
 		if {[info class instances $clm $oom] == ""} {
 		    return "-1 -1"
 		}
 		set winm [[my config -menu] canvas]
-#puts "LMENU: $brel"
 		set bconf [bind [set tlb] <Configure>]
 		set tlbw [winfo toplevel $tlb]
 		lappend ::svgwidget::treemenu $winm
+		set ::svgwidget::treemenu [lsort -unique $::svgwidget::treemenu]
 		if {[my config -displaymenu] == "enter"} {
 		    set tbind "<Enter>"
 		} else {
@@ -3700,26 +3859,36 @@ set ::methshowmenu {
 		}
 		if { $sttlb } {
 		    if {$tlbw != $tlb ||  $tlb == "."} {
-#puts "STTLB 1 tlb=$tlb tlbw=$tlbw winm=$winm self=[self]"
+#Всё хорошо
+#puts "showmenu: sttlb=1 Canvas 1 tlb=$tlb winm=$winm"
 			lower [set tlb]_Busy $winm
+			raise [my canvas]
 			eval "bind [set tlb]_Busy <ButtonRelease> {bind [set tlb]_Busy $tbind {$brel};place forget $winm;set ::svgwidget::treemenu \"[lreplace $::svgwidget::treemenu end end]\"; eval lower [set tlb]_Busy \[lindex \$::svgwidget::treemenu end]}"
+			set bb "[lrange [split [bind [set tlb]_Busy <Configure>] {;}] 0 end-1]"
+			lappend bb "place forget $winm"
+			lappend bb "tk busy forget $tlb"
+			set bb1 [join $bb ";"]
+			eval "bind [set tlb]_Busy <Configure> {$bb1}"
+
 		    } else {
-#puts "STTLB 2 tlb=$tlb tlbw=$tlbw winm=$winm self=[self] displaymenu=[my config -displaymenu]"
+#puts "showmenu: sttlb=1 Canvas 2 tlb=$tlb winm=$winm"
 			eval "bind [set tlb]._Busy $tbind {bind [set tlb]._Busy $tbind {$brel};place forget $winm}"
+			eval "bind [set tlb]._Busy <Configure> {place forget $winm}"
 		    }
 		} else {
 		    if {$tlbw != $tlb ||  $tlb == "."} {
-#puts "STTLB  No 1 tlb=$tlb tlbw=$tlbw winm=$winm self=[self]"
-
+#puts "showmenu: sttlb=0 Canvas 1 tlb=$tlb winm=$winm"
 			eval "bind [set tlb]_Busy <ButtonRelease> {bind [set tlb]_Busy $tbind {$brel};tk busy forget $tlb; place forget $winm}"
+			eval "bind [set tlb]_Busy <Configure> {place forget $winm;tk busy forget $tlb}"
 		    } else {
-#puts "STTLB No 2 tlb=$tlb tlbw=$tlbw winm=$winm self=[self]"
+#puts "showmenu: sttlb=0 Canvas 2 tlb=$tlb winm=$winm"
 #Меню в своем окне
 			eval "bind [set tlb] <Configure> {lower [set tlb]._Busy $winm}"
 			eval "bind [set tlb]._Busy $tbind {bind [set tlb]._Busy $tbind {$brel};tk busy forget $tlb; place forget $winm;set ::svgwidget::treemenu \"[lreplace $::svgwidget::treemenu end end]\";bind [set tlb] <Configure> {}}"
 		    }    
 		}
-	    }
+	    } 
+#puts "SHOWMENU: RETURN unique rootx=$rootx rooty=$rooty x=$x y=$y"
 	    return "$x $y"
 	}
   }
@@ -4066,6 +4235,7 @@ oo::class create mbutton {
   variable btag
   variable Options
   variable wclass
+  variable mplace
 #fr = 0 кнопки создаются на внешнем холсте
 #fr - 1 кнопки создаются на внутреннем холсте для внешнего фрейма
   variable fr
@@ -4090,7 +4260,28 @@ oo::class create mbutton {
 	set matrix "::tko::matrix"
 	set pimage "image"
     }
+###############
+    set mplace "canvas"
+    set ind [lsearch $args "-place"]
+    if {$ind > -1} {
+	incr ind
+	set mplace [lindex $args $ind]
+    }
+    if {$mplace != "canvas" && $mplace != "window"} {
+	error "cmanu: bad type=$tpmenu: must be -place  canvas|window (default canvas)"
+    }
+#puts "CMENU w=$w tpmenu=$tpmenu args=$args"
+    if {$mplace == "window"} {
+	if {[winfo exists $w]} {
+	    error "cmenu: nbutton $w already exist"
+	}
+	toplevel $w 
+	wm state $w withdraw
+	wm overrideredirect $w 1
+	set w  "[set w][set w]"
+    }
 
+###############
     set wcan $w
     set type "msg"
     set ind [lsearch $args "-type"]
@@ -4123,6 +4314,9 @@ oo::class create mbutton {
     if {![winfo exists $wcan]} {
 #	tkp::canvas $wcan -bd 0 -highlightt 0
 	[set tkpath] $wcan -bd 0 -highlightthickness 0
+	if {$mplace == "window" } {
+	    pack $wcan
+	}
 	set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 	set cwidth [winfo fpixels $wcan $Options(-width)]
 	set cheight [winfo fpixels $wcan $Options(-height)] 
@@ -4272,8 +4466,10 @@ oo::class create mbutton {
     set d [my coordspath "$x1 $y1" "$x2 $y2" $rx "$Options(-tongue)" $type]
     if {$fr} {
 #Эмуляция background для холста
-#	set idbg [$wcan create [set prect] $x1 $y1 $x2 $y2 -stroke {} -strokewidth 0 -fill chocolate -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]] 
 	set idbg [$wcan create [set prect] $x1 $y1 $x2 $y2 -stroke {} -strokewidth 0 -fill red -tags [list Background obj $canvasb $btag [linsert $btag end swgbg]]] 
+	if {[info exist Options(-background)]} {
+	    $wcan itemconfigure $idbg -fill $Options(-background)
+	}
     }
     set idr [$wcan create path  "$d" -stroke {} -strokewidth 0] 
     set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
@@ -4701,6 +4897,9 @@ oo::class create mbutton {
   method invoke {} {
 	eval $Options(-command)
   }
+  method methodplace {} {
+	return $mplace
+  }
 
   method placetext {can text xt yt {textanchor nw} } {
     if {$text == ""} {
@@ -4788,6 +4987,9 @@ oo::class create mbutton {
     foreach {option value} $args {
         switch -exact  $option \
         {
+    	    -frommenu {
+		set  Options($option) $value
+    	    }
 	    -background -
 	    -bg {
 		if {$fr} {
@@ -4797,6 +4999,7 @@ oo::class create mbutton {
 		    }
 		}
 	    }
+	    -place -
     	    -type -
     	    -direction {
     		continue
@@ -5007,6 +5210,9 @@ oo::class create mbutton {
 
 
   destructor {
+    if {$mplace == "window"} {
+	set mwin [winfo toplevel $wcan]
+    }
     if {$tbut == "yesno"} {
     	    catch {$cbut destroy}
     	    catch {$cbut1 destroy}
@@ -5014,15 +5220,21 @@ oo::class create mbutton {
     	    catch {$cbut destroy}
     }
     if {[winfo exists $wcan]} { 
-	$wcan bind $idr <Enter> {}
-	$wcan bind $idr <Leave> {}
-	$wcan bind $idt <Enter> {}
-	$wcan bind $idt <Leave> {}
-	$wcan bind $idr <ButtonPress-1> {}
-	$wcan bind $idr <ButtonRelease-1> {}
-	$wcan bind $idt <ButtonPress-1> {}
-        $wcan bind $idt <ButtonRelease-1> {}
-        $wcan delete $idt $idr IDOR "boxText $btag" $btag
+	if {[info exist idr]} {
+	    $wcan bind $idr <Enter> {}
+	    $wcan bind $idr <Leave> {}
+	    $wcan bind $idr <ButtonPress-1> {}
+	    $wcan bind $idr <ButtonRelease-1> {}
+	    $wcan delete $idr
+	}
+	if {[info exist idt]} {
+	    $wcan bind $idt <Enter> {}
+	    $wcan bind $idt <Leave> {}
+	    $wcan bind $idt <ButtonPress-1> {}
+    	    $wcan bind $idt <ButtonRelease-1> {}
+    	    $wcan delete $idt
+        }
+        $wcan delete IDOR "boxText $btag" $btag
 	set par [winfo parent $wcan]
 
 	if {$fr == 1} {
@@ -5030,6 +5242,9 @@ oo::class create mbutton {
 	}
 	if {[winfo class $par] == "femenu"} {
 	    destroy $par
+	}
+	if {$mplace == "window"} {
+	    destroy $mwin
 	}
     }
   }
@@ -5043,16 +5258,20 @@ oo::class create cmenu {
   variable ppolygon
   variable pimage
   variable matrix
+  variable btag
 
   variable wcan
   variable Options
   variable listmenu
   variable xc
   variable yc
+  variable dx
+  variable dy
   variable m3
   variable idr
   variable wclass
   variable erlib
+  variable tpmenu
 #fr = 0 кнопки создаются на внешнем холсте
 #fr - 1 кнопки создаются на внутреннем холсте для внешнего фрейма
   variable fr
@@ -5077,31 +5296,30 @@ oo::class create cmenu {
 	set pimage "image"
 	set matrix "::tko::matrix"
     }
+    set btag {}
     set tpmenu "canvas"
-    set ind [lsearch $args "-type"]
+    set ind [lsearch $args "-place"]
     if {$ind > -1} {
 	incr ind
 	set tpmenu [lindex $args $ind]
     }
     if {$tpmenu != "canvas" && $tpmenu != "window"} {
-	error "cmanu: bad type=$tpmenu: must be canvas or window (default canvas)"
+	error "cmanu: bad type=$tpmenu: must be -place  canvas|window (default canvas)"
     }
+#puts "CMENU w=$w tpmenu=$tpmenu args=$args"
     if {$tpmenu == "window"} {
-	set pwin [split $w "."]
-	if {[llength $pwin] != 3 || [lindex $pwin 0] != ""} {
-	    error "cmanu: bad path=$win: must be .<window>.<canvas>"
+	if {[winfo exists $w]} {
+	    error "cmenu: cmenu $w already exist"
 	}
-	set fmWin ".[lindex $pwin 1]"
-	destroy $fmWin
-	toplevel $fmWin -class femenu
-	wm overrideredirect $fmWin 1
-	wm state $fmWin withdraw
+#	toplevel $w -class femenu
+	toplevel $w 
+	wm state $w withdraw
+	wm overrideredirect $w 1
+	set w  "[set w][set w]"
     }
     if {[winfo exists $w]} {
 	if {[winfo class $w] != "PathCanvas" && [winfo class $w] != "TkoPath"} {
-#	error "cmenu cmenu $w already exist"
-	    puts "class create cmenu: cmenu $w already exist"
-	    destroy $w
+	    error "cmenu: cmenu $w already exist; tpmenu=$tpmenu"
 	}
     }
 
@@ -5125,20 +5343,23 @@ oo::class create cmenu {
     set Options(-pad) 1m
     set Options(-ipad) [list 1m 5m 1m 5m]
     set Options(-direction) "up"
+#Кнорка по которой вызывается дааное меню
+    set Options(-bmenu) ""
 #Блокирукмое окно при отображении меню
-    set Options(-lockwindow) ""
     set Options(-tongue) [list 0.45 0.5 0.55 5m]
     set xc [winfo fpixels $wcan $Options(-strokewidth)]
     set m3 [winfo fpixels $wcan 3m]
     set yc $m3
     set listmenu [list]
+    set dx 0
+    set dy 0
     if {$fr == 0} {
 	set Options(-x) 0
 	set Options(-y) 0
     }
     my config $args
 #puts "cmenu constructor: Options(-strokewidth)=$Options(-strokewidth)"
-    set xc [expr {$xc + [winfo fpixels $wcan $Options(-strokewidth)] / 2.0}]
+    set xc [expr {$xc + [winfo fpixels $wcan $Options(-strokewidth)] / 1.0}]
     set yc [expr {$yc + [winfo fpixels $wcan $Options(-strokewidth)] / 1.0}]
     return self
   }
@@ -5198,7 +5419,7 @@ oo::class create cmenu {
 	}
 	radio {
 #puts "radio=$type"	
-    	    set cbut [eval "cbutton new $wcan -type radio -x $xc -y $yc -stroke \"$Options(-stroke)\" $args" -height $Options(-height) -fontsize $Options(-fontsize)]
+    	    set cbut [eval "cbutton new $wcan -type radio -x $xc -y $yc  -stroke \"$Options(-stroke)\" $args" -height $Options(-height) -fontsize $Options(-fontsize)]
 	    lappend listmenu $cbut
 	}
 	submenu -
@@ -5211,7 +5432,7 @@ oo::class create cmenu {
 		set menu [lindex $args $ind]
 		set args [lreplace $args $ind $ind]
 
-    		set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-pad)\" -stroke \"$Options(-stroke)\" $args"]
+    		set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-pad)\" -stroke \"$Options(-stroke)\" -frommenu [self] $args"]
 #    		$cbut config -image "$wcan $srect"
 		lappend listmenu $cbut
 #Ниже две строки равнозначны.
@@ -5230,21 +5451,13 @@ oo::class create cmenu {
 	}
 	command {
 #puts "command=$type"	
-#    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" $args -fontsize $Options(-fontsize)"]
-    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" $args"]
-	    if {[$cbut config -image] == ""} {
-#    		$cbut config -image "$wcan $srect"
-	    }
-#    		$cbut config -image "$wcan $srect"
-    	    
+    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" -frommenu [self] $args"]
+
 	    lappend listmenu $cbut
 	}
 	separator {
-#puts "command=$type"	
-    	    set cbut [cbutton new "$wcan" -type rect -x 0 -y [expr {$yc + $m1}] -command "" -text "" -height 0.5m -fillenter "##" -fillpress "##" -fillnormal gray80]
+    	    set cbut [cbutton new "$wcan" -type rect -x $xc -y [expr {$yc + $m1}] -command "" -text "" -height 0.5m -fillenter "##" -fillpress "##" -fillnormal gray80 -stroke gray80]
 	    $cbut config $args
-    	    
-    	    $cbut config -width [expr {[winfo fpixels $wcan [$cbut config -width]] + $xc}] -stroke [$cbut config -fillnormal] -fillenter "##"
 	    lappend listmenu $cbut
 	}
 	callout -
@@ -5253,7 +5466,7 @@ oo::class create cmenu {
 #Определяем список объектов с тэгом canvasbXXX, которые входят в меню
 	    set listtag ""
 	    foreach obj $listmenu {
-		append listtag "canvasb[string range $obj 6 end] "
+		append listtag "[$obj tag] "
 	    }
 #Высчитываем размеры холста сообщения
 # 0 - группа, которая включает в себя все объекты холста
@@ -5264,22 +5477,22 @@ oo::class create cmenu {
 #Учесть толщину строки
 	    set  strw [winfo pixels $wcan $Options(-strokewidth)]
 
-	    foreach {x0 y0 x1 y1} [eval $wcan bbox $listtag] {
-#puts "cmenu place: x0=$x0 x1=$x1 y0=$y0 y1=$y1 listtag=$listtag"
-		set wx [expr {$x1 - $x0}]
-		set wxAll [expr {$x1 - $x0}]
-		set hy [expr {$y1 - $y0}]
+	    if {[my canvastype] == "shared"} {
+		lassign [eval $wcan bbox $listtag] x0 y0 x1 y1
+	    } else {
+		lassign [eval $wcan bbox all] x0 y0 x1 y1
 	    }
-
-	    foreach {p1x p2x p3x theight } $Options(-tongue) {break}
+#puts "cmenu place: wcan=$wcan x0=$x0 x1=$x1 y0=$y0 y1=$y1 listtag=$listtag"
+		set wx [expr {$x1 - $x0 }]
+		set wxAll [expr {$x1 - $x0 }]
+		set hy [expr {$y1 - $y0 }]
+	    lassign "$Options(-tongue)" p1x p2x p3x theight
 	    set htongue [expr {int ([winfo fpixels $wcan $theight])}]
 #Возврат в начальную точку
 	    if {$fr == 1} {
-		foreach {bx0 by0 bx1 by1} [$wcan bbox all] { 
-		    break 
-		}
+		lassign [$wcan bbox all]  bx0 by0 bx1 by1
 	    } else {
-		foreach {bx0 by0 bx1 by1} [eval $wcan bbox $listtag] {break }
+		lassign [eval $wcan bbox $listtag] bx0 by0 bx1 by1
 	    }
 #puts "Смещение bx0=$bx0 by0=$by0 bx1=$bx1 by1=$by1 old=$old"
 	    set direction $Options(-direction)
@@ -5289,11 +5502,9 @@ oo::class create cmenu {
 #		    set hy [expr {$hy + $htongue + 20}]
 		}
 		up {
-#		    set hy [expr {$hy + $htongue +20}]
-#		    $wcan move 0 0 $htongue
-    foreach objmenu $listtag {
-		    $wcan move $objmenu 0 $htongue
-    }
+		    foreach objmenu $listtag {
+			$wcan move $objmenu 0 $htongue
+		    }
 #puts "place up htongue=$htongue"
 		}
 		right {
@@ -5303,14 +5514,13 @@ oo::class create cmenu {
 		    set wx [expr {$wx + $htongue}]
 		    if {$old == 1} {
 			$wcan move 0 [expr {$htongue * -1}] 0
-    foreach objmenu $listtag {
-		    $wcan move $objmenu [expr {$htongue * -1}] 0
-    }
+			foreach objmenu $listtag {
+			    $wcan move $objmenu [expr {$htongue * -1}] 0
+			}
 		    } else {
-#			$wcan move 0 $htongue 0
-    foreach objmenu $listmenu {
-		    $wcan move $objmenu $htongue 0
-    }
+			foreach objmenu $listmenu {
+			    $wcan move $objmenu $htongue 0
+			}
 		    }
 		}
 
@@ -5319,9 +5529,9 @@ puts "cmenu finish: uuncnown direction=$direction"
 		}
 	    }
 	    set  strw2 [expr {$strw / 2.0}]
-#  -fillnormal $Options(-fillnormal)
 	    set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
-		-command "$Options(-command)" -tongue "$Options(-tongue)" -text "" -width [expr {$wx + $bx0 + 2}] -height [expr {$hy + $by0 + $m3}]]
+		-command "$Options(-command)" -tongue "$Options(-tongue)" -text "" -width [expr {$wx + $bx0 + 2}] -height [expr {$hy + $by0}]]
+	    $cbut  config  -frommenu [self]
 #puts "cmenu finish: wcan=$wcan cbut=$cbut IDOR=[$wcan find withtag IDOR]"
 	    set wmax [expr {$wx + $bx0 }]
 #puts "Place wx=$wx bx0=$bx0 m2=$m2 wmax=$wmax tongue=\"$Options(-tongue)\""
@@ -5373,27 +5583,30 @@ puts "cmenu finish: uuncnown direction=$direction"
 	    append lmenu " $listmenu"
 	    set listmenu $lmenu
 #puts "CMENU place wcan=$wcan listmenu=$listmenu"
-
 #Устанавливаем размеры холста
-if {$fr == 1}  {
-	    set wx [expr {[$cbut config -width] + $strw}]
+	    if {$fr == 1}  {
+		set wx [expr {[$cbut config -width] + $strw}]
 #puts "PLACE wx=$wx hy=$hy canvas=[$erlib canvas] htongue=$htongue direction=$direction"
-	    if {$direction == "right" || $direction == "left"} {
-		set wx [expr {$wx + $htongue}]
-	    }
-	    if {$direction == "left" } {
-		$wcan move 0 $htongue 0
-	    }
+		if {$direction == "right" || $direction == "left"} {
+		    set wx [expr {$wx + $htongue}]
+		}
+		if {$direction == "left" } {
+		    $wcan move 0 $htongue 0
+		}
 
-	    set hy [expr {[$cbut config -height] + $strw}]
+		set hy [expr {[$cbut config -height] + $strw}]
 #puts "PLACE wx=$wx hy=$hy canvas=[$erlib canvas]"
-	    $wcan configure -width $wx -height $hy
-} else {
+		lassign [$wcan bbox [$cbut tag]] xm0 ym0 xm1 ym1
+#	    $wcan configure -width $wx -height $hy
+		$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
+	    } else {
 #puts "MOVE self=[self]  -x=$Options(-x) -y=$Options(-y)"
-;
+if {$Options(-x) != 0 && $Options(-y) != 0} {
 		my move $Options(-x) $Options(-y)
 }
+	    }
 	    set erlib $cbut
+	    my config -state hidden
 	}
 	default {
 	    error "cmanu: bad type=$type for add"
@@ -5410,7 +5623,6 @@ if {$fr == 1}  {
     } else {
 	set yc [expr {$yc + [winfo fpixels $wcan [$cbut config -height]] + $m1 }]
     }
-    
     return $cbut
   }
 
@@ -5422,6 +5634,9 @@ if {$fr == 1}  {
     return $listmenu
   }
 
+  method methodplace {} {
+	return $tpmenu
+  }
 
   method invoke {} {
     if {[winfo manager $wcan] != ""} {
@@ -5431,33 +5646,28 @@ if {$fr == 1}  {
     }
   }
 
-  method move {dx dy} {
+  method move {mdx mdy} {
     if {$fr == 1} {
 	return
     }
     set i 0
+    if {$mdx == 0 && $mdy == 0} {
+#Return previous position
+	set mdx1 [expr {$dx * -1.0}]
+	set mdy1 [expr {$dy * -1.0}]
+    } else {
+	set mdx1 $mdx
+	set mdy1 $mdy
+	set dx $mdx
+	set dy $mdy
+    }
     foreach objmenu $listmenu {
 #puts "CMENU move: objmenu=$objmenu"
 	if {$i == 0} {
 	    set i 1
 	    continue
 	}
-	$objmenu move $dx $dy
-    }
-    return
-  }
-  method move {dx dy} {
-    if {$fr == 1} {
-	return
-    }
-    set i 0
-    foreach objmenu $listmenu {
-#puts "CMENU move: objmenu=$objmenu"
-	if {$i == 0} {
-	    set i 1
-	    continue
-	}
-	$objmenu move $dx $dy
+	$objmenu move $mdx1 $mdy1
     }
     return
   }
@@ -5491,11 +5701,10 @@ if {$fr == 1}  {
     }
     foreach {option value} $args {
         switch $option {
+	    -place -
 	    -type {
 	    }
-    	    -lockwindow {
-    		set Options($option) $value
-    	    }
+	    -bmenu -
     	    -height -
     	    -width {
     		set Options($option) $value
@@ -5542,7 +5751,7 @@ if {$fr == 1}  {
 		    hidden {
 			set  Options($option) $value
 #puts "CMENU STAT listmenu=$listmenu erlib=$erlib"
-			if {$erlib != ""} {
+			if {[llength $listmenu] > 1 && ([lindex $listmenu 0] == [lindex $listmenu end])} {
 			    set i 0
 			    foreach objmenu $listmenu {
 #puts "CMENU state: objmenu=$objmenu"
@@ -5568,12 +5777,24 @@ if {$fr == 1}  {
   }    
 
   destructor {
+    if {$tpmenu == "window"} {
+	set wmenu [winfo toplevel $wcan]
+    }
+    set bm [my config -bmenu]
+    if {$bm != "" && [info class instances cbutton $bm] != ""} {
+        $bm config -menu ""
+    }
+
     foreach objmenu $listmenu {
 	catch {$objmenu destroy}
     }
+    set listmenu {}
     [self] destroy
     if {$fr == 1} {
 	destroy $wcan
+    }
+    if {$tpmenu == "window"} {
+	destroy $wmenu
     }
   }
 }
@@ -6325,4 +6546,4 @@ oo::define cmenu {
     eval $::methodman
 }
 
-package provide svgwidgets 0.3.3
+package provide svgwidgets 0.9.0

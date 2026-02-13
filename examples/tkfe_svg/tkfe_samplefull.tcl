@@ -146,14 +146,14 @@ proc changelang {w } {
 set pretext "Выберите тип диалога: выбрать файл для последующего чтения или \
 файл, в который вы что-то собираетесь записать, или\
 каталог/папку. После этого нажмите на кнопку \"Выбрать\""
-label .lab -text $pretext -wraplength 100mm -bg skyblue -anchor nw
+label .lab -text $pretext -wraplength 100m -bg skyblue -anchor nw
 labelframe .typefe -text "Выберите тип диалога"
 ttk::radiobutton .typefe.chb1 -value open -variable typefe -text "Выбор файла для чтения"
 ttk::radiobutton .typefe.chb2 -value save -variable typefe -text "Выбор файла для записи"
 ttk::radiobutton .typefe.chb3 -value dir -variable typefe -text "Выбор каталога/папки"
-grid .typefe.chb1 -row 0 -column 0 -sticky nwse -padx 1mm -pady {0 1mm}
-grid .typefe.chb2 -row 1 -column 0 -sticky nwse -padx 1mm -pady {0 1mm}
-grid .typefe.chb3 -row 2 -column 0 -sticky nwse -padx 1mm -pady {0 1mm}
+grid .typefe.chb1 -row 0 -column 0 -sticky nwse -padx 1m -pady {0 1m}
+grid .typefe.chb2 -row 1 -column 0 -sticky nwse -padx 1m -pady {0 1m}
+grid .typefe.chb3 -row 2 -column 0 -sticky nwse -padx 1m -pady {0 1m}
 grid columnconfigure .typefe 0 -weight 1
 
 labelframe .typew -text "Тип размещения" -labelanchor n 
@@ -167,20 +167,20 @@ if {[msgcat::mclocale] == "ru" } {
     .typew.lang configure -image fe_usa_24x16
 }
 
-grid .typew.chb1 -row 0 -column 0 -sticky w -padx {8 8} -pady {0 1mm}
-grid .typew.chb2 -row 0 -column 1 -sticky ns -pady {0 1mm}
-grid .typew.lang -row 0 -column 2 -sticky ns -pady {0 1mm}
+grid .typew.chb1 -row 0 -column 0 -sticky w -padx {8 8} -pady {0 1m}
+grid .typew.chb2 -row 0 -column 1 -sticky ns -pady {0 1m}
+grid .typew.lang -row 0 -column 2 -sticky ns -pady {0 1m}
 grid columnconfigure .typew 0 -weight 1
 grid columnconfigure .typew 1 -weight 1
 
-label .labchoose -text "Вы еще не сделали свой выбор" -wraplength 100mm -bg skyblue -anchor nw
+label .labchoose -text "Вы еще не сделали свой выбор" -wraplength 100m -bg skyblue -anchor nw
 
 button .butchoose -text "Выбрать" -command {selectpath .fe .lab }
 
 button .but -text Выход -command {exit}
-pack .lab -fill x -expand 1 -anchor nw -side top -pady 5mm
+pack .lab -fill x -expand 1 -anchor nw -side top -pady 5m
 pack .typefe -fill x -expand 1
-pack .typew -fill x -expand 1 -pady {5mm 80mm}
-pack .butchoose -anchor ne -side top -pady 1mm
+pack .typew -fill x -expand 1 -pady {5m 80m}
+pack .butchoose -anchor ne -side top -pady 1m
 pack .labchoose -fill x -expand 0 -anchor nw -side top -pady 0
 pack .but -anchor ne

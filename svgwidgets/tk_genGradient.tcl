@@ -653,18 +653,19 @@ namespace eval ::gengrad {
 # mtype - 0 меню создается в окне кнопки; 1 - меню создается в отдельном окне 
 #set mtype 0
     variable t
-    if {$::cmenubut != ""}  {
-	$::cmenubut destroy
+    if {$::mbutgrad != ""}  {
+	$::mbutgrad destroy
     }
 
     set mm2px [winfo pixels [$oow canvas] 1m]
     set win [winfo toplevel [$oow canvas]]
     if {$mtype == 1} {
 #Меню в отдельном окне
-	set ::cmenubut [cmenu create "Obj[incr ::gengrad::i]" "$fm" -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal GhostWhite  -stroke gray70 -height 6m -type window ]
+	set ::mbutgrad [cmenu create "Obj[incr ::gengrad::i]" "$fm" -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal GhostWhite  -stroke gray70 -height 6m -place window ]
+	set fm "$fm$fm"
     } else {
 #Меню во фрейме
-	set ::cmenubut [cmenu create "Obj[incr ::gengrad::i]" "$fm" -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal GhostWhite  -stroke gray70 -height 6m -type canvas ]
+	set ::mbutgrad [cmenu create "Obj[incr ::gengrad::i]" "$fm" -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal GhostWhite  -stroke gray70 -height 6m -place canvas ]
     }
 
     for {set i 0} {$i < 8 } {incr i} {
@@ -672,15 +673,15 @@ namespace eval ::gengrad {
 	setmatrixstart $fm $gr
 	[lindex [lindex $arraydir $i] 0 ] $fm $gr
 	
-	eval "$::cmenubut add command  -text \"[lindex $arraydir $i]\" -command {::gengrad::setLinear [set i] .tpgradient.frameFirst.canvas18} -image \"$fm $gr\" -compound left -ipad {1m 6m 1m 6m}"
+	eval "$::mbutgrad add command  -text \"[lindex $arraydir $i]\" -command {::gengrad::setLinear [set i] .tpgradient.frameFirst.canvas18} -image \"$fm $gr\" -compound left -ipad {1m 6m 1m 6m}"
     }
-    $::cmenubut add separator
+    $::mbutgrad add separator
     eval "$oow config -command {update;$fm delete $gr}"
 
-    set mbut [$::cmenubut add finish]
-#    $mbut config -command ""
-    $oow config -menu $::cmenubut -displaymenu release
-    return $::cmenubut
+    set mbut [$::mbutgrad add finish]
+    $oow config -menu $::mbutgrad -displaymenu release
+
+    return $::mbutgrad
   }
 
 #set arraydir {"Top to Bottom" "Top-Right to Bottom-Left" "Right to Left" "Bottom-Right to Top-Left" "Bottom to Top" "Bottom-Left to Top-Right" "Left to Right" "Top-Left to Bottom-Right"}
@@ -775,7 +776,7 @@ namespace eval ::gengrad {
   wm sizefrom .tpgradient ""
   wm maxsize .tpgradient 660 640
   wm minsize .tpgradient 600 430
-  wm geometry .tpgradient 600x430+500+300
+  wm geometry .tpgradient 600x440+500+300
   set tg [mc "gradient generation"]
   wm title .tpgradient "SVGWIDGETS: $tg"
   wm protocol .tpgradient WM_DELETE_WINDOW {gengrad::cancelgradient}
@@ -935,10 +936,10 @@ if {1} {
   $w delete $gr
 }
 
-set ::cmenubut ""
+set ::mbutgrad ""
 
 #Меню в отдельном окне .grad
-set mmlin [createConfigMenu ::gengrad::mlin ".grad.gmenu"  up 1]
+set mmlin [createConfigMenu ::gengrad::mlin ".gmenu"  up 1]
 #Меню как фркйм в основном окне .tpgradient
 
 $::lmenu config -menu $mmlin -displaymenu release
@@ -964,16 +965,15 @@ pack .tpgradient.frameFirst.frame0 -anchor nw -expand  1 -fill x -padx 0 -pady 0
 pack .tpgradient.frameFirst -anchor ne -expand 1 -fill both -padx 0 -pady 0 -side right
 pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradient.frameFirst
 
-
     frame .tpgradient.frameStops -borderwidth {1} -relief {raised}  -borderwidth 2 -background "#d6d2d0" 
-    
+
     set f [frame .tpgradient.frame6 -borderwidth {0} -relief {flat} -background lightblue] 
     set sa [scrollutil::scrollarea $f.sa]
     set sf [scrollutil::scrollableframe $sa.sf]
     $sa setwidget $sf
     scrollutil::createWheelEventBindings all   
     set cf [$sf contentframe]
-        
+
     set tg [mc "Gradient components"]
     label $cf.label5 -background snow -foreground "#221f1e" -relief {flat} -text "$tg"
     pack $cf.label5 -expand 0 -fill none -padx 0 -pady 1m -side top -anchor center
@@ -1038,7 +1038,7 @@ pack .tpgradient.frameFirst.frame0 .tpgradient.frameFirst.canvas18 -in .tpgradie
     wm iconphoto $wgrad "$::gengrad::icongrad"
     wm iconphoto .tpgradient "$::gengrad::icongrad"
 
-    wm geometry $wgrad 600x430+100+50
+    wm geometry $wgrad 600x440+100+50
     set ::vgrad [cframe create "Obj[incr ::gengrad::i]" $wgrad.can -type clframe -text "[mc {Gradient preview}]" -fontsize 5m -fillnormal yellow -bg snow -strokewidth 1m -stroke cyan]
     $::vgrad boxtext
     pack $wgrad.can -fill both -expand 1 -padx 1m -pady {1m 0m}

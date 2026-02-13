@@ -1,1 +1,1 @@
-package ifneeded svgwidgets 0.3.3 [list source [file join $dir main_svgwidgets.tcl]]
+package ifneeded svgwidgets 0.9.0 [list source [file join $dir main_svgwidgets.tcl]]
