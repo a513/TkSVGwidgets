@@ -3362,21 +3362,10 @@ set ::methodman {
 	lassign [$wcan bbox [[lindex [my menulist] 0] tag]] xm0 ym0 xm1 ym1
 	$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
     }
-
     if {[winfo manager $wcan] == ""} {
 	    eval $type $wcan [lindex $args 0]
 	    lower $wcan
 	    update
-    }
-############################
-    if {$wclass == "cbutton"} {
-	set strw [$wcan itemcget $idr -strokewidth]
-	set ww [expr {[winfo width $wcan] - $strw}]
-	set hh [expr {[winfo height $wcan] - $strw}]
-	if {$ww > 0 && $hh > 0} {
-	    my config -width $ww -height $hh
-	    update
-	}
     }
     $wcan delete fon
     my fon
@@ -3398,7 +3387,6 @@ set ::methodman {
 	}
 	raise $wcan 
     }
-
   }
 #Какие svg-щбъекты размещены в окне текущего svg-щбъекта
   method slavesoo {} {
