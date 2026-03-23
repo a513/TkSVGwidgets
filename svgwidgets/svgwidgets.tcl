@@ -2206,7 +2206,7 @@ if {[$wcan bbox $isvg] != ""} {
 
   destructor {
     if {[winfo exists $wcan]} { 
-	if {[info exist idor]} {
+	if {[info exist idor] && [info exist $idor]} {
 	    $wcan bind $idor <Enter> {}
 	    $wcan bind $idor <Leave> {}
 	    $wcan bind $idor <ButtonPress-1> {}
@@ -3615,7 +3615,7 @@ oo::define cbutton {
 set ::methshowmenu {
 
   method showmenu {} {
-#puts "SHOWMENU self=[self] START"
+#puts "SHOWMENU self=[self] START tag=[my tag]"
     set m3 [winfo fpixels $wcan 3m]
 #Виджет кнопки меню
     set tlb [winfo toplevel [[self] canvas]]
@@ -3626,7 +3626,12 @@ set ::methshowmenu {
     set rootxtlb [winfo rootx $tlb]
     set rootytlb [winfo rooty $tlb]
     set btag [my tag]
-    foreach {x1m y1m x2m y2m} [[my  canvas] bbox $btag] {break}
+    set twin [[my config -menu] methodplace]
+    update
+    lassign [$wcan bbox $btag] x1m y1m x2m y2m
+#foreach {x1m y1m x2m y2m} [$wcan bbox $btag] {break}
+    set ybut $y1m
+#puts "rootx=$rootx rootxtlb=$rootxtlb x1m$x1m"
     set x [expr {$rootx - $rootxtlb + $x1m}]
     set y [expr {$rooty - $rootytlb + $y1m}]
 #puts "SHOWMENU: x=$x y=$y rootx=$rootx rootxtlb=$rootxtlb rooty=$rooty rootytlb=$rootytlb x1m=$x1m y1m=$y1m"
@@ -3639,7 +3644,7 @@ set ::methshowmenu {
 	set hm [expr {$y2m - $y1m}]
 #puts "Method showmenu: x1m=$x1m y1m=$y1m x2m=$x2m y2m=$y2m wm=$wm hm=$hm tlb=$tlb tlm=$tlm"
 	set direct [[my config -menu] config -direction]
-#puts "Method showmenu: self=[self] Options(-menu)=$Options(-menu) menu=[my config -menu] tlb=$tlb tlm=$tlm direct=$direct wb=$wb hb=$hb rootx=$rootx rooty=$rooty"
+#puts "Method showmenu: self=[self] Options(-menu)=$Options(-menu) menu=[my config -menu] tlb=$tlb tlm=$tlm direct=$direct wb=$wb hb=$hb rootx=$rootx rooty=$rooty twin=$twin"
 	if {$tlb == $tlm} {
 	    set mtype 0
 	} else {
@@ -3667,8 +3672,11 @@ set ::methshowmenu {
 	    left {
 		if {$mtype} {
 		    set rootx [expr {$rootx + $wb}]
-#		    set rooty [expr {$rooty + $hb / 2 - 0 * $hm / 2}]
+if {$twin == "window"} {
+		    set rooty [expr {$rooty + $ybut  + $hb / 2 - 1 * $hm / 2}]
+} else {
 		    set rooty [expr {$rooty + $hb}]
+}
 		} else {
 		    set x [expr {$x + $wb}]
 		    set y [expr {$y + $hb / 2 - $hm / 2}]
@@ -3677,8 +3685,11 @@ set ::methshowmenu {
 	    right {
 		if {$mtype} {
 		    set rootx [expr {$rootx - $wm}]
-#		    set rooty [expr {$rooty + $hb / 2 - $hm / 2}]
+if {$twin == "window"} {
+		    set rooty [expr {$rooty + $ybut +  $hb / 2 -  $hm / 2}]
+} else {
 		    set rooty [expr {$rooty + $hb}]
+}
 		} else {
 		    set x [expr {$x - $wm}]
 		    set y [expr {$y + $hb / 2 - $hm / 2}]
@@ -3688,6 +3699,9 @@ set ::methshowmenu {
 			error "Method showmenu: Bad direction=$direct"
 	    }
 	}
+if {$twin == "windowXAXA"} {
+    puts "showmenu: bbox button=[$wcan bbox $btag] \n all=[[[my config -menu] canvas] bbox 0] hm=$hm hb=$hb btag=$btag mtag=$mtag y1m=$y1m y2m=$y2m"
+}
 	set sttlb 0
 	
 	if {$mtype} {
@@ -4184,9 +4198,12 @@ set ::methscaleGroup {
 	} else {
 	    set rid "::$obj"
 	}
+if {0} {
 	if {[$rid type] == "clframe"} {
-	    $rid boxtext
+puts "scaleGroup: rid=$rid id=$id"
+#	    $rid boxtext 
 	}
+}
     }
    }
     catch {unset FontS}
@@ -5547,7 +5564,9 @@ oo::class create cmenu {
 			foreach {x0 y0 x1 y1} [$wcan bbox "canvasb[string range $obj 6 end]"] {break}
 		    }
 		    $wcan raise $otag
+if {[$obj class] == "cbutton"} {
 		    $wcan lower "$otag isvg" "$otag idor"
+}
 		    if {[$obj config -fillenter] != "##"} {
 			set btago "canvasb[string range [set obj] [expr {[string last "::" [set obj]] + 2}] end]"
 
@@ -5958,14 +5977,11 @@ oo::class create cframe {
     switch $type {
 	clframe {
 	    set fontsize [winfo fpixels $wcan $Options(-fontsize)]
-	    set idt [$wcan create [set ptext] 0 0 -textanchor nw -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) ]
+#	    set idt [$wcan create [set ptext] 0 0 -textanchor nw -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) ]
+	    set idt [$wcan create [set ptext] [expr {$strwidth / 2.0}] [expr {$strwidth / 1.0}] -textanchor nw -text $Options(-text) -fontsize $fontsize -fontfamily $Options(-fontfamily) ]
 	    foreach {xy0 yt0 xt1 yt1} [$wcan bbox $idt] {break}
 	    $wcan delete $idt
-	    if {[info exist yt1]} {
-		set ycoords [expr {($yt1 - $yt0) / 2.0 + $strwidth}]
-	    } else {
-		set ycoords $strwidth
-	    }
+	    set ycoords [expr {$strwidth / 1.0}]
 	}
 	centry {
 	    set fonte "Helvetica [winfo pixels $wcan $Options(-fontsize)]"
@@ -6227,10 +6243,20 @@ oo::class create cframe {
 	    set ararg(-fill) $Options(-fillbox)
 	}
 	if {[info exists bidt]} {
-	    $wcan coords $bidt $xt0 $yt0 $xt1 $yt1
+#	    $wcan coords $bidt $xt0 $yt0 $xt1 $yt1
+	    set swid [$wcan itemcget $idr -strokewidth]
 	    eval $wcan itemconfigure $bidt  [array get ararg]
+	    set swidN [$wcan itemcget $bidt -strokewidth]
+#puts "BOXTEXT: xt0=$xt0 yt0=$yt0"
+if {$yt0 < 0.0} {
+    set yt1 [expr {$yt1 + abs($yt0)}]
+    set yt0 0
+}
+	    $wcan coords $bidt $xt0 [expr {$yt0 + $swid + ($swidN - $swid) / 2.0}] $xt1 [expr {$yt1 + $swid + ($swidN - $swid) / 2.0}]
+	$wcan coords $idt $xc [expr {$yc + $ipady + $swid + ($swidN - $swid) / 2}]
+	    
 	} else {
-	    set cmd [subst "set bidt \[$wcan create [set prect] $xt0 $yt0 $xt1 $yt1 [array get ararg]]"]
+	    set cmd [subst "set bidt \[$wcan create [set prect] $xt0 $yt0 $xt1 $yt1 [array get ararg] -tags \[list Boxtext $canvasb $btag \"[linsert $btag end boxtext]\"] ] "]
 	    eval $cmd
 	    $wcan lower $bidt $idt
 	}
@@ -6240,9 +6266,9 @@ oo::class create cframe {
 	    set wstr [$wcan itemcget $idr -strokewidth]
 	    lassign [$wcan coords $idt] x0t y0t
 	    if {$fr == 1 } {
-		$wcan coords $idr $x0  [expr {($fonts + $wstr * 0) / 2.0 + $wstr }] $x1 $y1
+		$wcan coords $idr $x0  [expr {$fonts / 2.0 + $wstr }] $x1 $y1
 	    } else {
-		$wcan coords $idr $x0  [expr {$y0t + ($fonts + $wstr * 0) / 2.0 + $wstr }] $x1 $y1
+		$wcan coords $idr $x0  [expr {$y0t + $fonts / 2.0 + $wstr }] $x1 $y1
 	    }
 	}
     }

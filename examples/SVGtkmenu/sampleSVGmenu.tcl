@@ -4,6 +4,7 @@ variable foldersfirst
 variable details
 variable sepfolders
 variable t
+variable dtype
 set t ".testmenu"
 set ::lang "us"
 destroy $t
@@ -68,7 +69,7 @@ if {0} {
 	    }
 	}
 	destroy $t
-	puts "Пример demoPackSVGwithImageMesFromMenu.tcl завершен."
+	puts "Example demoPackSVGwithImageMesFromMenu.tcl ended."
 #	tk busy forget .dsvg
 	return
 
@@ -115,13 +116,9 @@ proc displaymenu {name index op} {
 
 proc showSubMenu {fm {mtype 0}} {
     variable t
-puts "showSubMenu START:  fm=$fm  mtype=$mtype RETURN"
-#return
-#	set ::tsubmenu [cmenu new $fm.subMenu -tongue "0.45 0.5 0.55 2m" -strokewidth 2 -pad 1m]
-#####################
     set direct left
     if {$::tsubmenu != ""}  {
-	if {[info class instances cmenu $submenu] != ""} {
+	if {[info class instances cmenu $::tsubmenu] != ""} {
 	    $::tsubmenu destroy
 	}
     }
@@ -144,7 +141,6 @@ puts "showSubMenu START:  fm=$fm  mtype=$mtype RETURN"
 #Состав расширенного просмотра
 	incr i
     }
-puts "showSubMenu END: i=$i hcol=$hcol"
     set chsep [$::tsubmenu add separator ]
     $chsep config -stroke "" -fillnormal "" -fillenter "##"
     set chsep [$::tsubmenu add finish]
@@ -154,7 +150,6 @@ puts "showSubMenu END: i=$i hcol=$hcol"
 proc showContextMenu {w x y rootx rooty fm typefb {mtype 0}} {
     variable t
 #w - окно, в котором появляется контекстное меню
-puts "showContextMenu START t=$t w=$w fm=$fm typrfb=$typefb ::tmenu=$::tmenu"
     variable dir
     set padddir1 "M 2 2 L 2 14 L 9 14 L 9 13 L 3 13 L 3 8 L 5 8 L 6.9980469 6 L 13 6 L 13 9 L 14 9 L 14 4 L 9.0078125 4 L 7.0078125 2 L 7 2.0078125 L 7 2 L 2 2 Z"
     set padddir2 "M 11 9 L 11 11 L 9 11 L 9 12 L 11 12 L 11 14 L 12 14 L 12 12 L 14 12 L 14 11 L 12 11 L 12 9 L 11 9 Z"
@@ -183,7 +178,6 @@ puts "showContextMenu START t=$t w=$w fm=$fm typrfb=$typefb ::tmenu=$::tmenu"
     set prename3 "M 1.25 31.25 L 1.25 17.5 L 20.0 17.5 C 31.625 17.5 38.75 18.0 38.75 18.75 C 38.75 19.5 32.125 20.0 21.25 20.0 L 3.75 20.0 L 3.75 31.25 
 	L 3.75 42.5 L 21.25 42.5 C 32.125 42.5 38.75 43.0 38.75 43.75 C 38.75 44.5 31.625 45.0 20.0 45.0 L 1.25 45.0 L 1.25 31.25 Z"
 
-#puts "showContextMenu: w=$w fm=$fm x=$x y=$y rootx=$rootx rooty=$rooty mtype=$mtype"
     if {$dir == 0} {
 	set tcont "file"
     } else {
@@ -249,13 +243,10 @@ set ::contMenu $cmenu1
 	set delfile2 [$canCtx create path "$pdelfile2" -fill black -strokewidth 0 -parent $delfile]
         set cmd2 [$cmenu1 add command -height 7m -text [mc "Delete file"] -ipad "1m 5m 1m 5m" -compound left]
 	$cmd2 config -image "$canCtx $delfile"
-#puts "DELFILE canCtx=$canCtx gr=$gr delfile=$delfile"
-puts "DELFILE cmd2=$cmd2 canCtx=$canCtx gr=[$cmd2 config -isvg]"
 	$canCtx delete $delfile
         eval "$cmd2 config -command {[set cmenu1] forget;puts {Удаляем файл}; set ::fdmenu 1; tk busy forget [set t]}"
 	set cmd3 [$cmenu1 add command -text [mc "Rename file"] -ipad "1m 5m 1m 5m" -compound left]
 	$cmd3 config -image "$canCtx $renfile"
-puts "RenameFILE cmd3=$cmd3 canCtx=$canCtx gr=[$cmd3 config -isvg]"
 	$canCtx delete $renfile
 	set isvg [$cmd3 config -isvg]
 	[$cmd3 canvas] itemconfigure $isvg -strokewidth 2.0
@@ -294,7 +285,6 @@ puts "RenameFILE cmd3=$cmd3 canCtx=$canCtx gr=[$cmd3 config -isvg]"
 	eval "$cmd6 config -command {[set cmenu1] forget;puts {Создаем каталог}; set ::fdmenu 1; tk busy forget [set t]}"
 	$cmd6 config -isvg "[$cmd6 canvas] $adddir" 
 	$canCtx delete $adddir
-puts "ADDDIR cmd6=$cmd6 canCtx=$canCtx gr=[$cmd6 config -isvg]"
 	set cmd7 [$cmenu1 add separator]
 
     if {$mtype == 0} {
@@ -311,18 +301,14 @@ puts "ADDDIR cmd6=$cmd6 canCtx=$canCtx gr=[$cmd6 config -isvg]"
     } else {
 	set topw1 $topw
     }
-#Ширина
 
     set mbutc [$cmenu1 add finish]
     $mbutc config -fillnormal "#f4f5f5" -stroke "#ef0000"
-#    eval "$mbutc config -command {catch {[set cmenu1] destroy};set ::fdmenu 1}"
 if {[winfo exist [set t]._Busy]} {
     eval "bind [set t]._Busy <ButtonRelease> {bind $t <Configure> {};tk busy forget [set t]; [set cmenu1] destroy;puts XA1; set ::fdmenu 1}"
 }
     if {$::tmenu == 1} {
-#	eval "bind $t <Configure> {if {\"\%W\" == \"[set t]\"} {[set cmenu1] forget;puts XA2; set ::fdmenu 1;bind $t <Configure> {};tk busy forget [set t]}};"
 	set mbut [$cmenu1 place -x $rootx -y $rooty]
-#	eval "bind [set fm] <FocusOut> { [set cmenu1] forget;puts XA44; set ::fdmenu 1; tk busy forget [set t];bind [set t] <Configure> {}}"
     } else {
 	set mbut [$cmenu1 place -x $x -y $y -in [winfo toplevel [set tekwin]$fm]]
     }
@@ -349,7 +335,6 @@ if {$::cmenubut != "" }  {
 }
 
 ###################################
-puts "createConfigMenu START oow=$oow fm=$fm direct=$direct mtype=$mtype"
     set mm2px [winfo pixels [$oow canvas] 1m]
 #Создаётся отдельное окно для меню
     if {$mtype == 1} {
@@ -361,12 +346,12 @@ puts "createConfigMenu START oow=$oow fm=$fm direct=$direct mtype=$mtype"
     }
     set ::cmenubut [cmenu new "$tekwin$fm" -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 0.5m  -command "" -fillnormal cyan  -stroke chocolate -height 6m -place $mplace]
 
-set tt [mc {Folders at the top}]
+    set tt [mc {Folders at the top}]
     set ch1 [$::cmenubut add check -text "$tt"  -variable foldersfirst]
     eval "variable foldersfirst;$ch1 config -command {puts \"Папки вверну foldersfirst=\$foldersfirst \"}"
 
     set ch1 [$::cmenubut add separator -fillnormal ""]
-set tt [mc "Data contents"]
+    set tt [mc "Data contents"]
     set chcas [$::cmenubut add cascade -text "$tt" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -compound none -ipad "4.5c 3m 2.5m 4m" ]
 #Иконки на кнопках в меню можно выставлять после команды add finish !!!!!
     set gr [[$::cmenubut canvas] create group]
@@ -401,12 +386,10 @@ set tt [mc {Folders and files are separat}]
     $mbut config -command ""
     $oow config -menu $::cmenubut -displaymenu release
     set ::osnmenu $oow
-puts "creatConfigMenu end: cmenu=$::cmenubut callout=$mbut"
     return $::cmenubut
 }
 
 proc recreateMenu {} {
-puts "recreateMenu: TMENU=$::tmenu;::mn=$::mn";
 if {$::tsubmenu != ""}  {
 	if {[info class instances cmenu $::tsubmenu] != ""} {
 	    $::tsubmenu destroy
@@ -419,7 +402,9 @@ if {$::cmenubut != "" }  {
     }
     set ::cmenubut {}
 }
-createConfigMenu $::mn ".ffff" up $::tmenu 
+#createConfigMenu $::mn ".ffff" up $::tmenu 
+update
+createConfigMenu $::mn ".ffff" "$::dtype" $::tmenu 
 
 }
 #. configure -bg yellow
@@ -433,12 +418,11 @@ cframe create frmenu $t.frame -type frame -bg $frcol
 #frmenu config -fillnormal [lindex [[frmenu canvas] gradient names] 0]
 frmenu config -fillnormal "#c4e5fd" -stroke "#ce7053"
 
-pack $t.frame  -in $t -fill both -expand 1 -padx 3m -pady 3m
+frmenu pack   -in $t -fill both -expand 1 -padx 3m -pady 3m
 set ch [cbutton new $t.frame.type -type check -variable dir -text [mc "Folders only"]  -fontsize 4.5m -bg $frcol]
 set mn [cbutton new $t.bmenu -type rect  -text [mc "Dropdown menu"] -bg $frcol -compound none -width 8c]
 $mn config -command {set details $details; set foldersfirst $foldersfirst;set sepfolders $sepfolders;$mn config -command {}}
 set ::mn $mn
-puts "Кнопка меню=$mn"
 set r0 [cbutton new $t.rad0 -type check -variable ::tmenu -text [mc "Menus are created in separate windows (toplevel)"] -fontsize 4m]
 $r0 config  -command {recreateMenu}
 set r1 [cbutton new $t.rad1 -type radio -variable rad -value release -text [mc "Menus appear when you press a button"] -bg $frcol -fontsize 4m]
@@ -462,17 +446,38 @@ pack [$wmsg canvas] -in $t.frame -side top -fill none -expand 0 -padx 1c -pady "
 
 pack [$went canvas] -in $t.frame -side top -fill x -expand 0 -padx 3c -pady 5m -anchor nw
 
+#pack [$ch canvas] -in $t.frame -side left -padx "1c 0" -pady "0 0" -anchor nw
+#pack [$mn canvas] -in $t.frame -side left -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
+
+set clfrv [cframe new $t.clfr -type clframe -text "Where does the menu appear" -rx 1m -strokewidth 1 -stroke red -fillnormal snow ]
+#$clfrv boxtext -rx 3 -strokewidth 0.5m -stroke chocolate -ipadx 5 -ipady 2
+$clfrv config -background [frmenu config -fillnormal]
+
+$clfrv pack  -in $t.frame -side top -pady "0 3m" -padx 2c -expand 0 -anchor n 
+
+
+
+set ::cmenubut {}
+createConfigMenu $mn ".ffff" up $::tmenu 
+foreach rmbut "up down left right" {
+    set rc1 [cbutton new $t.$rmbut -type radio  -text $rmbut -variable dtype -value $rmbut]
+#    pack [$rc1 canvas] -in $t.frame -side left -padx "5m" -pady "5m" -fill none -expand 0 -anchor n 
+    $rc1 pack -in $t.clfr -side left -padx "5m" -pady "8m 2m" -fill none -expand 0 -anchor n
+    $rc1 config  -command {recreateMenu}
+}
 pack [$ch canvas] -in $t.frame -side left -padx "1c 0" -pady "0 0" -anchor nw
 pack [$mn canvas] -in $t.frame -side left -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
+$clfrv config -fontsize 4.0m -fillbox cyan
+$clfrv boxtext -rx 3 -strokewidth 0.5m -stroke chocolate -ipadx 5 -ipady 2
+
 
 set  w "$t.frame "
 set typefb "directory"
 #eval "bind $t.frame  <ButtonPress-3> {showContextMenu %W %x %y %X %Y $w $typefb}"
 eval "bind $t.frame  <ButtonPress-3> {showContextMenu %W %x %y %X %Y .cont $typefb}"
 #reateConfigMenu $mn ffff up 1
-set ::cmenubut {}
-createConfigMenu $mn ".ffff" up $::tmenu 
-#puts "ГОТОВО=$mn r1=$r1 r2=$r2"
+#set ::cmenubut {}
+#createConfigMenu $mn ".ffff" up $::tmenu 
 update
 trace add variable rad write displaymenu
 if {1} {
@@ -481,11 +486,10 @@ set details	 0
 set sepfolders	 1
 set sub0 1
 set sub1 1
+set dtype "up"
 }
 set rad release
 focus -force [$went entry]
 set ::tmenu $::tmenu
 set dir $dir
-
-#set rad enter
-
+wm geometry $t 710x500+50+50
