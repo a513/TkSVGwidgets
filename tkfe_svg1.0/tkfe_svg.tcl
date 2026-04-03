@@ -2337,28 +2337,16 @@ puts "selectdir: exists $w1.butMenu"
       set ::tekPATH $path
       return
     }
+
+    set pattern "*"
+    if {[tk windowingsystem] != "win32"} {
 	if {$::FE::folder(hiddencb) > 0} {
 		set pattern "* .*"
-	} else {
-		set pattern "*"
 	}
+    } 
 
-#    if {$::FE::folder(hiddencb)} {}
-#      set directory_list1 [lsort -dictionary [glob -nocomplain -types {d } -directory "$path" "*"]]
-
-set directory_list1 [list]
-if {0} {
-    if {$::FE::folder(hiddencb) > 0} {
-      foreach f1  [lsort [glob -nocomplain -types {d hidden} -directory "$path" "*"]] {
-		if {![file isdirectory [file join $path $f1]]} continue
-		lappend directory_list1 [file join $path $f1]
-      }
-		
-    } else {
-      set directory_list1 [lsort -dictionary [glob -nocomplain -types d  -directory "$path" "*"]]
-    }
-}
-set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $pattern ]]
+    set directory_list1 [list]
+    set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $pattern ]]
 
       set ptr [string first "/.. " $directory_list1]
       if {$ptr != -1} {
@@ -2366,7 +2354,6 @@ set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $
       } else {
         set directory_list $directory_list1
       }
-#{    }
 #puts "DIRECTORY_LIST=$directory_list"
     set ::tekPATH $path
     $tree delete [$tree children $node]
@@ -2378,7 +2365,6 @@ set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $
     }
     foreach f [lsort -dictionary $directory_list] {
       set typeOrig [file type "$f"]
-#      set type "directory"
       set type "d_$typeOrig"
       set rr [file readable "$f"]
       if {$rr == 0} {
