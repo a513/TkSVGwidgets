@@ -2339,15 +2339,16 @@ puts "selectdir: exists $w1.butMenu"
     }
 
     set pattern "*"
+    set directory_list1 [list]
     if {[tk windowingsystem] != "win32"} {
 	if {$::FE::folder(hiddencb) > 0} {
 		set pattern "* .*"
 	}
-    } 
-
-    set directory_list1 [list]
-    set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $pattern ]]
-
+	set directory_list1 [lsort [eval glob -nocomplain -types d  -directory "$path" $pattern ]]
+    } else {
+	set directory_list1 [lsort [glob -nocomplain -types d  -directory "$path" $pattern ]]
+    }
+    
       set ptr [string first "/.. " $directory_list1]
       if {$ptr != -1} {
         append directory_list [string range $directory_list1 [expr $ptr + 3] end ]
@@ -2400,15 +2401,6 @@ puts "selectdir: exists $w1.butMenu"
 	incr ind2 -1
 	set mask1 [string range $mask $ind1 $ind2]
 #puts "MASK1=$mask1 MAK=$mask ind1=$ind1 ind2=$ind2"
-if {0} {
-	foreach f1 [eval [linsert "$mask1" 0 glob -nocomplain -tails \
-		-directory $path -type {f l c b p} ]] {
-		# Links can still be directories. Skip those.
-		if {[file isdirectory [file join $path $f1]]} continue
-		lappend files_list [file join $path $f1]
-	}
-}
-if {1} {
     if {$pattern == "*"} {
 	set pattern {f l c b p}
     } else {
@@ -2429,8 +2421,6 @@ if {1} {
 		lappend files_list [file join $path $f1]
 	}
 	
-	
-}
 #puts "FILES_LIST=$files_list"
       foreach f $files_list {
         set typeOrig [file type $f]
