@@ -37,10 +37,14 @@
 # We need URN decoding for the file path in images. From my whiteboard code.
 
 if {[catch {package require tko}]} {
-    package require tkpath
+    if {[catch {package require tkpath }]} {
+	puts "Cannot load package svg2cam"
+	return -code error "Cannot load package tko or tkpath "
+    }
 }
+variable priv
+set priv(havetkpath) 1
 
-package require uriencode
 package require tinydom
 
 package provide svg2can 2.0
@@ -116,18 +120,6 @@ namespace eval svg2can {
 	    set systemFont system
 	}
     }
-    
-    variable priv
-    set priv(havetkpath) 0
-    if {![catch {package require tkpath 0.3.3}]} {
-	set priv(havetkpath) 1
-    } else {
-	puts "Cannot load package svg2cam"
-	return -code error "Cannot load package tkpath 0.3.3"
-    }
-
-    # We don't want it now.
-#    set priv(havetkpath) 0
 
     variable chache
     variable cache_key ""
@@ -2110,7 +2102,7 @@ proc svg2can::StyleToOptsEx {styleList args} {
 		if {$value eq "none"} {
 		    set optsA(-strokedasharray) {}
 		} else {
-		    set dash [split $value ,]
+		    set dash [split $value \ ,]
 		    set optsA(-strokedasharray) $dash
 		}
 	    }
