@@ -2420,6 +2420,7 @@ puts "selectdir: exists $w1.butMenu"
 		if {[file isdirectory [file join $path $f1]]} continue
 		lappend files_list [file join $path $f1]
 	}
+	set files_list [lsort -unique $files_list]
 	
 #puts "FILES_LIST=$files_list"
       foreach f $files_list {
