@@ -2658,6 +2658,37 @@ update
     populateRoots "$fm" "$::tekPATH" $typefb
     set pass ""
   }
+
+
+  proc tk_getopenfile {args} {
+    return [eval [subst "::FE::fe_getopenfile [set args]"]]
+  }
+  proc tk_getsavefile {args} {
+    return [eval [subst "::FE::fe_getsavefile [set args]"]]
+  }
+  proc tk_choosedirectory {args} {
+    return [eval [subst "::FE::fe_choosedir [set args]"]]
+  }
+  proc fe_rename {} {
+    rename ::tk_getOpenFile  __tk_getOpenFile 
+    rename ::tk_getSaveFile  __tk_getSaveFile
+    rename ::tk_chooseDirectory __tk_chooseDirectory
+
+    rename ::FE::tk_getopenfile ::tk_getOpenFile
+    rename ::FE::tk_getsavefile ::tk_getSaveFile
+    rename ::FE::tk_choosedirectory ::tk_chooseDirectory
+  }
+  proc fe_restore {} {
+    rename ::tk_getOpenFile ::FE::tk_getopenfile
+    rename ::tk_getSaveFile ::FE::tk_getsavefile
+    rename ::tk_chooseDirectory ::FE::tk_choosedirectory
+
+    rename __tk_getOpenFile  ::tk_getOpenFile
+    rename __tk_getSaveFile ::tk_getSaveFile
+    rename __tk_chooseDirectory ::tk_chooseDirectory
+
+  }
+  
   proc fe_getsavefile {args} {
     #Формируем случайную переменную
     set rand [expr int(rand() * 10000)]
