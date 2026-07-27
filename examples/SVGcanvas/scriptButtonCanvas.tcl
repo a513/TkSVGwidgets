@@ -12,7 +12,7 @@ variable vrc4
 variable z1
 variable z2
 
-#tk busy hold .dsvg
+tk busy hold .dsvg
 
 proc selectwsvg {win x y} {
     puts "$win $x $y"
@@ -102,7 +102,6 @@ proc exitcanvas {t {mestok "XAXA"}} {
 	set allo "[info class instances cbutton] [info class instances ibutton] [info class instances mbutton] [info class instances cmenu]  [info class instances cframe]"
 	foreach {oo} $allo {
 	    set ind 0
-if {0} {
 	    foreach omain $::listO {
 		if {"$oo" != "$omain"} {
 		    continue
@@ -110,7 +109,6 @@ if {0} {
 		set ind 1
 		break
 	    }
-}
 	    if {$ind == 0} {
 		if {[string rang [$oo canvas] 0 2] != ".st"} {
 		    $oo destroy
@@ -118,8 +116,8 @@ if {0} {
 	    }
 	}
 	destroy $t
-	puts "Пример demoPackSVGwithImageMesFromMenu.tcl завершен."
-#	tk busy forget .dsvg
+	puts "Example scriptButtonCanvas.tcl ended"
+	tk busy forget .dsvg
 	return
 }
 proc createMenu {} {
@@ -138,6 +136,7 @@ proc createMenu {} {
     set mbut [$menu add finish]
     $mbut config -stroke chocolate
     $::butm1 config -menu $menu -command "    set z1 0; set z2 1"
+    $menu config -state hidden
     return $menu
 }
 

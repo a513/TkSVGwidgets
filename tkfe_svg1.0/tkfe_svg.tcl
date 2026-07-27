@@ -7,6 +7,7 @@
 
 package require Tk 8.6.0 9
 package require svgwidgets
+package require svg2can
 
 package provide tkfe_svg 1.0
 
@@ -15,8 +16,6 @@ namespace import msgcat::mc
 namespace import -force msgcat::mcset
 
 namespace eval FE {
-  set ::SelDir ""
-  set ::SelFil ""
 if {![info exist ::FE::folder]} {
   array set ::FE::folder [list]
   set ::FE::folder(details) 0
@@ -81,6 +80,20 @@ if {![info exist ::FE::folder]} {
   mcset ru "Select PKCS11 library" "Выберите библиотеку PKCS11"
   mcset ru "Detailed View" "Расширенный список"
   mcset ru "Short View" "Только имена"
+  mcset ru "Folders on top" "Папки вверху"
+  mcset ru "Data list" "Список данных"
+  mcset ru "Names only" "Только имена"
+  mcset ru "Extended list" "Расширенный список"
+  mcset ru "Folders and files separated" "Папки и файлы раздельно"
+  mcset ru "      File\n    \"%1\$s\"\nalready exists.\nDo you want to overwrite it?" "      \n\nФайл \"%1\$s\"\nуже существует.\nВы будете его переписывать?"
+  mcset ru "      Do you realy\n      want to delete the file\n\"%1\$s\"\n?" "      Вы действительно\n      хотите уничтожить файл\n\"%1\$s\"\n?"
+  mcset ru "      Do you realy\n      want to delete the folder\n\"%1\$s\"\n?" "      Вы действительно\n      хотите уничтожить папку\n\"%1\$s\"\n?"
+  mcset ry "      Unable to delete file\n    \"%1\$s\"\nin current folder.\n" "      Не удалось удалить файл\n    \"%1\$s\"\nв текущей папке.\n"
+  mcset ru "      Unable to delete folder\n    \"%1\$s\"\nin the current directory.\n" "      Не удалось удалить папку\n    \"%1\$s\"\nв текущем каталоге.\n"
+  mcset ru "      Goldn't create directory\n    \"%1\$s\"\nin the current folder.\n" "      Не удалось создать папку\n    \"%1\$s\"\nв текущем каталоге.\n"
+  mcset ru "      Goldn't create file\n    \"%1\$s\"\nin the current folder.\n" "      Не удалось создать файл\n    \"%1\$s\"\nв текущей папке.\n"
+  mcset ru "      A file named\n       \"%1\$s\"\n      alredy exists in the current folder\nOverwrite this file\n?" "      Файл с именем\n       \"%1\$s\"\n      уже есть в текущей папке\nПереписать этот файл\n?"
+  mcset ru "      Rename\n    \"%1\$s\"\nfailed.\n" "      Переименовать\n    \"%1\$s\"\nне удалось.\n" 
 
   ttk::style configure Treeview  -background snow  -padding 0
 #   -arrowsize 20
@@ -151,8 +164,6 @@ EQr8aXIqSfhTgRUE9cOdDgOQ2KJ55ptwU9GZb0JjqQlAGAAmYXTqhTLsRXZtSS+y
 lhkABDGlAOlD0Ejnxm/+OyPLvDvv79k4rgCrh+03NU/rBj9b11QAAAAASUVORK5C
 YII=
 }
-
-# Images for ttk::getOpenFile, ttk::getSaveFile, ttk::getAppendFile
 
 image create photo fe_next -data {
 R0lGODlhFgAWAMYAADt1BDpzBFiJKb7ZpGaVOTx2A8HcqbfVm3ShSjt0BDp1BDx3Bb/apYe7
@@ -527,6 +538,60 @@ Qvlk7HzTcMtpD3BbIBQKVSpVc3OzyWQiaebI4RqpJDsAg8jh8Xg0Go1WqzWbzXa7nWGYzMxMuVxeXFxM
 7tSKZTJuP3ZTWlpqys0rF5JEjHucPXD0xLtuPbcfuxpwsA5+3VNdYxtzpCUl3r9dBwDemOOLdbB8776OtzruNdY18MfMT+txBv8Dg589dO4PXNeoRAAAAABJRU5ErkJg
 gg==}
 
+#image SVGXml
+set imgatt {<?xml version="1.0" encoding="utf-8"?><!-- Скачано с сайта svg4.ru / Downloaded from svg4.ru -->
+<svg width="128" height="128" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect fill="white" fill-opacity="0.01"/>
+<path d="M24 44C29.5228 44 34.5228 41.7614 38.1421 38.1421C41.7614 34.5228 44 29.5228 44 24C44 18.4772 
+41.7614 13.4772 38.1421 9.85786C34.5228 6.23858 29.5228 4 24 4C18.4772 4 13.4772 6.23858 9.85786 9.85786C6.23858 
+13.4772 4 18.4772 4 24C4 29.5228 6.23858 34.5228 9.85786 38.1421C13.4772 41.7614 18.4772 44 24 44Z" 
+fill="#2F88FF" stroke="#000000" stroke-width="4" stroke-linejoin="round"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M24 37C25.3807 37 26.5 35.8807 26.5 34.5C26.5 33.1193 25.3807 
+32 24 32C22.6193 32 21.5 33.1193 21.5 34.5C21.5 35.8807 22.6193 37 24 37Z" fill="white"/>
+<path d="M24 12V28" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>}
+
+set imgerr {<?xml version="1.0" encoding="utf-8"?><!-- Скачано с сайта svg4.ru / Downloaded from svg4.ru -->
+<svg width="128" height="128" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect fill="white" fill-opacity="0.01"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M6 11L11 6L24 19L37 6L42 11L29 24L42 37L37 42L24 29L11 42L6 37L19 24L6 11Z" 
+fill="#2F88FF" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>}
+
+set imginfo {<?xml version="1.0" encoding="utf-8"?><!-- Скачано с сайта svg4.ru / Downloaded from svg4.ru -->
+<svg width="128" height="128" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect fill="white" fill-opacity="0.01"/>
+<path d="M24 44C29.5228 44 34.5228 41.7614 38.1421 38.1421C41.7614 34.5228 44 29.5228 44 24C44 18.4772 41.7614 13.4772 
+38.1421 9.85786C34.5228 6.23858 29.5228 4 24 4C18.4772 4 13.4772 6.23858 9.85786 9.85786C6.23858 13.4772 4 18.4772 4 
+24C4 29.5228 6.23858 34.5228 9.85786 38.1421C13.4772 41.7614 18.4772 44 24 44Z" 
+fill="#2F88FF" stroke="#000000" stroke-width="4" stroke-linejoin="round"/>
+<path fill-rule="evenodd" clip-rule="evenodd" 
+d="M24 11C25.3807 11 26.5 12.1193 26.5 13.5C26.5 14.8807 25.3807 16 24 16C22.6193 16 21.5 14.8807 21.5 13.5C21.5 12.1193 22.6193 11 24 11Z" 
+fill="white"/>
+<path d="M24.5 34V20H23.5H22.5" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M21 34H28" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>}
+set imghelp {<?xml version="1.0" encoding="utf-8"?><!-- Скачано с сайта svg4.ru / Downloaded from svg4.ru -->
+<svg width="128" height="128" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect fill="white" fill-opacity="0.01"/>
+<path d="M24 44C29.5228 44 34.5228 41.7614 38.1421 38.1421C41.7614 34.5228 44 29.5228 44 24C44 18.4772 41.7614 13.4772 
+38.1421 9.85786C34.5228 6.23858 29.5228 4 24 4C18.4772 4 13.4772 6.23858 9.85786 9.85786C6.23858 13.4772 4 18.4772 4 
+24C4 29.5228 6.23858 34.5228 9.85786 38.1421C13.4772 41.7614 18.4772 44 24 44Z" 
+fill="#2F88FF" stroke="#000000" stroke-width="4" stroke-linejoin="round"/>
+<path d="M24 28.6249V24.6249C27.3137 24.6249 30 21.9386 30 18.6249C30 15.3112 27.3137 12.6249 24 12.6249C20.6863 12.6249 18 15.3112 18 18.6249" 
+stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path fill-rule="evenodd" clip-rule="evenodd" 
+d="M24 37.6249C25.3807 37.6249 26.5 36.5056 26.5 35.1249C26.5 33.7442 25.3807 32.6249 24 32.6249C22.6193 
+32.6249 21.5 33.7442 21.5 35.1249C21.5 36.5056 22.6193 37.6249 24 37.6249Z" 
+fill="white"/>
+</svg>}
+
+[set ::svgwidget::tkpath] ._imgsvg  
+set attImg [list "._imgsvg" [svg2can::SVGXmlToCanvas ._imgsvg $imgatt]]
+#puts "attImg=$attImg"
+set infoImg [list "._imgsvg" [svg2can::SVGXmlToCanvas ._imgsvg $imginfo]]
+set helpImg [list "._imgsvg" [svg2can::SVGXmlToCanvas ._imgsvg $imghelp]]
+
   proc readName ent {
     global widget
     global yespas
@@ -535,6 +600,56 @@ gg==}
     $ent delete 0 end
     set yespas "yes"
   }
+
+proc msgyesnoBox {t pl isvg {args "-textanchor n -type yesno -fillnormal cyan -stroke chocolate -strokewidth 2 " }} {
+# t - окно (toplevel), новерх которого будет отображаться сообщение
+# mestok - текст сообщения
+# pl - тип виджета для сообщения ("canvas" | "window")
+# anchor - выравнивание текста в строках (строки разделяются спкцсимволом "\n") 
+# type - ензу сообщения: yesno / yes / msg /left/right/down/up
+#Опции по умолчанию
+    set dargs "-textanchor n -fillnormal cyan -stroke chocolate -strokewidth 2 "
+
+    if {$pl == "window"} {
+	set tm "[set t]Win"
+    } else {
+	set tm $t.fr
+    }
+#puts "msgyesnoBox: args=$args"
+    set nargs $dargs
+#Добавляем опции пользователя
+    set nargs [append nargs $args]
+#puts "msgyesnoBox: nargs=$nargs"
+
+    set nargs [append nargs " -place $pl"]
+    set cmd [subst "mbutton new $tm [set nargs]"]
+#puts "msgyesnoBox: cmd=$cmd"
+    set erlib [eval $cmd]
+#puts "msgyesno: erlib=$erlib"
+    set herlib [expr {int([winfo fpixels [$erlib canvas] [$erlib config -height]])}]
+    set werlib [expr {int([winfo fpixels [$erlib canvas] [$erlib config -width]])}]
+#Главное окно неизменяемое
+    set rsb [wm resizable $::FE::folder(w)]
+    tk busy hold "$::FE::folder(w)"
+    wm resizable $::FE::folder(w) 0 0
+#Рзмещение ФРЕЙМА
+    if {[$erlib config -place] == "canvas"} {
+	set xfe [expr {[winfo width $::FE::folder(w)] / 2 - $werlib / 2}]
+	set yfe [expr {[winfo height $::FE::folder(w)] / 4 }]
+    } else {
+#Рзмещение ОКНА
+	set xfe [expr { [winfo rootx $::FE::folder(w)] + [winfo width $::FE::folder(w)] / 2 - $werlib / 2 }]
+	set yfe [expr {[winfo rooty $::FE::folder(w)] + [winfo height $::FE::folder(w)] / 4 }]
+    }
+    if {$isvg != ""} {
+	set ii [ibutton new [$erlib canvas] -x 1.5m -y 1.5m -text "" -image [set [set isvg]] -width 6m -height 6m -fillnormal ""]
+#puts "ISVG=[set [set isvg]] ii=$ii"
+    }
+    set ret [$erlib place -in $t -x $xfe -y $yfe]
+    eval wm resizable $::FE::folder(w) $rsb
+    tk busy forget "$::FE::folder(w)"
+    return $ret
+}
 
 proc propfile {obj} {
     if {[file  exist $obj] == 0 } {
@@ -620,7 +735,6 @@ proc propfile {obj} {
 	set tc "\x02UTC"
 	set tekpwd [file dirname $obj]
     	set wobj [string map {"/" "\\"} $obj]
-#    	set wobj [encoding convertfrom cp1251 "$wobj"]
 	set oldpwd [pwd]
 	cd $tekpwd
 	if {![catch {exec cmd.exe /c dir $tc $wobj} stfile]} {
@@ -633,8 +747,7 @@ proc propfile {obj} {
     }
 }
 
-
-  #Увеличить/уменьшить картинку (отрицательное значение - уменьшение)
+#Увеличить/уменьшить картинку (отрицательное значение - уменьшение)
   proc scaleImage {im xfactor {yfactor 0}} {
     set mode -subsample
 
@@ -697,34 +810,44 @@ proc propfile {obj} {
   #Высота строк в treeview
   ttk::style configure Treeview  -rowheight [expr $ha + 2]
 #Стиль заголовка
-set fsize [winfo pixels . 2m]
-switch -- $::tcl_platform(platform) {
-  "windows"        {
-    set svgFont "Arial Narrow"
-  }
-  "unix" - default {
-    if {[string range $::tcl_platform(machine) 0 2] != "arm"} {
-	set svgFont "Nimbus Sans Narrow"
-    } else {
+    set fsize [winfo pixels . 2m]
+    switch -- $::tcl_platform(platform) {
+	"windows"        {
+	    set svgFont "Arial Narrow"
+	}
+	"unix" - default {
+	    if {[string range $::tcl_platform(machine) 0 2] != "arm"} {
+		set svgFont "Nimbus Sans Narrow"
+	    } else {
 #	set svgFont "Roboto"
-	set svgFont "Nimbus Sans Narrow"
+		set svgFont "Nimbus Sans Narrow"
+	    }
+	}
     }
-
-  }
-}
-
 
 font create fontfe -size $fsize -family "$svgFont"
 ttk::style configure Treeview.Heading -font TkTextFont -background "#bbf9fe" -padding {0 0.5m 0 0.5m}
 ttk::style configure Treeview.Item -padding {-4m 0 0 0}
 
   proc filedel {w file typefb} {
-    set answer [tk_messageBox -title "Удаление папки/файла" -icon question -message "Вы действительно\nхотите уничтожить\n$file ?" -type yesno -parent $w]
-    if {$answer != "yes"} {
-      return
+    set nfile "[file tail [lindex $file 0]]"
+    if {[file type [lindex $file 0]] != "directory"} {
+	set txt [mc "      Do you realy\n      want to delete the file\n\"%1\$s\"\n?" "$nfile"]
+	set txt1 [mc "      Unable to delete file\n    \"%1\$s\"\nin current folder.\n" "$nfile"]
+    } else {
+	set txt [mc "      Do you realy\n      want to delete the folder\n\"%1\$s\"\n?" "$nfile"]
+	set txt1 [mc "      Unable to delete folder\n    \"%1\$s\"\nin the current directory.\n" "$nfile"]
     }
-#    file delete -force "$file"
-    file delete -force [lindex $file 0]
+    set answer [msgyesnoBox $::FE::folder(w) canvas "FE::helpImg" -textanchor n -text "$txt" -type yesno]
+    if {$answer != "yes"} {
+    	return
+    }
+    catch {file delete -force [lindex $file 0]} er 
+    if {$er != ""} {
+	set txt [append txt1 "([lindex [split $er ":"] end ])"]
+	msgyesnoBox $::FE::folder(w) canvas "FE::infoImg" -textanchor n -text $txt1 -type msg
+	return
+    }
     set ::FE::folder(initialfile) ""
     populateRoots "$w" "$::tekPATH" $typefb
 #Или goupdate
@@ -799,7 +922,7 @@ ttk::style configure Treeview.Item -padding {-4m 0 0 0}
       #Это тип субъекта
       lappend t [lindex [$w item $i -value] 1]
     }
-    if {[winfo exists $fm.contextMenu]} {
+    if {[winfo exists $fm.__fecontextMenu]} {
 	$::cmenudf destroy
     }
 #В отдельном окне
@@ -810,19 +933,14 @@ ttk::style configure Treeview.Item -padding {-4m 0 0 0}
 #    if {$mtype == 1} {}
     if {[expr {($rootx + $m46) >  ($wrootx + $wcont)}]} {
 	set mtype 1
-#	catch {destroy $fm.contextMenu}
-set fmWin ".cont"
-	catch {destroy $fmWin}
-	toplevel $fmWin -class femenu
-	wm overrideredirect $fmWin 1
-	wm state $fmWin withdraw
-	set cmenu1 [cmenu new $fmWin.contextMenu -tongue "0.5 0.5 0.5 0" -strokewidth 2 -pad 1m ]
+#	catch {destroy $.__fecontextMenu}
+	set cmenu1 [cmenu new .__fecontextMenu -tongue "0.5 0.5 0.5 0" -strokewidth 2 -pad 1m -place window]
     } else {
 	set tp [winfo toplevel $w]
 	if {$tp == "."} {
 	    set tp ""
 	}
-	set cmenu1 [cmenu new $tp.contextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m -height 6m]
+	set cmenu1 [cmenu new $tp.__fecontextMenu -tongue "0.5 0.5 0.5 0" -direction down -strokewidth 2 -pad 1m -height 6m -place canvas]
     }
     eval "$cmenu1 config -command {catch {[set cmenu1] destroy};set ::fdmenu 1}"
     
@@ -830,14 +948,12 @@ set fmWin ".cont"
     set adddir [$canCtx create group]
     set adddir1 [$canCtx create path "$padddir1" -fill black -strokewidth 0 -parent $adddir]
     set adddir2 [$canCtx create path "$padddir2" -fill black -strokewidth 0 -parent $adddir]
-set ::cmenudf $cmenu1
+    set ::cmenudf $cmenu1
 #Добавить команду separator а пока
     set cmd7 [$cmenu1 add separator]
     $cmd7 config -fillnormal gray70 -stroke {} -strokewidth 0  -height 0.5m -fillenter "##" -fillpress "##"
-#    .contextMenu add separator
     if {$s != ""} {
       if {$t == "denied"} {
-#        .contextMenu add command -label [mc "No access"] -command {}
 #Добавить в add параметры для config
 	set cmd1 [$cmenu1 add command -text [mc "No access"]]
 	$cmd1 config -command {}
@@ -868,11 +984,11 @@ set ::cmenudf $cmenu1
 	[$cmd3 canvas] itemconfigure $isvg -strokewidth 2.0
 
         eval "$cmd3 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::renameobj $fm.tekfolder $typefb  $s $fm]; set ::fdmenu 1}"
-
+if {0} {
 	set cmd9 [$cmenu1 add command  -text "Свойства файла" -compound left]
 	$cmd9 config -image "fe_iconview"
         eval "$cmd9 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::propfile $s]; set ::fdmenu 1}"
-
+}
 	set cmd7 [$cmenu1 add command -text "[mc {Create an empty file}]" -compound left]
 	$cmd7 config -image "$canCtx $addfile"
 	$canCtx delete $addfile
@@ -888,7 +1004,6 @@ set ::cmenudf $cmenu1
 	set rendir1 [$canCtx create path "$prename1" -parent $rendir -stroke black]
 	set rendir2 [$canCtx create path "$prename2" -parent $rendir -stroke black ]
 	set rendir3 [$canCtx create path "$prename3" -parent $rendir -stroke black ]
-#        .contextMenu add command -label [mc "Delete directory"] -command [list [namespace current]::filedel $fm $s $typefb]
 	set cmd4 [$cmenu1 add command -text "[mc {Delete directory}]" -compound left]
         eval "$cmd4 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::filedel $fm $s $typefb]; set ::fdmenu 1}"
 	$cmd4 config -image "$canCtx $deldir"
@@ -896,44 +1011,40 @@ set ::cmenudf $cmenu1
 	set isvg [$cmd4 config -isvg]
 	[$cmd4 canvas] itemconfigure $isvg -strokewidth 2.0
 
-#        .contextMenu add separator
-#        .contextMenu add command -label [mc "Rename directory"] -command [list [namespace current]::renameobj "$fm.tekfolder" $typefb  $s $fm]
 	set cmd5 [$cmenu1 add command -text "[mc {Rename directory}]" -compound left]
 	$cmd5 config -image "$canCtx $rendir"
 	$canCtx delete $rendir
 	eval "$cmd5 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::renameobj $fm.tekfolder $typefb  $s $fm]; set ::fdmenu 1}"
-
+if {0} {
 	set cmd9 [$cmenu1 add command -compound left -text "Свойства каталога" -image "fe_iconview"]
 	$cmd9 config -compound left
 	$cmd9 config -image "fe_iconview"
 	eval "$cmd9 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::propfile $s ]; set ::fdmenu 1}"
+}
       }
 	set cmd6 [$cmenu1 add command -text "[mc {Create directory}]" -compound left]
 	eval "$cmd6 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir dir  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
 	$cmd6 config -image "$canCtx $adddir"
 	$canCtx delete $adddir
     } else {
-#    .contextMenu add command -label [mc "Create directory"] -command [list [namespace current]::createdir "dir"  $fm.tekfolder $fm $typefb]
-    set cmd6 [$cmenu1 add command -text "[mc {Create directory}]" -compound left]
+	set cmd6 [$cmenu1 add command -text "[mc {Create directory}]" -compound left]
 #puts "place cmd6=$cmd6 cmenu1=$cmenu1"
-    $cmd6 config -image "$canCtx $adddir"
-    $canCtx delete $adddir
-    eval "$cmd6 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir "dir"  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
+	$cmd6 config -image "$canCtx $adddir"
+	$canCtx delete $adddir
+	eval "$cmd6 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir "dir"  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
 
-    if {$typefb != "dir"} {
-#      .contextMenu add separator
+	if {$typefb != "dir"} {
 #Добавить команду separator а пока
-	set cmd7 [$cmenu1 add separator]
-#      .contextMenu add command -label [mc "Create an empty file"] -command [list [namespace current]::createdir "file"  $fm.tekfolder $fm $typefb]
-	set addfile [$canCtx create group]
-	set addfile1 [$canCtx create path "$paddfile1" -fill black -strokewidth 0 -parent $addfile]
-	set addfile2 [$canCtx create path "$paddfile2" -fill black -strokewidth 0 -parent $addfile]
+	    set cmd7 [$cmenu1 add separator]
+	    set addfile [$canCtx create group]
+	    set addfile1 [$canCtx create path "$paddfile1" -fill black -strokewidth 0 -parent $addfile]
+	    set addfile2 [$canCtx create path "$paddfile2" -fill black -strokewidth 0 -parent $addfile]
 
-	set cmd7 [$cmenu1 add command -text "[mc {Create an empty file}]" -compound left]
-	eval "$cmd7 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir "file"  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
-	$cmd7 config -image "$canCtx $addfile"
-	$canCtx delete $addfile
-    }
+	    set cmd7 [$cmenu1 add command -text "[mc {Create an empty file}]" -compound left]
+	    eval "$cmd7 config -command {[set cmenu1] destroy;bind $fm <ButtonRelease-3> {};[list [namespace current]::createdir "file"  $fm.tekfolder $fm $typefb]; set ::fdmenu 1}"
+	    $cmd7 config -image "$canCtx $addfile"
+	    $canCtx delete $addfile
+	}
     }
     set cmd7 [$cmenu1 add separator]
 
@@ -949,37 +1060,43 @@ set ::cmenudf $cmenu1
 	    tk busy hold $fm
     }
 
-    set topl [winfo toplevel $fm]
-    if {$topl != $fm} {
-	eval "bind [set fm]_Busy <ButtonRelease> {[set cmenu1] destroy;; set ::fdmenu 1}"
-    } else {
-	eval "bind [set fm]._Busy <ButtonRelease> {[set cmenu1] destroy;; set ::fdmenu 1}"
-    }
-if {0} {
-    if {$mtype == 1} {
-	eval "bind $topl <Configure> {[set cmenu1] destroy;; set ::fdmenu 1;bind $topl <Configure> {if {\"%W\" == $::FE::folder(w) && [winfo exist $::FE::folder(w).contextMenu]} {lower $::FE::folder(w)._Busy $::FE::folder(w).contextMenu}}}"
-    }
-}
-
     set cmd_fin [$cmenu1 add finish]
     $cmd_fin config -fillnormal "#f4f5f5" -stroke gray70
     eval "$cmd_fin config -command {catch {[set cmenu1] destroy};set ::fdmenu 1}"
 
 #Ширина
     if {$mtype == 1} {
-	set mbut [$cmenu1 place -x $rootx -y $rooty -in ".cont" ]
-	place forget [$cmenu1 canvas]
-	pack [$cmenu1 canvas] -side top -anchor nw
-	wm state $fmWin normal
-	wm geometry $fmWin +$rootx+$rooty
+	set mbut [$cmenu1 place -x $rootx -y $rooty  ]
+	set tt [winfo toplevel [$cmenu1 canvas]]
+    set topl [winfo toplevel $w]
+#puts "ContextMey.: cmenu1=$cmenu1"
+#puts "top=$tt Canvas=[$cmenu1 canvas]  state=[wm stat $tt]"
+    eval "bind .__fecontextMenu <FocusOut> {$cmenu1 destroy; tk busy forget $::FE::folder(w); set ::fdmenu 1}"
+    set cmd "bind $topl <Configure> {if {\[winfo exist {.__fecontextMenu}\]} {bind .__fecontextMenu <ButtonRelease-3> {}};bind $topl <Configure> {};bind $topl <FocusOut> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
+    eval $cmd
+    if {$::FE::folder(w) == "." } {
+	    set wbm ""
     } else {
-	set mbut [$cmenu1 place -x $x -y $y -in $fm]
+	    set wbm $::FE::folder(w)
     }
-    if {$mtype == 1} {
-	set cmd "bind $topl <Configure> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <Configure> {};bind $topl <FocusOut> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
-	eval $cmd
-	set cmd "bind $topl <FocusOut> {if {\[winfo exist {.cont.contextMenu}\]} {bind .cont.contextMenu <ButtonRelease-3> {}};bind $topl <FocusOut> {};bind $topl <Configure> {}; catch {[set cmenu1] destroy}; set ::fdmenu 1}"
-	eval $cmd
+    if {$::FE::folder(typew) == "window"} {
+	eval "bind [set wbm]._Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set topl];bind [set topl] <FocusOut> {}  \}"
+    } else {
+	eval "bind [set wbm]_Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set ::FE::folder(w)];bind [set topl] <FocusOut> {}  \}"
+    }
+    focus -force .__fecontextMenu
+
+    } else {
+set topl [winfo toplevel $w]
+	set mbut [$cmenu1 place -x $x -y $y -in $fm]
+	if {$::FE::folder(typew) == "window"} {
+	    eval "bind [set fm]._Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set topl]\}"
+	    eval "bind [set fm] <Configure> \{if {\[info exist [set fm]._Busy]} {  raise $::FE::folder(w) [set fm]._Busy};\}"
+	} else {
+#	    eval "bind [set fm]_Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set topl]\}"
+	    eval "bind [set fm]_Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set ::FE::folder(w)]\}"
+	    eval "bind [set fm] <Configure> \{if {\[info exist [set fm]_Busy]} {  raise $::FE::folder(w) [set fm]_Busy};\}"
+	}
     }
     set ::fdmenu 0
     vwait ::fdmenu
@@ -1011,54 +1128,34 @@ if {0} {
 	wm geometry .butconfig "+[expr {$xb + ($x1 - $x0)}]+[expr {$yb + ($y1 - $y0)}]"
   }
 proc showSubMenu {w fm obj {mtype 0}} {
-#	set ::submenu [cmenu new $fm.subMenu -tongue "0.45 0.5 0.55 2m" -strokewidth 2 -pad 1m]
-#####################
-set direct left
-#    if {$::submenu != ""}  {
-#	$::submenu destroy
-#    }
+    set direct left
     if {[info exist ::submenu]} {
 	if {[info exist $::submenu]} {
 	    $::submenu destroy
 	}
     }
 
-
     if {$mtype == 1} {
 	set fmWin ".$fm"
-	catch {destroy $fmWin}
-	toplevel $fmWin -class femenu
-	wm overrideredirect $fmWin 1
-	wm state $fmWin withdraw
-#	set ::submenu [cmenu new $fmWin.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m]
-	destroy $fmWin.$fm
-	set ::submenu [cmenu new $fmWin.$fm -tongue "0.30 0.20 0.45 2m" -direction $direct -strokewidth 2 -pad 1m  -fillnormal snow -stroke gray70 -direction $direct]
+	set ::submenu [cmenu new $fmWin.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m  -fillnormal snow -stroke gray70 -direction $direct]
     } else {
-#	set ::cmenubut [cmenu new $win.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m]
 	set tl [winfo toplevel $w]
 	if {$tl == "."} {
 	    set tl ""
 	}
-#	destroy .subMenu
-	set ::submenu [cmenu new $tl.subMenu -tongue "0.30 0.20 0.45 2m" -strokewidth 2 -pad 1m -fillnormal snow -stroke gray70 -direction $direct]
+	set ::submenu [cmenu new $tl.subMenu -tongue "0.45 0.5 0.55 2m" -strokewidth 2 -pad 1m -fillnormal snow -stroke gray70 -direction $direct]
     }
 	set i 0
-#	foreach hcol  [list Размер Дата Полномочия] {}
 	foreach hcol  "$::FE::folder(displaycolumns)" {
 	    set ch$i [$::submenu add check -text "$hcol" -variable ::FE::displaycolumns($hcol)]
 	    set chsep [$::submenu add separator ]
-		$chsep config -stroke "" -fillnormal "" -fillenter "##"
-#Состав расширенного просмотра
-#	    set ::FE::displaycolumns($hcol) 1
+	    $chsep config -stroke "" -fillnormal "" -fillenter "##"
 	    incr i
 	}
-#	    set ch$i [$::submenu add check -text [::msgcat::mc "$hcol"] -variable ::FE::displaycolumns($hcol)]
 #puts "showSubMenu END: i=$i hcol=$hcol"
     set chsep [$::submenu add separator ]
     $chsep config -stroke "" -fillnormal "" -fillenter "##"
     set chsep [$::submenu add finish]
-
-#    ::FE::detailedview $::FE::folder(w)
 
     return $::submenu
 }
@@ -1081,10 +1178,6 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
     }
     if {$mtype == 1} {
 	set fmWin ".$fm"
-	catch {destroy $fmWin}
-	toplevel $fmWin -class femenu
-	wm overrideredirect $fmWin 1
-	wm state $fmWin withdraw
 	set ::cmenubut [cmenu new $fmWin.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m]
     } else {
 	set win [winfo toplevel [$oow canvas]]
@@ -1094,56 +1187,43 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
 	destroy $win.$fm
 	set ::cmenubut [cmenu new $win.$fm -tongue "0.45 0.5 0.55 2m" -direction $direct -strokewidth 2 -pad 1m -command "" -fillnormal snow  -stroke gray70 -height 6m]
     }
-#puts "showConfigMenu 1_2"
-    set ch1 [$::cmenubut add check -text {Папки вверху} -variable  ::FE::folder(foldersfirst)]
-#    set ::FE::folder(foldersfirst) 0
+    set mtxt "[mc {Folders on top}]"
+    set ch1 [$::cmenubut add check -text "[set mtxt]" -variable  ::FE::folder(foldersfirst)]
     $ch1 config -command "[namespace current]::columnSort \$::FE::folder(w).files.t \$::FE::folder(column) \$::FE::folder(direction)"
 
-#    eval "variable foldersfirst;$ch1 config -command {puts \\\"Папки вверну foldersfirst=\$foldersfirst \\\"}"
-#puts "createConfigMenu 1_3"
-#    $ch1 config -text "Папки вверху"
     set ch1 [$::cmenubut add separator]
     set gr [[$::cmenubut canvas] create group]
     set iprev [[$::cmenubut canvas] create path "M 3 3 L 13 13 3 23" -strokewidth 2 -parent $gr]
 
-# -displaymenu enter
 #enter - отображать меню при наведении на кнопку с меню
 #release - отображать меню при щелчке по кнопке с меню
-    set chcas [$::cmenubut add cascade -text "Состав данных" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -compound none -ipad "4.5c 3m 2.5m 4m"  -displaymenu release]
+    set mtxt "[mc {Data list}]"
+    set chcas [$::cmenubut add cascade -text "[set mtxt]" -menu "" -fillopacity 0.2 -fillenter "#3584e4" -strokewidth 0 -compound none -ipad "4.5c 3m 2.5m 4m"  -displaymenu release]
+    set ::FE::folder(chcas) $chcas
 #puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
 
 #puts "СОСТАВ ДАННЫХ=$chcas ::cmenubut=$::cmenubut chcas=$chcas iprev=$iprev"
     set ch1 [$::cmenubut add separator]
 #Создаем SubMenu
-#set sm [showSubMenu [$chcas canvas] "submenu" "new" 1]
-#puts "createConfigMenu 1_4"
-#set sm [showSubMenu [$chcas canvas] "submenu" "new" 0]
-set sm [showSubMenu [$chcas canvas] "submenu" "new" $mtype]
+    set sm [showSubMenu [$chcas canvas] "submenu" "new" $mtype]
     $chcas config -menu $sm -displaymenu release
-#puts "createConfigMenu 1_5 obj_Menu=$oow  Menu==$::cmenubut  obj_subMenu=$chcas subMenu=$$sm"
-
-#puts "createConfigMenu 1_4 sm=$sm chcas=$chcas"
+#puts "showConfigMenu: chcas=$chcas  sm=$sm (\$chcas config -menu \$sm)"
     $chcas config -command ""
     set cmd ""
-	foreach hcol  "$::FE::folder(displaycolumns)" {
-	    append cmd "set ::FE::displaycolumns($hcol) \$::FE::displaycolumns($hcol);"
-	}
+    foreach hcol  "$::FE::folder(displaycolumns)" {
+	append cmd "set ::FE::displaycolumns($hcol) \$::FE::displaycolumns($hcol);"
+    }
     $chcas config -command "$cmd;::FE::detailedview \$::FE::folder(w)"
 
-
-    set cr0 [$::cmenubut add radio " -variable ::FE::folder(details) -text {Только имена} -value 0"]
-    eval "$cr0 config -command {\$::FE::folder(w).files.t configure -displaycolumns \{\}; \$::FE::folder(w).files.t column \{#0\} -stretch 1}"
-#    eval "$cr0 config -command {puts \\\"Укороченный список\\\"}"
+    set cr0 [$::cmenubut add radio " -variable ::FE::folder(details) -text \"[mc {Names only}]\" -value 0"]
     set ch1 [$::cmenubut add separator -fillnormal ""]
 
-    set cr1 [$::cmenubut add radio "-variable ::FE::folder(details) -text {Расширенный список} -value 1"]
-    eval "$cr1 config -command {[namespace current]::detailedview \$::FE::folder(w)}"
-#    eval "$cr1 config -command {puts {Расширенный список}}"
+    set cr1 [$::cmenubut add radio "-variable ::FE::folder(details) -text \"[mc {Extended list}]\" -value 1"]
+    eval "$cr1 config -command {\$::FE::folder(chcas) config -state normal;[namespace current]::detailedview \$::FE::folder(w)}"
     set ch1 [$::cmenubut add separator]
-#    $ch1 config -text ""
-    set chlast [$::cmenubut add check "-text {Папки и файлы раздельно} -variable ::FE::folder(sepfolders)"]
+    set mtxt [mc {Folders and files separated}]
+    set chlast [$::cmenubut add check "-text \"[set mtxt]\" -variable ::FE::folder(sepfolders)"]
     $chlast config -command "[namespace current]::gosepfolders .fe $::FE::folder(typew) $::FE::folder(typefb)"
-#    $chlast config -command "puts {Папки и файлы раздельно}"
 
     set ch1 [$::cmenubut add separator]
     set mbut [$::cmenubut add finish]
@@ -1153,12 +1233,11 @@ set sm [showSubMenu [$chcas canvas] "submenu" "new" $mtype]
 
     $mbut config -command ""
     $oow config -menu $::cmenubut
-#    return $mbut
 #puts "creatConfigMenu end: cmenu=$::cmenubut callout=$mbut"
-$::FE::folder(configureBtn) config -command ""
-$::FE::folder(configureBtn) config -menu $::cmenubut
+    $::FE::folder(configureBtn) config -command ""
+    $::FE::folder(configureBtn) config -menu $::cmenubut
 
-return $::cmenubut
+    return $::cmenubut
 }
 
 ## Code to do the sorting of the tree contents when clicked on
@@ -1268,9 +1347,6 @@ return $::cmenubut
   }
 
   proc initfe {typefb otv args} {
-# 1: the configuration specs
-#
-    catch {unset ::FE::data}
     set ::FE::folder(otv) $otv
 
     set few [winfo pixels . 10c]
@@ -1281,11 +1357,13 @@ return $::cmenubut
 	set details $::FE::folder(details)
 	
     }
-    set specs {
+    set specs [subst {
 	{-typew "" "" "window"}
 	{-widget "" "" ""}
 	{-defaultextension "" "" ""}
 	{-filetypes "" "" ""}
+	{-typevariable "" "" ""}
+	{-confirmoverwrite "" "" 0}
 	{-initialdir "" "" ""}
 	{-initialfile "" "" ""}
 	{-parent "" "" "."}
@@ -1296,16 +1374,17 @@ return $::cmenubut
 	{-reverse "" "" 0}
 	{-details "" "" -1}
 	{-hidden "" "" -1}
-	{-width "" "" -10}
-	{-height "" "" -10}
+	{-width "" "" 0}
+	{-height "" "" 0}
 	{-x "" "" 5}
 	{-y "" "" 5}
-	{-relwidth "" "" 1.0}
-	{-relheight "" "" 1.0}
+	{-relwidth "" "" 0}
+	{-relheight "" "" 0}
 	{-size "" "" 1}
 	{-date "" "" 0}
 	{-permissions "" "" 0}
-    }
+	{-multiple "" "" 0}
+    }]
     set specs_ORIG {
 	{-typew "" "" "window"}
 	{-widget "" "" ""}
@@ -1328,19 +1407,82 @@ return $::cmenubut
 	{-relwidth "" "" 1.0}
 	{-relheight "" "" 1.0}
     }
-#place $w -in [winfo parent $w] -x 5 -y 5 -relwidth 1.0 -relheight 1.0 -width -10 -height -80
 
 #puts "initfe: specs=$specs"
-    tclParseConfigSpec ::FE::data $specs "" [lindex $args 0]
+    if {[info exist ::FE::data]} {
+	unset ::FE::data
+    }
+    if {![info exist ::FE::data]} {
+	tclParseConfigSpec ::FE::data $specs "" [lindex $args 0]
+    } else {
+	set oldtypew $::FE::data(-typew)
+	foreach {option value} [lindex $args 0] {
+    	    switch $option {
+		-typew -
+		-widget -
+		-defaultextension -
+		-filetypes -
+		-typevariable -
+		-confirmoverwrite -
+		-initialdir -
+		-initialfile -
+		-parent -
+		-title -
+		-sepfolders -
+		-foldersfirst -
+		-sort -
+		-reverse -
+		-details -
+		-hidden -
+		-width -
+		-height -
+		-x -
+		-y -
+		-relwidth -
+		-relheight -
+		-size -
+		-date -
+		-permissions -
+		-multiple {
+		    set ::FE::data($option) $value
+		}
+    		default {
+    		    puts "initfe: Bad option $option"
+    		}
+	    }
+	}
+#puts "oldtypew=$oldtypew  FE::data(-typew)=$::FE::data(-typew)"
+	if {$oldtypew != $::FE::data(-typew)} {
+	    unset ::FE::data
+	    tclParseConfigSpec ::FE::data $specs "" [lindex $args 0]
+	} 
+    }
+    
 #    tclParseConfigSpec ::FE::data [subst "$specs"] "" [lindex $args 0]
 #parray ::FE::data
     if { $::FE::data(-typew) == "window" } {
-	if {$::FE::data(-width) == -10} {
-	    set ::FE::data(-width) $few
+	if {$::FE::data(-width) <= 0 && $::FE::data(-relwidth) == 0} {
+		set ::FE::data(-width) $few	    
 	}
-	if {$::FE::data(-height) == -10} {
-	    set ::FE::data(-height) $feh
+	if {$::FE::data(-height) <= 0  && $::FE::data(-relheight) == 0} {
+		set ::FE::data(-height) $feh
 	}
+    } else {
+	if {$::FE::data(-width) <= 0 && $::FE::data(-relwidth) == 0} {
+		set ::FE::data(-relwidth) 0.9
+	}
+	if {$::FE::data(-height) <= 0  && $::FE::data(-relheight) == 0} {
+		set ::FE::data(-relheight) 0.8
+	}
+    }
+    if { $typefb == "fileopen" } {
+	if {$::FE::data(-multiple) == 0} {
+    	    set ::FE::data(-multiple) "browse"
+	} else {
+	    set ::FE::data(-multiple) "extended"
+	}
+    } else {
+    	set ::FE::data(-multiple) "browse"
     }
     if {[info exist foldersfirst]} {
 #puts "initfe: foldersfirst=$foldersfirst"
@@ -1371,7 +1513,11 @@ return $::cmenubut
     set typew $::FE::data(-typew)
     set initdir $::FE::data(-initialdir)
     if {$initdir == ""} {
-	set initdir [pwd]
+	if {[info exist ::FE::folder(tek)]} {
+	    set initdir $::FE::folder(tek)
+	} else {
+	    set initdir [pwd]
+	}
     }
     
     if {![file readable "$initdir"]} {
@@ -1484,7 +1630,7 @@ return $::cmenubut
       toplevel $w -bd 2  -relief groove -bg #d9d9d9
       wm geometry $w $geometr
       bind $w <Destroy> {if {"%W" == $::FE::folder(w)} {::FE::fecancel $::FE::folder(typew) $::FE::folder(w) $::FE::folder(typefb) $::FE::folder(otv)}}
-      bind $w <Configure> {if {"%W" == $::FE::folder(w) && [winfo exist $::FE::folder(w).contextMenu]} {lower $::FE::folder(w)._Busy $::FE::folder(w).contextMenu}}
+      bind $w <Configure> {if {"%W" == $::FE::folder(w) && [winfo exist $::FE::folder(w).__fecontextMenu]} {lower $::FE::folder(w)._Busy $::FE::folder(w).__fecontextMenu}}
       if {$::FE::data(-width) > 0 && $::FE::data(-height) > 0} {
     	    set geom $::FE::data(-width)
     	    append geom "x"
@@ -1499,9 +1645,7 @@ return $::cmenubut
   wm minsize $w [expr {int([winfo fpixels $w 75m])}] [expr {int([winfo fpixels $w 80m])}]
 #  wm minsize . [expr $::scrwidth * 2] $::scrheight
 #Устанавливаем последнюю геометрию окна
-
 #Окно не может перекрываться (yes)
-#      wm attributes $w -topmost yes   ;# stays on top - needed for Linux
       if {$typefb == "dir"} {
         if {$::FE::data(-title) != ""} {
     	    wm title $w [mc "$::FE::data(-title)"]
@@ -1520,13 +1664,11 @@ return $::cmenubut
     }
     set fm "$w"
     set f3 [panedwindow $w.f3 -orient horizontal -sashwidth 2m]
-#  -background red
 
 	array set fontinfo [font actual [[label $f3.dummy] cget -font]]
 	set font [list $fontinfo(-family) -14]
 	destroy $f3.dummy
 	$f3 add [ttk::frame $fm.dirs]
-#	$f3 add [frame $fm.dirs]
     set data(dirArea) [ttk::treeview $fm.dirs.t -columns {fullpath} -displaycolumns {} -xscrollcommand [list [namespace current]::hidescroll $fm.dirs.x]]
     eval "$fm.dirs.t heading {#0} -text {[mc {Folders}]} -image fe_downArrow -command {[namespace current]::columnSort $fm.dirs.t {#0} 1} "
     if {$::typetlf} {
@@ -1549,23 +1691,14 @@ return $::cmenubut
     eval "bind $fm.dirs.t <ButtonPress-3> {[namespace current]::showContextMenu %W %x %y %X %Y $w $typefb}"
 
 	$f3 add [ttk::frame $fm.files]
-#	$f3 add [frame $fm.files]
     set ::FE::folder(panedwindow) $f3
     set ::FE::folder(panedir) $fm.dirs
     set ::FE::folder(panefile) $fm.files
-#    eval "$::FE::folder(panedwindow) forget 0"
     $f3 forget $fm.dirs
 
     ttk::scrollbar $fm.files.y -orient vertical -command "$fm.files.t yview"
     ttk::scrollbar $fm.files.x -orient horizontal -command "$fm.files.t xview"
-if {0} {
-    if {$typefb != "dir"} {
-      ttk::treeview $fm.files.t -columns {fullpath type size date dateorig permissions} -displaycolumns {size date permissions} 
-    } else {
-      ttk::treeview $fm.files.t -columns {fullpath type size permissions} -displaycolumns {permissions} 
-    }
-}
-      ttk::treeview $fm.files.t -columns {fullpath type size date dateorig permissions} -displaycolumns {size date permissions} 
+    ttk::treeview $fm.files.t -columns {fullpath type size date dateorig permissions} -displaycolumns {size date permissions} -selectmode $::FE::data(-multiple)
 
 
     $fm.files.t configure -xscroll [list [namespace current]::hidescroll $fm.files.x ]
@@ -1596,14 +1729,11 @@ if {0} {
     eval "bind $fm.files.t <ButtonPress-3> {[namespace current]::showContextMenu %W %x %y %X %Y $w $typefb 0}"
 
     frame $fm.buts  -bg #d9d9d9
-#    eval "ttk::button $fm.buts.ok -text [mc {Done}]  -command {[namespace current]::fereturn $typew $fm $typefb $otv}"
     set cbut [eval "cbutton new $fm.buts.ok -type round  -text [mc Done]   -command {[namespace current]::fereturn $typew $fm $typefb $otv}"]
     set ::FE::folder(firstOO) $cbut
 
-#    eval "ttk::button $fm.buts.cancel -text [mc {Cancel}]  -command {[namespace current]::fecancel $typew $fm $typefb $otv}"
     set cbut [eval "cbutton new $fm.buts.cancel -type round  -text [mc Cancel]   -command {[namespace current]::fecancel $typew $fm $typefb $otv}"]
     pack $fm.buts.ok $fm.buts.cancel -side right -padx 1m
-#    $fm.buts.cancelack  -side right  -padx 1m
 
     pack $fm.buts -side bottom -fill x -padx 1m -pady 1m
     pack [ttk::separator $fm.sepbut] -side bottom -fill x -expand 0 -pady 0
@@ -1622,18 +1752,12 @@ if {0} {
 	label $fm.titul.labzag -text $ltit -relief flat -bg skyblue -justify center
 	pack $fm.titul.labzag -side top -fill x -expand 1
     }
-#   label $fm.titul.lab  -relief flat -bg skyblue -justify center
     
-
-	# f1: the toolbar
-	#
     set win $w
     set dataName [winfo name $win]
 
-	set f1 [ttk::frame $fm.titul.tools -class Toolbar]
-	set data(bgLabel) [ttk::label $f1.bg -style Toolbutton]
-#	set listBtn [list "upBtn fe_up goup" "prevBtn fe_prev goprev" "nextBtn fe_next gonext"]
-#	set listBtn [list up prev next home hiddencb ]
+    set f1 [ttk::frame $fm.titul.tools -class Toolbar]
+    set data(bgLabel) [ttk::label $f1.bg -style Toolbutton]
 
     if {$typefb != "dir"} {
 	set listBtn [list up prev next home "configure" hiddencb adddir addfile "update"]
@@ -1656,8 +1780,6 @@ if {0} {
 		set ::FE::folder(hiddencb) 0
 		set tfb $typefb
 		set totv $otv
-#    eval "bind $f1.hiddencb <Enter> {[namespace current]::gohelphiddencb  $fm $f1 } "
-#    eval "bind $f1.hiddencb <Leave> {place forget $fm.helpview}"
 	    }
 	    eval "$data($Btn) config -command {[namespace current]::$feproc $fm $typefb $tfb $totv}"
 	    
@@ -1668,17 +1790,11 @@ if {0} {
 	    eval "bind $f1.$op <Enter> {after 10 [list [namespace current]::helptools $fm.helpview $f1.$op 0.0  $strhelp nw]}"
 	    eval "bind $f1.$op <Leave> {catch {place forget $fm.helpview}}"
 
-#	    eval "bind $data($Btn) <Enter> {[namespace current]::helptools $fm.helpview $data($Btn) 0.0  {[mc {Go up}]} nw}"
-#	    eval "bind $data($Btn) <Leave> {place forget $fm.helpview}"
 	    pack [$data($Btn) canvas] -side left -fill both -expand 0 -padx 0
 	}
 ##############Кнопка Меню настройки просмотра #################
-#	$data(configureBtn) config -command "place forget $fm.helpview;update;after 20;puts STARTshowconfigmenu;puts [set data(configureBtn)];[namespace current]::showConfigMenu [$data(configureBtn) canvas] [set fm]"
-#	$data(configureBtn) config -command "place forget $fm.helpview;update;after 20;[namespace current]::showConfigMenu [$data(configureBtn) canvas] [set fm]"
 [namespace current]::showConfigMenu $data(configureBtn) ffmm up 0
-#	$data(configureBtn) config -command "place forget $fm.helpview;update;after 20;[namespace current]::showConfigMenu $data(configureBtn) ffmm up 0"
 	$data(configureBtn) config -command ""
-#$data(configureBtn) config -command "set ::FE::folder(details) \$::FE::folder(details) "
 $data(configureBtn) config -command "set ::FE::folder(foldersfirst) \$::FE::folder(foldersfirst);set ::FE::folder(details) \$::FE::folder(details); set ::FE::folder(sepfolders) \$::FE::folder(sepfolders)" 
 $data(configureBtn) config  -displaymenu release
 
@@ -1706,7 +1822,6 @@ $f1.lang delete $objru
 #Текущий каталог 
     set ftd [ttk::frame $fm.tekfolder]
     label $fm.tekfolder.lab -text "[mc {Current directory}]:" -bd 0 -anchor nw -font TkTextFont -background "#bbf9fe"
-#  -font fontfe
     set dirlist [lindex $::FE::folder(history) 0]
     foreach d $::FE::folder(history) {
         if {[lsearch -exact $dirlist $d] == -1} {
@@ -1765,8 +1880,13 @@ $f1.lang delete $objru
     }
     labelframe $fm.seldir -text $ltit -bd 0 -labelanchor n -font TkTextFont  -background "#bbf9fe"
     entry $fm.seldir.entdir -relief sunken -bg white -highlightthickness 0 -highlightbackground skyblue -highlightcolor blue -readonlybackground white
+    if {$typefb != "dir"} {
+	$fm.seldir.entdir insert 0 $::FE::data(-initialfile)
+    }
+
     pack $fm.seldir.entdir -side right -anchor ne -fill x -expand 1
     $fm.seldir.entdir configure -textvariable ::FE::folder(initialfile)
+    set ::FE::folder(initialfile) $::FE::data(-initialfile)
     if {$typefb != "filesave"} {
 	$fm.seldir.entdir configure -state readonly
     }
@@ -1786,18 +1906,14 @@ $f1.lang delete $objru
     
     grid $fm.files.t -sticky news -padx {2 0} -pady {0 0}
 #При использовании panedwindow добавляемые в панель компоненты (в данном случае $fm.fr и $fm.dirs) укаковывать (pack, greid, place) отдельно не надо
-#    pack $fm.fr -fill both -expand 1 -side right -padx 0 -anchor nw
-#    pack $fm.dirs -fill both -expand 1 -side left -padx 4 -anchor nw
 
     pack $f3 -side top -fill both -expand 1 -padx {2 2} -pady {2 2}
 
     ##################################################
 
     set ::objNewdir [page_newdir $fm $typefb]
-#    $::objNewdir config -fillnormal white
     $::objNewdir config -fillbox [$::objNewdir config -stroke]
     $::objNewdir boxtext
-
 
 #puts "initfe: ::FE::folder(sepfolders)=$::FE::folder(sepfolders) initdir=$initdir"
     set ::FE::folder(tek) $initdir
@@ -1819,27 +1935,34 @@ $f1.lang delete $objru
 	$w configure -relief groove -borderwidth 3 -highlightbackground sienna \
 	    -highlightcolor chocolate  -highlightthickness 3
 #Размещение фреймаа с проводником по одноиу из методов pack/grid/place
+set frwdt [expr {[winfo width [winfo parent $w]] - $::FE::data(-x) * 2 }]
+if {$frwdt >= $::FE::data(-width)} {
 	place $w -in [winfo parent $w] -x $::FE::data(-x) -y $::FE::data(-y) -relwidth $::FE::data(-relwidth) -relheight $::FE::data(-relheight) -width $::FE::data(-width) -height $::FE::data(-height)
-
+} else {
+	place $w -in [winfo parent $w] -x $::FE::data(-x) -y $::FE::data(-y) -relwidth $::FE::data(-relwidth) -relheight $::FE::data(-relheight) -width $frwdt -height $::FE::data(-height)
+}
     }
     if {$typefb == "filesave"} {
 	set ::FE::folder(initialfile) $::FE::data(-initialfile)
     }
-#    goupdate $w $typefb
     update
     foreach {op} $listBtn {
 	set Btn "[set op]Btn"
 	$data($Btn)  config -width [$data($Btn)  config -height]
 #puts "feimafe=$feimage ooo=$data($Btn) height=[$data($Btn)  config -height]"
     }
-if {$::FE::data(-hidden) != $::FE::folder(hiddencb)} {
-$::FE::folder(hiddencbBtn) invoke
-}
-if {$::FE::folder(details) == 0} {
-    $::FE::folder(w).files.t configure -displaycolumns {}; $::FE::folder(w).files.t column {#0} -stretch 1
-} else {
-    ::FE::detailedview $::FE::folder(w)
-}
+    if {$::FE::data(-hidden) != $::FE::folder(hiddencb)} {
+	$::FE::folder(hiddencbBtn) invoke
+    }
+    if {$::FE::folder(details) == 0} {
+	$::FE::folder(w).files.t configure -displaycolumns {}; $::FE::folder(w).files.t column {#0} -stretch 1
+    } else {
+	::FE::detailedview $::FE::folder(w)
+    }
+    set ::FE::folder(initialfile) $::FE::data(-initialfile)
+    if {$::FE::folder(details) == 0} {
+	$::FE::folder(chcas) config -state disabled
+    }
   }
 
   proc datefmt {str} {
@@ -1861,12 +1984,10 @@ if {$::FE::folder(details) == 0} {
     set w "$::FE::folder(w).files.t"
     set dcol ""
     foreach col $::FE::folder(displaycolumns) {
-#	if {[subst $[subst ::FE::displaycolumns\($col\)]]}  {}
 	if {$::FE::displaycolumns($col) == 1}  {
 	    append dcol " $col"
 	}
     }
-#    puts "detailedview dcol=$dcol" 
     $w configure -displaycolumns "$dcol"
     if {$dcol != ""} { 
 	$w column {#0} -stretch 0 -width $::FE::folder(width0)
@@ -1875,10 +1996,8 @@ if {$::FE::folder(details) == 0} {
     }
   }
   proc gosepfolders {w typew typefb} {
-set w "$::FE::folder(w)"
-    set ::SelDir ""
-    set ::SelFil ""
-
+    set w "$::FE::folder(w)"
+set selit [$::FE::folder(w).files.t selection]
     if {$typefb == "dir"} {
 	$w.files.t heading "#0" -text  [mc {Folders}]
 	return
@@ -1889,17 +2008,18 @@ set w "$::FE::folder(w)"
 	set w1 [winfo toplevel $w]
     }
     if {!$::FE::folder(sepfolders)} {
-#	eval "$::FE::folder(panedwindow) forget 0"
 	eval "$::FE::folder(panedwindow) forget $::FE::folder(panedir)"
 	$w1.files.t heading "#0" -text "[mc {Folders and files}]"
 #puts "gosepfolders 0 ::FE::folder(sepfolders)=$::FE::folder(sepfolders)"
     } else {
-#	eval "$::FE::folder(panedwindow) insert 0 $::FE::folder(panedir)"
 	eval "$::FE::folder(panedwindow) add $::FE::folder(panedir) -before $::FE::folder(panefile)"
 	$w1.files.t heading "#0" -text  [mc {Files}]
 #puts "gosepfolders 1 ::FE::folder(sepfolders)=$::FE::folder(sepfolders)"
     }
     goupdate $w $typefb
+if {$selit != ""} {
+    $::FE::folder(w).files.t selection set $selit
+}    
 #puts "gosepfolders END"
   }
  
@@ -1955,21 +2075,15 @@ set w "$::FE::folder(w)"
     set ::FE::folder(tek) $tdir
     lappend ::FE::folder(history) $::FE::folder(tek)
     incr ::FE::folder(histpos)
-#    [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
     columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
-
   }
 
   proc goupdate {w typefb} {
-#    set ::SelDir ""
-#    set ::SelFil ""
     set tdir [lindex $::FE::folder(history) $::FE::folder(histpos)]
-if {1} {
     if {$typefb != "filesave"} {
 	set ::FE::folder(initialfile) ""
     }
     populateRoots "$w" "$tdir" $typefb
-}
     set ::FE::folder(tek) $tdir
     [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
   }
@@ -1982,10 +2096,8 @@ if {1} {
     }
     populateRoots "$w" "$tdir" $typefb
     set ::FE::folder(tek) $tdir
-#    $::FE::folder(nextBtn) state !disabled
     $::FE::folder(nextBtn) config -state normal
     if {$::FE::folder(histpos) == 0} {
-#	$::FE::folder(prevBtn) state disabled
 	$::FE::folder(prevBtn) config -state disabled
     }
     [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
@@ -2007,10 +2119,8 @@ if {1} {
     [namespace current]::selectobj $fm.files.t $typew $typefb 3 $otv
     place forget $fm.helpview; 
     if {$::FE::folder(hiddencb)} {
-#	$::FE::folder(hiddencbBtn) configure -image eye_nohidden
 	$::FE::folder(hiddencbBtn) config -image eye_nohidden
     } else { 
-#	$::FE::folder(hiddencbBtn) configure -image fe_hiddencb
 	$::FE::folder(hiddencbBtn) config -image fe_hiddencb
     }
   }
@@ -2030,28 +2140,25 @@ if {1} {
     }
     populateRoots "$w" "$tdir" $typefb
     set ::FE::folder(tek) $tdir
-#    $::FE::folder(prevBtn) state !disabled
     $::FE::folder(prevBtn) config -state normal
 
     if {$::FE::folder(histpos) >= [llength $::FE::folder(history)] - 1} {
-#	$::FE::folder(nextBtn) state disabled
 	$::FE::folder(nextBtn) config -state disabled
     }
     [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
   }
 
   proc selectobj {w typew typefb click otv} {
+    set votv $otv
     if {$::FE::folder(typew) == "frame"} { 
 	set w1 $::FE::folder(w)
     } else {
 	set w1 [winfo toplevel $w]
     }
-    set ::SelDir "[$w1.dirs.t selection]"
-    set ::SelFil "[$w1.files.t selection]"
 
-#puts "selectobj: w=$w typew=$typew typefb=$typefb click=$click otv=$otv"
+#puts "selectobj: w=$w typew=$typew typefb=$typefb click=$click otv=$otv SELECT=[$w selection]"
     if {[winfo exists "$w1.butMenu"]} {
-puts "selectobj: exists $w1.butMenu"
+#puts "selectobj: exists $w1.butMenu"
 	return
     }
     if {$::FE::folder(typew) == "frame"} { 
@@ -2071,25 +2178,45 @@ puts "selectobj: exists $w1.butMenu"
         -values [list "$dir" directory]]
       lappend ::FE::folder(history) $::FE::folder(tek)
       if {[incr ::FE::folder(histpos)]} {
-#	    $::FE::folder(prevBtn) state !disabled
 	    $::FE::folder(prevBtn) config -state normal
       }
     }
     set num [$w selection]
-    set titem [$w item $num -value]
+    set titem [list]
+    foreach sind $num {
+	lappend titem "[$w item $sind -value] "
+    }
+    set selotv [list]
+
+    foreach rr $titem {
+	set frr "[lindex $rr 0]"
+	set type [file type $frr]
+	if {$typefb == "dir" && $type != "directory"} {
+	    continue
+	}
+	if {$typefb != "dir" && $type != "file"} {
+	    continue
+	}
+	lappend selotv [file tail "$frr"]
+    }
+    if {$typefb != "dir" && ($selotv == "" || $::FE::data(-multiple) == "extended")} {
+    	if {$::FE::data(-initialfile) != "" } {
+    	    set selotv [linsert $selotv 0 $::FE::data(-initialfile)]
+	}
+    }
+
 #puts "selectobj: titem=$titem num=$num w=$w full=[$w item $num]"
-    if {$click == 2 && ([lindex $titem 1] == "d_directory"  || [lindex $titem 1] == "directory")} {
+    if {$click == 2 && ([lindex [lindex $titem 0] 1] == "d_directory"  || [lindex [lindex $titem 0] 1] == "directory")} {
       #Выбираем имя главного фрейма/окна
-      set tekdir "[lindex $titem 0]"
+      set tekdir "[lindex [lindex $titem 0] 0]"
       set ::FE::folder(tek) $tekdir
       if {$typefb != "dir"} {
         set mask [$w1.filter.entdir get]
       } else {
         set mask "*"
       }
-#puts "tekdir=$tekdir"
+#puts "SELECTOBJtekdir=$tekdir"
       set dir "$tekdir"
-#puts "selectobj dir=$dir"
       populateTree $typefb $mask $w [$w insert {} end -text "$dir" -values [list "$dir" directory]]
       set ::FE::folder(history) [lrange $::FE::folder(history) 0 $::FE::folder(histpos)]
       lappend ::FE::folder(history) $::FE::folder(tek)
@@ -2101,13 +2228,10 @@ puts "selectobj: exists $w1.butMenu"
       }
       $w1.tekfolder.ldir configure -value $ldir
 	if {[incr ::FE::folder(histpos)]} {
-#		$::FE::folder(prevBtn) state !disabled
 		$::FE::folder(prevBtn) config -state normal
-
-#		set data(selectFile) ""
 	}
 	$::FE::folder(nextBtn) config -state disabled
-    } elseif {$click == 2 && [string range [lindex $titem 1] 0 1] == "f_"} { 
+    } elseif {$click == 2 && [string range [lindex [lindex $titem 0] 1] 0 1] == "f_"} { 
       set fm [winfo toplevel $w]
       set tekdir "[lindex $titem 0]"
       set ::FE::folder(tek) $tekdir
@@ -2116,21 +2240,19 @@ puts "selectobj: exists $w1.butMenu"
     } else {
       set tekdir "[lindex $titem 0]"
     }
-    set ::FE::folder(initialfile) "[file tail $tekdir]"
-#uts "W1=$w1 W=$w"
+#puts "SELECTOBJtekdir 1 =$tekdir"
+    set ::FE::folder(initialfile) $selotv
 
-    if {$click == 2 && [string range [lindex $titem 1] 0 1] == "f_"} {
+    if {$click == 2 && [string range [lindex [lindex $titem 0] 1] 0 1] == "f_"} {
 	if {$::FE::folder(typew) == "frame"} { 
 	    set fm $::FE::folder(w)
 	} else {
 	    set fm [winfo toplevel $w]
 	}
-#      set fm [winfo toplevel $w]
-#puts "selectobg: fm=$fm w=$w"
+      set tekdir [file dirname "[lindex [lindex $titem 0] 0]"]
+      set ::FE::folder(tek) $tekdir
       #Это очень важно выполнение в другом потоке
-      after 10 [namespace current]::fereturn $typew $fm $typefb $otv
-#after 100
-
+      after 10 [namespace current]::fereturn $typew $fm $typefb $votv
     }
 #puts "INIT_FE:columnSort=[namespace current]::columnSort  w=$w fm.fillles.t=.fe.files.t ::FE::folder(column)=$::FE::folder(column) ::FE::folder(direction)=$::FE::folder(direction)"
     [namespace current]::columnSort $w $::FE::folder(column) $::FE::folder(direction)
@@ -2142,10 +2264,8 @@ puts "selectobj: exists $w1.butMenu"
     } else {
 	set w1 [winfo toplevel $w]
     }
-    set ::SelDir "[$w1.dirs.t selection]"
-    set ::SelFil "[$w1.files.t selection]"
     if {[winfo exists "$w1.butMenu"]} {
-puts "selectdir: exists $w1.butMenu"
+#puts "selectdir: exists $w1.butMenu"
 	return
     }
 
@@ -2169,7 +2289,6 @@ puts "selectdir: exists $w1.butMenu"
       } else {
         set mask "*"
       }
-#puts "tekdir=$tekdir"
       set dir "$tekdir"
 #puts "selectdir dir=$dir"
       populateTree $typefb $mask $w1.files.t [$w1.files.t insert {} end -text "$dir" -values [list "$dir" directory]]
@@ -2183,10 +2302,8 @@ puts "selectdir: exists $w1.butMenu"
       }
       $w1.tekfolder.ldir configure -value $ldir
 	if {[incr ::FE::folder(histpos)]} {
-#		$::FE::folder(prevBtn) state !disabled
 	    $::FE::folder(prevBtn) config -state normal
 	}
-#	$::FE::folder(nextBtn) state disabled
 	$::FE::folder(nextBtn) config -state disabled
     } else {
       set tekdir "[lindex $titem 0]"
@@ -2219,45 +2336,35 @@ puts "selectdir: exists $w1.butMenu"
 	return
     }
 
-
   proc fereturn {typew w typefb otv} {
-#puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv "
+#puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv SELECT=[$w.files.t selection]"
+    if {$typefb == "filesave" && $::FE::data(-confirmoverwrite)} {
+	set file [file join $::FE::folder(tek) $::FE::folder(initialfile)]
+	if {[file exist $file]} {
+	    set txt [mc "      File\n    \"%1\$s\"\nalready exists.\nDo you want to overwrite it?" $::FE::folder(initialfile)]
+	    set answer [msgyesnoBox $::FE::folder(w) canvas "FE::attImg" -textanchor n -text $txt]
+	    if {$answer != "yes"} {
+		set ::FE::folder(initialfile) ""
+    		return
+	    }
+	}
+    }
     bind $w <Destroy> {}
-    set num [$w.files.t selection]
-    set titem [$w.files.t item $num -value]
-    set ret [lindex $titem 0]
-    if {$ret == ""} {
-	return ""
-    }
-    set type [file type $ret]
-#puts "TYPE=$type typefb=$typefb"
-    if {$typefb == "dir" && $type != "directory"} {
-#puts "Надо выбрать каталог!"
-	return ""
-    }
-    if {$typefb != "dir" && $type != "file"} {
-#puts "Надо выбрать файл!"
-	return ""
-    }
     variable $otv
-    if {$ret == ""} {
+    set otv1 $::FE::folder(initialfile)
+    if {$otv1 == ""} {
       if {$typefb == "dir"} {
-        $w.tekfolder.ldir configure -state normal
-        set ret [$w.tekfolder.ldir get]
-        $w.tekfolder.ldir configure -state readonly
-#        set ret [file join  $::FE::folder(tek) $::FE::folder(initialfile)]
-#puts "fereturn DIR ret=$ret"
-      } elseif {$typefb == "filesave"} {
-        if {$::FE::folder(initialfile) == ""} {
-    	    return
-        }
-        set ret [file join  $::FE::folder(tek) $::FE::folder(initialfile)]
+    	    $w.tekfolder.ldir configure -state normal
+    	    set otv1 [$w.tekfolder.ldir get]
+    	    $w.tekfolder.ldir configure -state readonly
       } else {
-        return
+    	    if {$::FE::data(-initialfile) == ""} {
+    		return
+    	    }
+    	    set otv1 [file join  $::FE::folder(tek) $::FE::data(-initialfile)]
       }
     }
 
-    set $otv $ret
     if {$typew != "frame"} {
 	set ::Fegeo [wm geometry $w]
 	catch {tk busy forget [winfo parent $w]}
@@ -2268,7 +2375,20 @@ puts "selectdir: exists $w1.butMenu"
 #puts "fereturn: typew=$typew w=$w typefb=$typefb otv=$otv  otv=$otv \$otv=[set [subst $otv]]"
     update
     ::FE::fedeloo
-    return $otv
+
+    set $otv [list]
+    set i 0
+    foreach obj $otv1 {
+	lappend $otv [file join $::FE::folder(tek) $obj]
+	incr i
+    }
+
+    if {$i == 1} {
+	set $otv [lindex [set [set otv]] 0]
+	return $otv
+    } else {
+	return $otv
+    }
   }
 
   proc fecancel {typew w typefb otv} {
@@ -2303,7 +2423,6 @@ puts "selectdir: exists $w1.butMenu"
     set dir "$tekdir"
       populateTree $typefb $mask $tree "[$tree insert {} end -text "$dir" \
       -values [list "$dir" directory]]"
-#    [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
   }
 
   ## Code to populate a node of the tree
@@ -2424,8 +2543,7 @@ puts "selectdir: exists $w1.butMenu"
 	
 #puts "FILES_LIST=$files_list"
       foreach f $files_list {
-        set typeOrig [file type $f]
-#        set type "file"
+        set typeOrig [file type "$f"]
         set type "f_$typeOrig"
         if {$typefb == "fileopen"} {
           #Можно было бы задать -types {f r}, но тогда бы мы не увидели часть файлов в списке (denied)
@@ -2477,32 +2595,23 @@ puts "selectdir: exists $w1.butMenu"
   proc page_newdir {fm typefb}  {
   
     set ::newname  [mc "Enter a name for new folder"]
-#    ttk::label $fm.lforpas -text [mc "Enter a name for new folder"]  -textvariable ::newname
 
     #Widget for new Name
-#    labelframe $fm.topName -borderwidth 4 -labelanchor nw -relief groove -labelwidget $fm.lforpas -foreground black -height 120 -width 200  -bg #eff0f1
     set clfr [cframe new $fm.topName -type clframe -text $::newname -width 10c]
     $clfr boxtext
     $clfr config -fillnormal yellow -fontsize 3.5m
 #Поднять виджет, чтобы снять блокирование сверху
     eval "bind $fm.topName  <Configure> {$clfr resize %w %h 0;lower $fm.topName; raise $fm.topName}"
-#bind $::FE::folder(w) <Configure>  {raise $::FE::folder(w) $zz._Busy }
-
-#    set g1 [$fm.topName gradient create linear -stops {{0 "#bababa"} {1 "#454545"}} -lineartransition {0 0 0 1}]
 
     entry $fm.topName.entryPw -background snow  -highlightbackground gray85 -highlightcolor skyblue -justify left -relief sunken -readonlybackground snow
     pack $fm.topName.entryPw -fill x -expand 1 -padx 3m -ipady 2 -pady {6m 2m}
     eval "bind $fm.topName.entryPw <Key-Return> {[namespace current]::readName $fm.topName.entryPw}"
-#    ttk::button $fm.topName.butPw  -command {global yespas;set yespas "no"; } -text [mc "Cancel"]
     set cbut [cbutton new $fm.topName.butPw -type ellipse  -text [mc Cancel]  -fillnormal red  -command {global yespas;set yespas "no"; }]
-#    set g11 [$fm.topName.butPw gradient create linear -stops {{0 "#bababa"} {1 "#2adad4"}} -lineartransition {0 0 0 1}]
     set g11 [$fm.topName.butPw gradient create radial -stops {{0 "#00FFEB"} {1 "#03b1fc"}} -radialtransition {0.50 0.50 0.50 0.2 0.2}]
     $cbut config -fillnormal $g11 -fillopacity 1.0
     [$cbut canvas] configure -background [$clfr config -fillnormal]
-#    eval "ttk::button $fm.topName.butOk  -command {[namespace current]::readName $fm.topName.entryPw} -text [mc Done]"
     set cbut [eval "cbutton new $fm.topName.butOk -type ellipse  -text [mc Done]  -fillnormal red  -command {[namespace current]::readName $fm.topName.entryPw}"]
     set ::FE::folder(lastOO) $cbut
-#    set g11 [$fm.topName.butOk gradient create linear -stops {{0 yellow} {1 cyan}} -lineartransition {0 0 0 1}]
     set g11 [$fm.topName.butOk gradient create radial -stops {{0 "#03b1fc"} {1 "#00FFEB"}} -radialtransition {0.50 0.50 0.50 0.8 0.8}]
     $cbut config -fillnormal $g11
     [$cbut canvas] configure -background [$clfr config -fillnormal]
@@ -2548,19 +2657,15 @@ puts "selectdir: exists $w1.butMenu"
     set py [expr {int([winfo fpixels [$::objNewdir canvas] 3c])}]
     $::objNewdir place -x $px -y $py -relwidth 0.9
     update
-#after 20
     all_busy_forget_old $cnv
     all_busy_hold_old $cnv
     all_busy_forget_old $cnv.topName
-#    lower $cnv.topName
     raise $cnv.topName
     update
 #puts "createdir: cnv=$cnv"
-    focus [$::objNewdir canvas].entryPw
+    focus -force [$::objNewdir canvas].entryPw
     vwait yespas
-#    tk  busy forget $cnv
     all_busy_forget_old $cnv
-#    place forget $fm.topName
     place forget [$::objNewdir canvas]
     if { $yespas == "no" } {
       set pass ""
@@ -2576,14 +2681,18 @@ puts "selectdir: exists $w1.butMenu"
     if {$type == "dir"} {
 	catch {file mkdir $newd} er 
 	if {$er != ""} {
-    	    tk_messageBox -title [mc "Create directory"] -icon info -message "Каталог создать не удалось\n$er" -parent $w
+	    set txt [mc "      Goldn't create directory\n    \"%1\$s\"\nin the current folder.\n" $newdir]
+	    set txt [append txt "([lindex [split $er ":"] end ])"]
+	    msgyesnoBox $::FE::folder(w) canvas "FE::infoImg" -textanchor n -text $txt -type msg
 	    return
 	}
 	lappend ::FE::folder(history) [file join $::FE::folder(tek) $newdir]
 	gonext $fm $typefb
     } else {
         if {[catch {set fd [open $newd w]} er]} {
-    	    tk_messageBox -title [mc "Create file"] -icon info -message "Файл создать не удалось\n$er" -parent $w
+	    set txt [mc "      Goldn't create file\n    \"%1\$s\"\nin the current folder.\n" $newdir]
+	    set txt [append txt "([lindex [split $er ":"] end ])"]
+	    msgyesnoBox $::FE::folder(w) canvas "FE::infoImg" -textanchor n -text $txt -type msg
     	    return
         }
         chan configure $fd -translation binary
@@ -2611,44 +2720,51 @@ puts "selectdir: exists $w1.butMenu"
     all_busy_hold_old $cnv
 
     $::objNewdir place -x 20 -y 100 -relwidth 0.9
-update
-#after 20
+    update
     all_busy_forget_old $cnv
     all_busy_hold_old $cnv
     all_busy_forget_old $cnv.topName
     lower $cnv.topName
     raise $cnv.topName
-update
+    update
 
-#    focus $fm.topName.entryPw
     focus [$::objNewdir canvas].entryPw
     set yespas ""
     vwait yespas
-#    tk  busy forget $cnv
     all_busy_forget_old $cnv
-#    place forget $fm.topName
     place forget [$::objNewdir canvas]
-#    place forget $fm.topName
-    place forget [$::objNewdir canvas]
+    update
     if { $yespas == "no" } {
       set pass ""
       return 0
     }
     set yespas "no"
     set newdir $pass
+    if {$newdir == ""} {
+	return 0
+    }
     set newd [file join $::tekPATH "$newdir"]
-    set oldn [file join $::tekPATH "$oldname"]
-#puts "\n$newdir\n$oldname\n$newd\n$oldn"
+    set toldname "[file tail $oldname]"
+    set oldn [file join $::tekPATH $toldname]
+#puts "renameobj: newdir=$newdir oldname=$oldname newd=$newd oldn=$oldn"
 
     if {[file exists $newd]} {
-      if {$typefb == "fileopen" || $typefb == "filesave"} {
-        set answer [tk_messageBox -title "mc {Rename file}" -icon question -message "Файл с таким именем есть:\n$oldname\nПродолжить операцию ?" -type yesno  -parent $w]
-        if {$answer != "yes"} {
-          return
-        }
+      if {[file type $newd] != "directory"} {
+	set txt [mc "      A file named\n       \"%1\$s\"\n      alredy exists in the current folder\nOverwrite this file\n?" "$newdir"]
+	set answer [msgyesnoBox $::FE::folder(w) canvas "FE::helpImg" -textanchor n -text "$txt" -type yesno]
+	if {$answer != "yes"} {
+    	    return
+	}
       }
     }
-    file rename -force "[lindex $oldname 0]" "$newd"
+    catch {file rename -force "[lindex $oldname 0]" "$newd"} er 
+    if {$er != ""} {
+	set txt [mc "      Rename\n    \"%1\$s\"\nfailed.\n" $toldname]
+	set txt [append txt "([lindex [split $er ":"] end ])"]
+	msgyesnoBox $::FE::folder(w) canvas "FE::infoImg" -textanchor n -text $txt -type msg
+	return
+    }
+
     set ::FE::folder(initialfile) ""
     $fm.seldir.entdir configure -state normal
     $fm.seldir.entdir delete 0 end
@@ -2688,6 +2804,75 @@ update
     rename __tk_chooseDirectory ::tk_chooseDirectory
 
   }
+  proc fe_defaults {args} {
+    if {[info exist ::FE::data]} {
+	unset ::FE::data
+    }
+    set few [winfo pixels . 10c]
+    set feh [winfo pixels . 15c]
+    if {[info exist ::FE::folder]} {
+	set foldersfirst $::FE::folder(foldersfirst)
+	set sepfolders $::FE::folder(sepfolders)
+	set details $::FE::folder(details)
+    }
+    set specs {
+	{-typew "" "" "window"}
+	{-widget "" "" ""}
+	{-defaultextension "" "" ""}
+	{-filetypes "" "" ""}
+	{-initialdir "" "" ""}
+	{-initialfile "" "" ""}
+	{-parent "" "" "."}
+	{-title "" "" ""}
+	{-sepfolders "" "" -1}
+	{-foldersfirst "" "" -1}
+	{-sort "" "" "#0"}
+	{-reverse "" "" 0}
+	{-details "" "" -1}
+	{-hidden "" "" -1}
+	{-width "" "" -10}
+	{-height "" "" -10}
+	{-x "" "" 5}
+	{-y "" "" 5}
+	{-relwidth "" "" 1.0}
+	{-relheight "" "" 1.0}
+	{-size "" "" 1}
+	{-date "" "" 0}
+	{-permissions "" "" 0}
+	{-multiple "" "" 0}
+    }
+    tclParseConfigSpec ::FE::data $specs "" $args
+	if {$::FE::data(-width) == -10} {
+	    set ::FE::data(-width) $few
+	}
+	if {$::FE::data(-height) == -10} {
+	    set ::FE::data(-height) $feh
+	}
+	if {$::FE::data(-multiple) == 0} {
+    	    set ::FE::data(-multiple) "browse"
+	} else {
+	    set ::FE::data(-multiple) "extended"
+	}
+    if {[info exist foldersfirst]} {
+#puts "initfe: foldersfirst=$foldersfirst"
+	set ::FE::folder(foldersfirst) $foldersfirst
+	set ::FE::data(foldersfirst) $foldersfirst
+	set ::FE::folder(sepfolders) $sepfolders
+	set ::FE::data(sepfolders) $sepfolders
+	set ::FE::data(details) $details
+    }
+    if {[trace info variable ::FE::displaycolumns] != ""} {
+	if {$::tcl_version >= 9} {
+	    trace remove variable ::FE::displaycolumns write ::FE::trace_columns
+	} else {
+	    trace vdelete ::FE::displaycolumns w ::FE::trace_columns
+	}
+    }
+  set ::FE::displaycolumns(size) $::FE::data(-size)
+  set ::FE::displaycolumns(date) $::FE::data(-date)
+  set ::FE::displaycolumns(permissions) $::FE::data(-permissions)
+
+  }
   
   proc fe_getsavefile {args} {
     #Формируем случайную переменную
@@ -2696,6 +2881,8 @@ update
     #Ответ будет создан в пространстве имен fileexplorer!!!
     variable $rr
     initfe filesave $rr $args
+    update
+    set ::FE::folder(initialfile) $::FE::data(-initialfile)
     set cmd [subst "vwait ::FE::$rr"]
     eval $cmd
     set ret [subst "::FE::$rr"]
@@ -2716,6 +2903,9 @@ update
     #Ответ будет создан в пространстве имен fileexplorer!!!
     variable $rr
     initfe fileopen $rr $args
+    update
+#puts "fe_getopenfile: FE::folder(initialfile)=$::FE::folder(initialfile) FE::data(-initialfile)=$::FE::data(-initialfile)"
+    set ::FE::folder(initialfile) $::FE::data(-initialfile)
     set cmd [subst "vwait ::FE::$rr"]
     set w [winfo toplevel $::FE::folder(w)]
     eval $cmd
@@ -2725,7 +2915,7 @@ update
     if {$::FE::folder(typew) == "frame"} {
 	all_busy_forget $w
     }
-puts "::FE::folder(typew)=$::FE::folder(typew) w=$w"
+#puts "::FE::folder(typew)=$::FE::folder(typew) w=$w"
     return "$retok"
   }
   proc fe_choosedir {args} {
@@ -2799,7 +2989,6 @@ return
     }
   }
 
-  
  # С grid лучше, т.к. запоминается где был - grid remove
   proc hidescroll {sb  first last} {
     if {($first <= 0.0) && ($last >= 1.0)} {
@@ -2816,7 +3005,6 @@ return
 
   set folder(history) ""
   set folder(histpos) -1
-
 
   namespace export fe_getsavefile
   namespace export fe_getopenfile

@@ -219,6 +219,7 @@ oo::class create cbutton {
   variable Options
   variable wclass
   variable lmenu
+  variable tclicks 
 #fr = 0 кнопки создаются на внешнем холсте
 #fr - 1 кнопки создаются на внутреннем холсте для внешнего фрейма
   variable fr
@@ -250,6 +251,7 @@ oo::class create cbutton {
 	incr ind
 	set type [lindex $args $ind]
     }
+    set tclicks [clock clicks -milliseconds]
     set tbut $type
     set nexttag 0
     set wclass "cbutton"
@@ -605,13 +607,13 @@ oo::class create cbutton {
 
     set idor [$wcan create [set prect] [$wcan coords $idr] -strokewidth 0 -stroke {} -rx $Options(-rx) -fillopacity 0 -strokeopacity 0 -fill red -tags [list idor obj $canvasb $btag [linsert $btag end idor]]]
 
-    eval "$wcan bind $idor <Enter> {[self] enter}"
+    eval "$wcan bind $idor <Enter> {[self] enter %X %Y}"
     eval "$wcan bind $idor <Leave> {[self] leave}"
     eval "$wcan bind $idor <ButtonPress-1> {[self] press}"
     eval "$wcan bind $idor <ButtonRelease-1> {[self] release %X %Y}"
 
     if {$tbut == "square" || $tbut == "citcle" || $tbut == "check" || $tbut == "radio"} {
-	eval "$wcan bind $idt <Enter> {[self] enter}"
+	eval "$wcan bind $idt <Enter> {[self] enter %X %Y}"
 	eval "$wcan bind $idt <Leave> {[self] leave}"
     }
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke) -strokewidth [winfo fpixels $wcan $Options(-strokewidth)]
@@ -708,7 +710,7 @@ set coordsidr [$wcan coords $idr]
     return [array get Options]
   }
 
-  method enter {} {
+  method enter {x y} {
     if {$tbut == "frame"} { return}
     variable Options
     if {$tbut == "check" || $tbut == "radio"} {
@@ -720,30 +722,14 @@ set coordsidr [$wcan coords $idr]
 	if {$Options(-displaymenu) != "enter" } {
 	    return
 	}
-	if {[[my config -menu] canvastype] == "unique"} {
-	    foreach {xm ym } [my showmenu] {break}
-	    if {$xm == -1 && $ym == -1} {
-		puts "Method enter -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
-		catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
+	if  {[my config -state] != "disabled"} {
+	    if {[expr {[clock clicks -milliseconds] - $tclicks}] < 500} {
 		return
 	    }
-	} else {
-		set objm [my config -menu]
-		set teks [$objm config -state]
-		if {$teks == "normal"} {
-		    foreach {xm ym } [my showmenu] {break}
-		    $objm config -state hidden
-		} elseif {$teks == "hidden"} {
-		    $objm config -state normal
-		    update
-		    foreach {xm ym } [my showmenu] {break}
-		    $objm move 0 0
-		    set tag0 [[lindex [$objm menulist] 0] tag]
-		    lassign  [[$objm canvas] bbox $tag0] xf1 yf1  xf2 yf2
-		    $objm move [expr {$xm - $xf1}] [expr {$ym - $yf1}]
-		}
+	    set tclicks [clock clicks -milliseconds]
+	    my release 0 0 "enter"
 	}
-#	puts "Method enter -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+
     } 
     if {$Options(-fillenter) == "##"} {
 	return
@@ -807,16 +793,26 @@ set coordsidr [$wcan coords $idr]
 	}
     }
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	if {$Options(-displaymenu) != "release" } {
-	    return
-	}
-	if {[[my config -menu] canvastype] == "unique"} {
-	    foreach {xm ym } [my showmenu] {break}
-	    if {$xm == -1 && $ym == -1} {
-		puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
-		catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
+	if {$Options(-displaymenu) != "release"} {
+	    if {$trc != "enter"} {
 		return
 	    }
+	}
+	if {[[my config -menu] canvastype] == "unique"} {
+	    set objm [my config -menu]
+	    set teks [$objm config -state]
+	    if {$teks == "normal"} {
+		$objm menuhide
+	    } else {
+		foreach {xm ym } [my showmenu] {break}
+		if {$xm == -1 && $ym == -1} {
+		    puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+		    catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
+		    return
+		}
+		raise $wcan 
+	    }
+#puts "RELEASE unique: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] trc=$trc"
 	} else {
 		set objm [my config -menu]
 		set teks [$objm config -state]
@@ -839,6 +835,7 @@ if {1} {
 			$objm move [expr {$xm - $xf1}] [expr {$ym - $yf1}]
 		    }
 }
+puts "RELEASE shared: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] trc=$trc"
 puts "RELEASE:xm=$xm ym=$ym xf1=$xf1 yf1=$yf1  xf2=$xf2 yf2=$yf2"
 puts "RELEASE:wx0=$wx0 hy0=$hy0 wx1=$wx1 hy1=$hy1"
 		}
@@ -915,10 +912,10 @@ puts "RELEASE:wx0=$wx0 hy0=$hy0 wx1=$wx1 hy1=$hy1"
   
   method invoke {} {
     if {$tbut == "frame"} { return}
-    my enter
-    my press
     set xi [expr {[winfo rootx $wcan] + 2}]
     set yi [expr {[winfo rooty $wcan] + 2}]
+    my enter $xi $yi
+    my press
     my release $xi $yi 
     my leave
   }
@@ -2279,7 +2276,8 @@ oo::class create ibutton {
   variable wlast
   variable hlast
   variable wpad
-  
+  variable tclicks 
+
   constructor {w args} {
     if {[catch {package present tko}]}  {
 #Используется пакет tkpath
@@ -2302,6 +2300,7 @@ oo::class create ibutton {
     }
 
     catch {unset Options}
+    set tclicks [clock clicks -milliseconds]
     set wpad 0
     set x0 0
     set y0 0
@@ -2552,6 +2551,7 @@ oo::class create ibutton {
     if {[my config -state] == "disabled"} {
 	return
     }
+if {0} {
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
 	    if {$Options(-displaymenu) != "enter" } {
 		return
@@ -2573,6 +2573,21 @@ oo::class create ibutton {
 		}
 	    }
     }
+}
+    if {[info exist Options(-menu)] && $Options(-menu) != ""} {
+	if {$Options(-displaymenu) != "enter" } {
+	    return
+	}
+	if  {[my config -state] != "disabled"} {
+	    if {[expr {[clock clicks -milliseconds] - $tclicks}] < 500} {
+		return
+	    }
+	    set tclicks [clock clicks -milliseconds]
+	    my release 0 0 "enter"
+	}
+
+    }
+
     if {$Options(-fillenter) == "##"} {
 	    return
     }
@@ -2665,11 +2680,12 @@ oo::class create ibutton {
     }
     $wcan itemconfigure $idr -fill $Options(-fillpress)
   }
-  method release {x y} {
+  method release {x y {trc 0}} {
     variable Options
     if {[my config -state] == "disabled" } {
 	return
     }
+if {0} {
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
 	if {$Options(-displaymenu) != "release" } {
 	    return
@@ -2691,6 +2707,59 @@ oo::class create ibutton {
 		}
 	}
     }
+}
+    if {[info exist Options(-menu)] && $Options(-menu) != ""} {
+	if {$Options(-displaymenu) != "release"} {
+	    if {$trc != "enter"} {
+		return
+	    }
+	}
+	if {[[my config -menu] canvastype] == "unique"} {
+	    set objm [my config -menu]
+	    set teks [$objm config -state]
+	    if {$teks == "normal"} {
+		$objm menuhide
+	    } else {
+		foreach {xm ym } [my showmenu] {break}
+		if {$xm == -1 && $ym == -1} {
+		    puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+		    catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
+		    return
+		}
+		raise $wcan 
+	    }
+#puts "RELEASE unique: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] trc=$trc"
+	} else {
+		set objm [my config -menu]
+		set teks [$objm config -state]
+		if {$teks == "normal"} {
+		    foreach {xm ym } [my showmenu] {break}
+		    $objm config -state hidden
+		} elseif {$teks == "hidden"} {
+		    $objm config -state normal
+		    update
+		    foreach {xm ym } [my showmenu] {break}
+#		    $objm move 0 0
+#update
+		    set tag0 [[lindex [$objm menulist] 0] tag]
+		    lassign  [[$objm canvas] bbox $tag0] xf1 yf1  xf2 yf2
+#####
+lassign [[my canvas] bbox [my tag]] wx0 hy0 wx1 hy1
+#		    $objm move [expr {$xm - $xf1 * 0}] [expr {$ym - $yf1 * 0}]
+if {1} {
+		    if {$xm != $xf1 || $ym != $yf1} {
+			$objm move [expr {$xm - $xf1}] [expr {$ym - $yf1}]
+		    }
+}
+puts "RELEASE shared: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] trc=$trc"
+puts "RELEASE:xm=$xm ym=$ym xf1=$xf1 yf1=$yf1  xf2=$xf2 yf2=$yf2"
+puts "RELEASE:wx0=$wx0 hy0=$hy0 wx1=$wx1 hy1=$hy1"
+		}
+	}
+#	puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
+    }
+    
+
 
 #puts "RELEASE ibutton wcan=$wcan  X=$x Y=$y"
     set tfr 1
@@ -2771,8 +2840,12 @@ oo::class create ibutton {
 		    }
 		}
 	    }
+	    -frommenu -
     	    -menu {
-		    set  Options($option) $value
+		set  Options($option) $value
+		if {$value != ""} {
+		    $value config -bmenu [self]
+		}
     	    }
     	    -displaymenu {
     		if {[lsearch [list "release" "enter"] $value] == -1} {
@@ -3361,6 +3434,7 @@ set ::methodman {
     if {$wclass == "cmenu"} {
 	lassign [$wcan bbox [[lindex [my menulist] 0] tag]] xm0 ym0 xm1 ym1
 	$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
+set Options(-state) "normal"
     }
     if {[winfo manager $wcan] == ""} {
 	    eval $type $wcan [lindex $args 0]
@@ -3520,6 +3594,7 @@ set ::methodman {
     append args " -bordermode outside"
 #ДОДЕЛАТЬ!!! my config methodplace может не работать - не всегда есть
     if {([my class] == "cmenu" && [my methodplace] == "window") || ([my class] == "mbutton" && [my methodplace] == "window")} {
+set Options(-state) "normal"
 	set ind [lsearch $args "-x"]
 	if {$ind > -1} {
 	    incr ind
@@ -3553,6 +3628,7 @@ set ::methodman {
 	raise $mtop
 	if {[my class] == "cmenu"} {
 	    $wc lower fon $mtag
+	    set  Options(-state) "normal"
 	} else {
 	    $wc raise fon "$mtag swgbg"
 	}
@@ -3579,10 +3655,20 @@ set ::methodman {
     if {([my class] == "cmenu" && [my methodplace] == "window") || ([my class] == "mbutton" && [my methodplace] == "window") } {
 	set mtop [winfo toplevel [my canvas]]
 	wm state $mtop withdraw
+	if {[my class] == "cmenu"} {
+	    set  Options(-state) "hidden"
+	}
+
     } else {
 	set man [winfo manager $wcan]
-	eval $man forget $wcan
+	if {$man != ""} {
+	    eval $man forget $wcan
+	}
     }
+    if {[my class] == "cmenu"} {
+	set  Options(-state) "hidden"
+    }
+
   }
   method class {} {
     return $wclass
@@ -3708,6 +3794,12 @@ if {$twin == "windowXAXA"} {
 #puts "Method showmenu  1: mtype=$mtype tlm=$tlm STATE $tlm=[wm state $tlm] SELF=[self]"
 	  if {[wm state $tlm] != "normal"} {
 	    [my config -menu] place -x $rootx -y $rooty
+	    set wmenu [winfo toplevel [[my config -menu] canvas]]
+	    set bbb [[my config -menu] menuhide 0]
+	    eval bind [set wmenu] <FocusOut> \{[$bbb config -menu] menuhide\}
+	    focus -force [winfo toplevel [[$bbb config -menu] canvas]]
+	    
+	    
 	    place forget [[my config -menu] canvas]
 	    pack [[my config -menu] canvas] -side top -anchor nw
 	    wm geometry $tlm +$rootx+$rooty
@@ -3718,84 +3810,24 @@ if {$twin == "windowXAXA"} {
 		set ptlb $tlb
 	    }
 	    set ptlbw $ptlb
-	    set idfrom 1
 	    set bbb [self]
 	    update
-	    while {$idfrom != -1} {
-		set idmenu [$bbb config -menu]
-	        set idbut [$idmenu config -bmenu]
-	        set ptlb [winfo toplevel [$idbut canvas]]
-	        set idfrom [lsearch [$idbut config] "-frommenu"]
-	        if {$idfrom != -1} {
-		    set bmm [$idbut config -frommenu]
-    		    set bbb [$bmm config -bmenu]
-#puts "Method showmenu 11: bbb(-bmenu)=$bbb bmm(-ftommenu)=$bmm idfrom=$idfrom"
-		}
-	    }
+	    set idbut [[$bbb config -menu]  menuhide 0]
+	    set ptlb [winfo toplevel [$idbut canvas]]
 	    set ptlbw $ptlb
 	    if {[tk busy status $ptlb]} {
 		set sttlb 1
 	    } else {
-		    tk busy hold $ptlb
+		tk busy hold $ptlb
+		if {$ptlb == "." } {
+		    set wbm ""
+		} else {
+		    set wbm $ptlb
+		}
+#puts "wbm=$wbm wbm1=$wbm1 bm1=$bm1 self=[self]"
+		eval bind [set wbm]._Busy <ButtonRelease> \{[$bbb config -menu] menuhide\}
 	    }
 	    set brel ""
-	    if {$ptlbw != $ptlb ||  $ptlb == "."} {
-		set brel [bind [set ptlb]_Busy <ButtonRelease>]
-		set bconf [bind [set ptlb]_Busy <Configure>]
-		set bfoc [bind [set ptlb]_Busy <FocusOut>]
-	    } else {
-		set brel [bind [set ptlb]._Busy <ButtonRelease>]
-		set bconf [bind [set ptlb]._Busy <Configure>]
-		set bfoc [bind [set ptlb]._Busy <FocussOut>]
-	    }
-#puts "STTLB=$sttlb ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm self=[self]"
-	    if { $sttlb } {
-		if {$ptlbw != $ptlb ||  $ptlb == "."} {
-#puts "showmenu: sttlb=1 Window 1 ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm"
-			set bb "[lrange [split [bind [set ptlb]_Busy <Configure>] {;}] 0 end-2]"
-			lappend bb "wm state $tlm withdraw"
-			lappend bb "catch {tk busy forget $ptlb}"
-			lappend bb "bind [set ptlb] <FocusOut> {}"
-			set bb1 [join $bb ";"]
-			eval "bind [set ptlb]_Busy <Configure> {$bb1}"
-			eval "bind [set ptlb]_Busy <ButtonRelease> {$bb1}"
-			eval "bind [set ptlb] <FocusOut> {$bb1; bind [set ptlb] <FocusOut> {}}"
-		} else {
-#puts "showmenu: sttlb=1 Window 2 ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm"
-		    eval "bind [set ptlb]._Busy <ButtonRelease> {bind [set ptlb]._Busy <ButtonRelease> {$brel}; wm state $tlm withdraw;}"
-		    set bb "[lrange [split [bind [set ptlb]._Busy <Configure>] {;}] 0 end-2]"
-		    lappend bb "wm state $tlm withdraw"
-		    lappend bb "catch {tk busy forget $ptlb}"
-		    lappend bb "bind [set ptlb] <FocusOut> {}"
-		    set bb1 [join $bb ";"]
-		    eval "bind [set ptlb]._Busy <Configure> {$bb1}"
-		    eval "bind [set ptlb] <FocusOut> {$bb1}"
-		}
-	    } else {
-		if {$ptlbw != $ptlb ||  $ptlb == "."} {
-#puts "showmenu: sttlb=0 Window 1 ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm"
-		    eval "bind [set ptlb]_Busy <ButtonRelease> {bind [set ptlb]_Busy <ButtonRelease> {$brel}; catch {tk busy forget $ptlb}; wm state $tlm withdraw};"
-		    set bb "[lrange [split [bind [set ptlb]_Busy <Configure>] {;}] 0 end-2]"
-		    lappend bb "wm state $tlm withdraw"
-		    lappend bb "catch {tk busy forget $ptlb}"
-		    lappend bb "bind [set ptlb] <FocusOut> {}"
-		    set bb1 [join $bb ";"]
-		    eval "bind [set ptlb]_Busy <Configure> {$bb1}"
-		    eval "bind [set ptlb] <FocusOut> {$bb1}"
-#puts "showmenu: sttlb=0 Window 1 bb1=$bb1"
-		} else {
-#puts "showmenu: sttlb=0 Window 2 ptlb=$ptlb ptlbw=$ptlbw tlm=$tlm"
-		    eval "bind [set ptlb]._Busy <ButtonRelease> {bind [set ptlb]._Busy <ButtonRelease> {$brel}; catch {tk busy forget $ptlb}; wm state $tlm withdraw};"
-		    set bb "[lrange [split [bind [set ptlb]._Busy <Configure>] {;}] 0 end-2]"
-		    lappend bb "wm state $tlm withdraw"
-		    lappend bb "catch {tk busy forget $ptlb}"
-		    lappend bb "bind [set ptlb] <FocusOut> {}"
-		    set bb1 [join $bb ";"]
-		    eval "bind [set ptlb]._Busy <Configure> {$bb1}"
-		    eval "bind [set ptlb] <FocusOut> {$bb1}"
-#puts "showmenu: sttlb=0 Window 2 bb1=$bb1"
-		}
-	    }
 	    lassign [split [wm geometry $tlm] "+"]  wh rx ry
 #puts "WFrom tlm=$tlm wh=$wh rx=$rx ry=$ry"
 	    set mfin [lindex [[my config -menu] menulist] 0]
@@ -3815,6 +3847,9 @@ if {$twin == "windowXAXA"} {
 	    raise $tlm
 	  } else {
 	    wm state $tlm "withdraw"
+#	    set wmenu [winfo toplevel [[my config -menu] canvas]]
+	    bind [set tlm] <FocusOut> {}
+
 	  }
 	    return "$rootx $rooty"
 	} elseif {[[my config -menu] canvastype] == "shared"} {
@@ -3825,10 +3860,6 @@ if {$twin == "windowXAXA"} {
 	    set ry [winfo rooty $cc]
 	    set trx [winfo rootx [winfo toplevel $cc]]
 	    set try [winfo rooty [winfo toplevel $cc]]
-if {0} {
-	    lassign "[[my config -menu] config -tongue]" p1x p2x p3x theight
-	    set htongue [expr {int ([winfo fpixels $wcan $theight])}]
-}
 	    return "[expr {$x - ($rx - $trx)}] [expr {$y - ($ry - $try)}]"
 	} else {
 #puts "Method showmenu  2: mtype=$mtype"
@@ -3847,6 +3878,27 @@ if {0} {
 		    set brel "[bind [set tlb]._Busy $tbind]"
 		}
 	    } else {
+		set bbb [self]
+			    set idbut [[$bbb config -menu]  menuhide 0]
+	    set ptlb [winfo toplevel [$idbut canvas]]
+	    set ptlbw $ptlb
+	    if {[tk busy status $ptlb]} {
+		set sttlb 1
+	    } else {
+		tk busy hold $ptlb
+		if {$ptlb == "." } {
+		    set wbm ""
+		} else {
+		    set wbm $ptlb
+		}
+#puts "wbm=$wbm wbm1=$wbm1 bm1=$bm1 self=[self]"
+		eval bind [set wbm]._Busy <ButtonRelease> \{[$bbb config -menu] menuhide\}
+	    }
+
+	    
+	    
+	    
+	    
 		tk busy hold $tlb
 #		raise [my canvas]
 		set brel ""
@@ -3865,42 +3917,12 @@ if {0} {
 		set tlbw [winfo toplevel $tlb]
 		lappend ::svgwidget::treemenu $winm
 		set ::svgwidget::treemenu [lsort -unique $::svgwidget::treemenu]
-		if {[my config -displaymenu] == "enter"} {
-		    set tbind "<Enter>"
-		} else {
-		    set tbind "<ButtonRelease>"		
-		}
-		if { $sttlb } {
-		    if {$tlbw != $tlb ||  $tlb == "."} {
-#Всё хорошо
-#puts "showmenu: sttlb=1 Canvas 1 tlb=$tlb winm=$winm"
-			lower [set tlb]_Busy $winm
-			raise [my canvas]
-			eval "bind [set tlb]_Busy <ButtonRelease> {bind [set tlb]_Busy $tbind {$brel};place forget $winm;set ::svgwidget::treemenu \"[lreplace $::svgwidget::treemenu end end]\"; eval lower [set tlb]_Busy \[lindex \$::svgwidget::treemenu end]}"
-			set bb "[lrange [split [bind [set tlb]_Busy <Configure>] {;}] 0 end-1]"
-			lappend bb "place forget $winm"
-			lappend bb "catch {tk busy forget $tlb}"
-			set bb1 [join $bb ";"]
-			eval "bind [set tlb]_Busy <Configure> {$bb1}"
 
-		    } else {
-#puts "showmenu: sttlb=1 Canvas 2 tlb=$tlb winm=$winm"
-			eval "bind [set tlb]._Busy $tbind {bind [set tlb]._Busy $tbind {$brel};place forget $winm}"
-			eval "bind [set tlb]._Busy <Configure> {place forget $winm}"
-		    }
-		} else {
-		    if {$tlbw != $tlb ||  $tlb == "."} {
-#puts "showmenu: sttlb=0 Canvas 1 tlb=$tlb winm=$winm"
-			eval "bind [set tlb]_Busy <ButtonRelease> {bind [set tlb]_Busy $tbind {$brel};catch {tk busy forget $tlb}; place forget $winm}"
-			eval "bind [set tlb]_Busy <Configure> {place forget $winm;catch {tk busy forget $tlb}}"
-		    } else {
-#puts "showmenu: sttlb=0 Canvas 2 tlb=$tlb winm=$winm"
-#Меню в своем окне
-			eval "bind [set tlb] <Configure> {lower [set tlb]._Busy $winm}"
-			eval "bind [set tlb]._Busy $tbind {bind [set tlb]._Busy $tbind {$brel};catch {tk busy forget $tlb}; place forget $winm;set ::svgwidget::treemenu \"[lreplace $::svgwidget::treemenu end end]\";bind [set tlb] <Configure> {}}"
-		    }    
-		}
-	    } 
+	    } else {
+puts "SHOWMNU bиз normal в hidden: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] "
+		set oom [my config -menu]
+		$oom config -state hidden
+	    }
 #puts "SHOWMENU: RETURN unique rootx=$rootx rooty=$rooty x=$x y=$y"
 	    return "$x $y"
 	}
@@ -4244,6 +4266,7 @@ oo::class create mbutton {
   variable tbut
   variable cbut
   variable cbut1
+  variable sepfe
   variable nexttag
   variable onemm2px
   variable canvasb
@@ -4283,9 +4306,9 @@ oo::class create mbutton {
 	set mplace [lindex $args $ind]
     }
     if {$mplace != "canvas" && $mplace != "window"} {
-	error "cmanu: bad type=$tpmenu: must be -place  canvas|window (default canvas)"
+	error "cmanu: bad type=$mplace: must be -place  canvas|window (default canvas)"
     }
-#puts "CMENU w=$w tpmenu=$tpmenu args=$args"
+#puts "CMENU w=$w mplace=$mplace args=$args"
     if {$mplace == "window"} {
 	if {[winfo exists $w]} {
 	    error "cmenu: nbutton $w already exist"
@@ -4305,15 +4328,16 @@ oo::class create mbutton {
 	set type [lindex $args $ind]
     }
     set tbut $type
+    catch {unset Options}
     set Options(-x) 0
     set Options(-y) 0
 
     set wclass "mbutton"
     set nexttag 0
-    catch {unset Options}
-    set  Options(-state) normal
-    set  Options(-width) 4c
-    set  Options(-height) 3c
+    set Options(-place) $mplace
+    set Options(-state) normal
+    set Options(-width) 4c
+    set Options(-height) 3c
     set Options(-strokewidth) 1
     set Options(-direction) $type
     set Options(-strokeopacity) 1.0
@@ -4397,11 +4421,16 @@ oo::class create mbutton {
 #	    set Options(-tongue) [list 0.5 0.9 0.8 0]
 	    set Options(-text) "Callout\n Up"
 	}
+	none {
+	    set Options(-tongue) [list 0.45 0.5 0.55 0]
+	    set Options(-text) "Callout\ None"
+	    set type "down"
+	}
 	default {
 	    if {$fr == 1} {
 		destroy $wcan
 	    }
-    	    error "mbutton: Unknown type=$type: must be msg, yesno, left, right, down, up"
+    	    error "mbutton: Unknown type=$type: must be msg, yesno, left, right, down, up, none"
 	}
     
     } 
@@ -4412,15 +4441,17 @@ oo::class create mbutton {
     my config $args
     set x1 [winfo fpixels $wcan $Options(-x)]
     set y1 [winfo fpixels $wcan $Options(-y)]
+    set strw [winfo fpixels $wcan $Options(-strokewidth)]
 
 #parray Options
     if {$Options(-text) != "" } {
 #Размеры текста
-	if {$type == "msg" || $type == "yesno"} { 
+	if {$type == "msg"} { 
 	    foreach {Options(-width) Options(-height)} [my btext "$Options(-text)\nYes"] {break}
+	} elseif {$type == "yesno"} {
+	    foreach {Options(-width) Options(-height)} [my btext "$Options(-text)\n Yes   _No_"] {break}
 	} else {
 	    foreach {Options(-width) Options(-height)} [my btext "$Options(-text)"] {break}
-	
 	}
     }
     set anc $Options(-textanchor)
@@ -4435,7 +4466,7 @@ oo::class create mbutton {
 		set rx [winfo fpixels $wcan $Options(-rx)]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
-		set xt [expr { $x1 + $rx }]
+		set xt [expr { $x1 + $rx}]
 		set yt [expr { $y1 + $rx }]
 	    }
 	left -
@@ -4523,15 +4554,18 @@ oo::class create mbutton {
 #puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn btag=$btag"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 2) / 3.0}]
 	if {$fr == 0} {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 -  $hyesno }] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno }] -text " [mc {No}]"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+set sepfe [cbutton new "$wcan" -type rect -x $xr1 -y [expr {$yr2 -  $hyesno }] -command "" -text "" -height $strw -fillenter "##" -fillpress "##" -fillnormal $Options(-stroke) -stroke {} -strokewidth 0]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 -  $hyesno + 6 }] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno + 6 }] -text " [mc {No}]"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	} else {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno / 2 }] -text " [mc No]"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+set sepfe [cbutton new "$wcan" -type rect -x $xr1 -y [expr {$yr2 - $hyesno / 2 }] -command "" -text "" -height $strw -fillenter "##" -fillpress "##"  -fillnormal $Options(-stroke) -stroke {} -strokewidth 0]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2 + 6}] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno / 2 + 6 }] -text " [mc No]"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	}
 
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) yes"
 	$cbut1 config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) no"
+$sepfe config -width [expr {$wyesno +  $strw}]
 	my config -state disabled
 	$cbut config -state normal
 	$cbut1 config -state normal
@@ -4553,15 +4587,18 @@ oo::class create mbutton {
 #	puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn"
 	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 1) / 2.0}]
 	if {$fr == 0} {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno }] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+set sepfe [cbutton new "$wcan" -type rect -x $xr1 -y [expr {$yr2 -  $hyesno }] -command "" -text "" -height $strw -fillenter "##" -fillpress "##" -fillnormal $Options(-stroke) -stroke {} -strokewidth 0]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno + 6 }] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	} else {
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2}] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+set sepfe [cbutton new "$wcan" -type rect -x $xr1 -y [expr {$yr2 - $hyesno / 2 }] -command "" -text "" -height $strw -fillenter "##" -fillpress "##"  -fillnormal $Options(-stroke) -stroke {} -strokewidth 0]
+	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2 + 6}] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
 	}
 	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4
 
 #Переменная erm для ожидания ответа от пользователя (нажатия кнрпки Ок)
 #	$cbut config -command "global erm; [self] destroy; [set cbut] destroy; set erm 1"
 	$cbut config  -command "variable $Options(-variable); [set cbut] destroy;[self] destroy;set $Options(-variable) yes"
+$sepfe config -width [expr {$wyesno +  $strw}]
 	my config -state disabled
 	$cbut config -state normal
 #puts "hyesno=$hyesno self=[self] Yes=$cbut"
@@ -4587,7 +4624,6 @@ oo::class create mbutton {
 	lassign [$wcan coords $idbg] x0 y0 x1 y1
 	$wcan coords $idbg $x0 $y0 [my config -width] [my config -height]
 	$wcan lower $idbg $idr
-
     } else {
 	$wcan delete IDOR
     }
@@ -4927,7 +4963,8 @@ oo::class create mbutton {
     $can delete "boxText $btag" 
     set i 0
     foreach {txt}  "$ltext" {
-	set tekb [$can create [set ptext] $xt $ystr -text "$txt" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
+#	set tekb [$can create [set ptext] $xt $ystr -text "$txt" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
+	set tekb [$can create [set ptext] $xt $ystr -text "[set txt]" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
 
 	foreach {x0  y0 x1 y1} [$can bbox $tekb] {break}
 	set ystr $y1
@@ -5157,6 +5194,7 @@ oo::class create mbutton {
 #			$wcan itemconfigure $idr $option [winfo fpixels $wcan $value]
 		    }
 	    }
+	    -fillopacity -
     	    -fill {
 		if {[info exists idr]} {
 		    $wcan itemconfigure $idr $option $value
@@ -5229,9 +5267,12 @@ oo::class create mbutton {
 	set mwin [winfo toplevel $wcan]
     }
     if {$tbut == "yesno"} {
+    	    catch {$sepfe destroy}
     	    catch {$cbut destroy}
     	    catch {$cbut1 destroy}
+    	    
     } elseif {$tbut == "msg"} {
+    	    catch {$sepfe destroy}
     	    catch {$cbut destroy}
     }
     if {[winfo exists $wcan]} { 
@@ -5287,6 +5328,7 @@ oo::class create cmenu {
   variable wclass
   variable erlib
   variable tpmenu
+  variable plmenu
 #fr = 0 кнопки создаются на внешнем холсте
 #fr - 1 кнопки создаются на внутреннем холсте для внешнего фрейма
   variable fr
@@ -5340,6 +5382,7 @@ oo::class create cmenu {
 
     set erlib ""
     set wcan $w
+    set plmenu " -x 0 -y 0"
     set fr 0
     if {![winfo exists $wcan]} {
 	set fr 1
@@ -5348,13 +5391,15 @@ oo::class create cmenu {
     }
     set wclass "cmenu"
     catch {unset Options}
-    set  Options(-height) 5m
-    set  Options(-fillnormal) white
-    set  Options(-fontsize) 3m
+    set Options(-place) $tpmenu
+    set Options(-height) 5m
+    set Options(-fillnormal) white
+    set Options(-fontsize) 3m
     set Options(-strokewidth) 1
     set Options(-stroke) ""
     set Options(-command) ""
-    set Options(-state) "normal"
+#    set Options(-state) "normal"
+    set Options(-state) "hidden"
     set Options(-pad) 1m
     set Options(-rx) 1m
     set Options(-ipad) [list 1m 5m 1m 5m]
@@ -5387,6 +5432,80 @@ oo::class create cmenu {
 	set yc [expr {$yc + $htongue}]
     }
     return self
+  }
+
+  method menuhide {{hidden 1}} {
+    set oom [self]
+    set oomf $oom
+    while {1} {
+	set ret [catch {$oom config -bmenu} bm]
+	if {$ret == 1} {
+	    break
+	}
+	set bm1 $bm
+	set ret [catch {$bm config -frommenu} erm]
+	if {$ret == 1} {
+	    break
+	}
+#puts "HIDEmenu: bm=$bm erm=$erm"
+	set oom $erm
+    }
+    if {$hidden == 1} {
+	foreach mch [$oomf menuchain] { 
+	    $mch config -state hidden
+	}
+	set wbm [winfo toplevel [$bm1 canvas]]
+	set st [tk busy status $wbm]
+	set wbm1 $wbm
+	if {$wbm == "." } {
+	    set wbm ""
+	} 
+#puts "wbm=$wbm wbm1=$wbm1 bm1=$bm1 self=[self]"
+	if {[$bm1 config -menu] == [self]} {
+	    if {[winfo exist [set wbm]._Busy]} {
+		tk busy forget $wbm1
+	    }
+	}
+    }
+    return $bm1
+  }
+
+  method menuchain { {lll ""} } {
+    set mn [self]
+    if {$lll == ""} {
+	catch {unset ::_chain}
+	catch {unset ::_iii}
+    }
+    if {[$mn type] != "cmenu"} {
+	set ret [catch {$mn config -menu} erm]
+	if {$ret == 1} {
+    	    return ""
+	}
+    } else {
+	set erm $mn
+    }
+    if {![info exist ::_chain]} {
+	set ::_chain {}
+	set ::_iii 0
+	set lll "::_chain"
+    }
+    append  [set lll] " $erm"
+    foreach zz [$erm menulist] {
+        set ret [catch {$zz config -menu} erm]
+        if {$ret == 1} {
+            continue
+        }
+	incr ::_iii
+        $erm menuchain "[set lll]"
+	incr ::_iii -1
+    }
+    if {$::_iii == 0 } {
+	set lret [set $lll]
+	unset ::_iii
+	unset ::_chain
+	return "[set lret]"
+    }
+    return "[set $lll]"
   }
 
   method resize {} {
@@ -5573,7 +5692,7 @@ if {[$obj class] == "cbutton"} {
 			set brect [[$obj canvas] create [set prect] 0 [expr {$y0 + 2}] $wmax [expr {$y1 - 2}] -fill {} -fillopacity 0.2 -strokeopacity 0.2 -stroke {} -strokewidth 0 -tags $btago]
 #Курсор на строке, вне ее, щелчек по кнопке
 			if {$tp != "check" && $tp != "radio"} {
-			    eval "[$obj canvas] bind [set brect] <Enter> {[$obj canvas] itemconfigure [set brect] -fill [set bcol] -stroke [set bcol];[set obj] enter}"
+			    eval "[$obj canvas] bind [set brect] <Enter> {[$obj canvas] itemconfigure [set brect] -fill [set bcol] -stroke [set bcol];[set obj] enter %X %Y}"
 			    eval "[$obj canvas] bind [set brect] <Leave> {[$obj canvas] itemconfigure [set brect] -fill {} -stroke {};[set obj] leave}"
 			} else {
 			    eval "[$obj canvas] bind [set brect] <Enter> {[$obj canvas] itemconfigure [set brect] -fill [set bcol] -stroke [set bcol]}"
@@ -5611,7 +5730,7 @@ if {[$obj class] == "cbutton"} {
 		}
 	    }
 	    set erlib $cbut
-	    my config -state hidden
+#	    my config -state hidden
 	}
 	default {
 	    error "cmanu: bad type=$type for add"
@@ -5749,6 +5868,22 @@ if {[$obj class] == "cbutton"} {
 	    }
 	    -state {
 		if {$fr == 1} {
+		    if {$value == "hidden"} {
+			set  Options($option) $value
+			if {[my config -place] == "canvas"} {
+			    set plmenu [place info [my canvas]]
+			}
+			set xer [my forget]
+			return
+		    } elseif {$value == "normal"} {
+			set  Options($option) $value
+			if {[my config -place] == "window"} {
+			    wm state [winfo toplevel [my canvas]] "normal"
+			} else {
+			    eval my place $plmenu
+			}
+		    } else {
+		    }
 		    return
 		}
 		switch $value {
@@ -5774,7 +5909,6 @@ if {[$obj class] == "cbutton"} {
 		    }
 		}
 	    }
-
     	    default {
     		puts "cmenu: Bad option $option args=$args"
     	    }
@@ -5786,9 +5920,11 @@ if {[$obj class] == "cbutton"} {
     if {$tpmenu == "window"} {
 	set wmenu [winfo toplevel $wcan]
     }
-    set bm [my config -bmenu]
-    if {$bm != "" && [info class instances cbutton $bm] != ""} {
-        $bm config -menu ""
+    if {[info exist Options(-bmenu)]} { 
+	set bm [my config -bmenu]
+	if {$bm != "" && [info class instances cbutton $bm] != ""} {
+    	    $bm config -menu ""
+	}
     }
 
     foreach objmenu $listmenu {

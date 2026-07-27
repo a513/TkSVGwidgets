@@ -53,7 +53,6 @@ proc exitarm {t mestok} {
 	set allo "[info class instances cbutton] [info class instances ibutton] [info class instances mbutton] [info class instances cmenu]  [info class instances cframe]"
 	foreach {oo} $allo {
 	    set ind 0
-if {0} {
 	    foreach omain $::listO {
 		if {"$oo" != "$omain"} {
 		    continue
@@ -61,7 +60,6 @@ if {0} {
 		set ind 1
 		break
 	    }
-}
 	    if {$ind == 0} {
 		if {[string rang [$oo canvas] 0 2] != ".st"} {
 		    $oo destroy
@@ -69,8 +67,8 @@ if {0} {
 	    }
 	}
 	destroy $t
-	puts "Example demoPackSVGwithImageMesFromMenu.tcl ended."
-#	tk busy forget .dsvg
+	puts "Example sampleSVGmenu.tcl ended"
+	catch {tk busy forget .dsvg}
 	return
 
 #########################
@@ -106,7 +104,6 @@ if {0} {
 	}
 	
 }
-
 
 proc displaymenu {name index op} {
     variable rad
@@ -304,9 +301,6 @@ set ::contMenu $cmenu1
 
     set mbutc [$cmenu1 add finish]
     $mbutc config -fillnormal "#f4f5f5" -stroke "#ef0000"
-if {[winfo exist [set t]._Busy]} {
-    eval "bind [set t]._Busy <ButtonRelease> {bind $t <Configure> {};tk busy forget [set t]; [set cmenu1] destroy;puts XA1; set ::fdmenu 1}"
-}
     if {$::tmenu == 1} {
 	set mbut [$cmenu1 place -x $rootx -y $rooty]
     } else {
@@ -314,10 +308,18 @@ if {[winfo exist [set t]._Busy]} {
     }
     if {$::tmenu == 1} {
 	set topl [winfo toplevel $w]
-	set cmd "bind $topl <Configure> {catch {tk busy forget [set t]};bind $topl <Configure> {};bind $topl <FocusOut> {}; catch {[set cmenu1] destroy}}"
+	if {$topl == "." } {
+	    set wbm ""
+	} else {
+	    set wbm $topl
+	}
+#puts "wbm=$wbm wbm1=$wbm1 bm1=$bm1 self=[self]"
+	eval "bind [set wbm]._Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set topl];bind [set topl] <FocusOut> {}  \}"
+	set cmd "bind $topl <FocusOut> {$cmenu1 destroy; tk busy forget $topl;bind $topl <FocusOut> \{\} }"
 	eval $cmd
-	set cmd "bind $topl <FocusOut> {catch {tk busy forget [set t]};catch {[set cmenu1] destroy};bind $topl <Configure> {};bind $topl <FocusOut> {};puts XA3}"
-	eval $cmd
+	focus -force $topl
+    } else {
+	eval "bind [set fm]._Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set topl]\}"
     }
 }
 
@@ -366,17 +368,24 @@ if {$::cmenubut != "" }  {
     set ::butsub $chcas
 #release - отображать меню при щелчке по кнопке с меню
 
-set tt [mc {Names only}]
+    set tt [mc {Names only}]
     set cr0 [$::cmenubut add radio  -variable details -text "$tt"  -value 0]
-    eval "$cr0 config -command {puts \"Укороченный список\"}"
+if {0} {
+    if {$mplace == "window"} {
+	eval "$cr0 config -command {puts {Укороченный список};if {\[wm state .submenu] == {normal}} {event generate .testmenu._Busy <ButtonRelease>;$chcas config -state disabled;};}"
+    } else {
+	eval "$cr0 config -command {puts {Укороченный список};if {\[place info .testmenu.submenu] != {}} {event generate .testmenu._Busy <ButtonRelease>};$chcas config -state disabled }"
+    }
+}
+set ::nameO $cr0
     set ch1 [$::cmenubut add separator -fillnormal ""]
 set tt [mc {Extended list}]
     set cr1 [$::cmenubut add radio -variable details -text "$tt"  -value 1]
-    eval "$cr1 config -command {puts \"Расширенный список\"}"
+    eval "$cr1 config -command {puts \"Расширенный список\";$chcas config -state normal;}"
     set ch1 [$::cmenubut add separator]
 set tt [mc {Folders and files are separat}]
     set chlast [$::cmenubut add check -text "$tt"  -variable sepfolders]
-    $chlast config -command "puts {Папки и файлы раздельно}"
+    $chlast config -command "puts {Папки и файлы раздельно};"
 
     set ch1 [$::cmenubut add separator]
     set mbut [$::cmenubut add finish]
@@ -390,23 +399,42 @@ set tt [mc {Folders and files are separat}]
 }
 
 proc recreateMenu {} {
-if {$::tsubmenu != ""}  {
+    variable rad
+    variable details
+    variable sepfolders
+    variable foldersfirst
+    if {$::tsubmenu != ""}  {
 	if {[info class instances cmenu $::tsubmenu] != ""} {
 	    $::tsubmenu destroy
 	}
-    set ::tsubmenu {}
-}
-if {$::cmenubut != "" }  {
-    if {[info class instances cmenu $::cmenubut] != ""} {
-	$::cmenubut destroy
+	set ::tsubmenu {}
     }
-    set ::cmenubut {}
-}
+    if {$::cmenubut != "" }  {
+	if {[info class instances cmenu $::cmenubut] != ""} {
+	    $::cmenubut destroy
+	}
+	set ::cmenubut {}
+    }
 #createConfigMenu $::mn ".ffff" up $::tmenu 
-update
-createConfigMenu $::mn ".ffff" "$::dtype" $::tmenu 
-
+    update
+    createConfigMenu $::mn ".ffff" "$::dtype" $::tmenu 
+    if {[winfo exist .ffff]} {
+	pack .ffff.ffff
+    }
+    update
+$::mn invoke
+    set foldersfirst $foldersfirst
+    set sepfolders $sepfolders
+    set details $details
+    set rad $rad
+$::mn invoke
+    if {$details == 0} {
+	$::butsub config -state disabled
+    } else {
+	$::butsub config -state normal
+    }
 }
+
 #. configure -bg yellow
 #. configure -bg snow
 wm state $t withdraw
@@ -420,7 +448,7 @@ frmenu config -fillnormal "#c4e5fd" -stroke "#ce7053"
 
 frmenu pack   -in $t -fill both -expand 1 -padx 3m -pady 3m
 set ch [cbutton new $t.frame.type -type check -variable dir -text [mc "Folders only"]  -fontsize 4.5m -bg $frcol]
-set mn [cbutton new $t.bmenu -type rect  -text [mc "Dropdown menu"] -bg $frcol -compound none -width 8c]
+set mn [cbutton new $t.bmenu -type rect  -text [mc "Dropdown menu"] -bg $frcol -compound none -width 8c -height 8m]
 $mn config -command {set details $details; set foldersfirst $foldersfirst;set sepfolders $sepfolders;$mn config -command {}}
 set ::mn $mn
 set r0 [cbutton new $t.rad0 -type check -variable ::tmenu -text [mc "Menus are created in separate windows (toplevel)"] -fontsize 4m]
@@ -450,7 +478,7 @@ pack [$went canvas] -in $t.frame -side top -fill x -expand 0 -padx 3c -pady 5m -
 #pack [$mn canvas] -in $t.frame -side left -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
 
 set clfrv [cframe new $t.clfr -type clframe -text "Where does the menu appear" -rx 1m -strokewidth 1 -stroke red -fillnormal snow ]
-#$clfrv boxtext -rx 3 -strokewidth 0.5m -stroke chocolate -ipadx 5 -ipady 2
+$clfrv boxtext -rx 3 -strokewidth 0.5m -stroke chocolate -ipadx 5 -ipady 2
 $clfrv config -background [frmenu config -fillnormal]
 
 $clfrv pack  -in $t.frame -side top -pady "0 3m" -padx 2c -expand 0 -anchor n 
@@ -463,12 +491,14 @@ foreach rmbut "up down left right" {
     set rc1 [cbutton new $t.$rmbut -type radio  -text $rmbut -variable dtype -value $rmbut]
 #    pack [$rc1 canvas] -in $t.frame -side left -padx "5m" -pady "5m" -fill none -expand 0 -anchor n 
     $rc1 pack -in $t.clfr -side left -padx "5m" -pady "8m 2m" -fill none -expand 0 -anchor n
-    $rc1 config  -command {recreateMenu}
+    set cmd  [subst "$rc1 config  -command {puts \"Direction=$rmbut\";recreateMenu}"]
+    eval $cmd
+
 }
 pack [$ch canvas] -in $t.frame -side left -padx "1c 0" -pady "0 0" -anchor nw
 pack [$mn canvas] -in $t.frame -side left -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
 $clfrv config -fontsize 4.0m -fillbox cyan
-$clfrv boxtext -rx 3 -strokewidth 0.5m -stroke chocolate -ipadx 5 -ipady 2
+#$clfrv boxtext -rx 3 -strokewidth 0.5m -stroke chocolate -ipadx 5 -ipady 2
 
 
 set  w "$t.frame "
@@ -482,7 +512,7 @@ update
 trace add variable rad write displaymenu
 if {1} {
 set foldersfirst 1
-set details	 0
+set details	0
 set sepfolders	 1
 set sub0 1
 set sub1 1
@@ -493,3 +523,7 @@ focus -force [$went entry]
 set ::tmenu $::tmenu
 set dir $dir
 wm geometry $t 710x500+50+50
+if {$details == 0} {
+    $::butsub config -state disabled
+}
+#    $::butsub config -state disabled
