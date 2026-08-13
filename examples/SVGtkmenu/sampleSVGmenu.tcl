@@ -53,6 +53,9 @@ proc exitarm {t mestok} {
 	set allo "[info class instances cbutton] [info class instances ibutton] [info class instances mbutton] [info class instances cmenu]  [info class instances cframe]"
 	foreach {oo} $allo {
 	    set ind 0
+	    if {![info exist ::listO]} {
+		set ::listO {}
+	    }
 	    foreach omain $::listO {
 		if {"$oo" != "$omain"} {
 		    continue
@@ -316,7 +319,8 @@ set ::contMenu $cmenu1
 #puts "wbm=$wbm wbm1=$wbm1 bm1=$bm1 self=[self]"
 	eval "bind [set wbm]._Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set topl];bind [set topl] <FocusOut> {}  \}"
 	set cmd "bind $topl <FocusOut> {$cmenu1 destroy; tk busy forget $topl;bind $topl <FocusOut> \{\} }"
-	eval $cmd
+#	eval $cmd
+bind $topl <FocusOut> {}
 	focus -force $topl
     } else {
 	eval "bind [set fm]._Busy <ButtonRelease> \{ [set cmenu1] destroy; tk busy forget [set topl]\}"
@@ -415,7 +419,6 @@ proc recreateMenu {} {
 	}
 	set ::cmenubut {}
     }
-#createConfigMenu $::mn ".ffff" up $::tmenu 
     update
     createConfigMenu $::mn ".ffff" "$::dtype" $::tmenu 
     if {[winfo exist .ffff]} {
@@ -435,15 +438,11 @@ $::mn invoke
     }
 }
 
-#. configure -bg yellow
-#. configure -bg snow
 wm state $t withdraw
 wm state $t normal
 wm geometry $t 700x500+150+50
 set frcol "#b4e4f4"
-#frame $t.frame  -bg $frcol
 cframe create frmenu $t.frame -type frame -bg $frcol
-#frmenu config -fillnormal [lindex [[frmenu canvas] gradient names] 0]
 frmenu config -fillnormal "#c4e5fd" -stroke "#ce7053"
 
 frmenu pack   -in $t -fill both -expand 1 -padx 3m -pady 3m
@@ -474,9 +473,6 @@ pack [$wmsg canvas] -in $t.frame -side top -fill none -expand 0 -padx 1c -pady "
 
 pack [$went canvas] -in $t.frame -side top -fill x -expand 0 -padx 3c -pady 5m -anchor nw
 
-#pack [$ch canvas] -in $t.frame -side left -padx "1c 0" -pady "0 0" -anchor nw
-#pack [$mn canvas] -in $t.frame -side left -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
-
 set clfrv [cframe new $t.clfr -type clframe -text "Where does the menu appear" -rx 1m -strokewidth 1 -stroke red -fillnormal snow ]
 $clfrv boxtext -rx 3 -strokewidth 0.5m -stroke chocolate -ipadx 5 -ipady 2
 $clfrv config -background [frmenu config -fillnormal]
@@ -489,7 +485,6 @@ set ::cmenubut {}
 createConfigMenu $mn ".ffff" up $::tmenu 
 foreach rmbut "up down left right" {
     set rc1 [cbutton new $t.$rmbut -type radio  -text $rmbut -variable dtype -value $rmbut]
-#    pack [$rc1 canvas] -in $t.frame -side left -padx "5m" -pady "5m" -fill none -expand 0 -anchor n 
     $rc1 pack -in $t.clfr -side left -padx "5m" -pady "8m 2m" -fill none -expand 0 -anchor n
     set cmd  [subst "$rc1 config  -command {puts \"Direction=$rmbut\";recreateMenu}"]
     eval $cmd
@@ -498,16 +493,10 @@ foreach rmbut "up down left right" {
 pack [$ch canvas] -in $t.frame -side left -padx "1c 0" -pady "0 0" -anchor nw
 pack [$mn canvas] -in $t.frame -side left -padx "3c 5m" -pady "0 0" -fill x -expand 0 -anchor n 
 $clfrv config -fontsize 4.0m -fillbox cyan
-#$clfrv boxtext -rx 3 -strokewidth 0.5m -stroke chocolate -ipadx 5 -ipady 2
-
 
 set  w "$t.frame "
 set typefb "directory"
-#eval "bind $t.frame  <ButtonPress-3> {showContextMenu %W %x %y %X %Y $w $typefb}"
 eval "bind $t.frame  <ButtonPress-3> {showContextMenu %W %x %y %X %Y .cont $typefb}"
-#reateConfigMenu $mn ffff up 1
-#set ::cmenubut {}
-#createConfigMenu $mn ".ffff" up $::tmenu 
 update
 trace add variable rad write displaymenu
 if {1} {
@@ -526,4 +515,6 @@ wm geometry $t 710x500+50+50
 if {$details == 0} {
     $::butsub config -state disabled
 }
-#    $::butsub config -state disabled
+
+bind .testmenu <Configure> {if {[winfo exist ".testmenu._Busy"] && "%W" == ".testmenu"} {[$::mn config -menu] menuhide}}
+#bind .testmenu <B1-Motion> {event generate .testmenu <Configure>}

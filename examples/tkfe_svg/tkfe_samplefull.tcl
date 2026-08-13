@@ -129,6 +129,8 @@ if {0} {
     }
     .labchoose configure -text "Ваш выбор:\n$r"
     puts "Ваш выбор:\n$r"
+    update
+    after 100
 }
   #Процедура смены языка и синхронный перевод
 proc changelang {w } {

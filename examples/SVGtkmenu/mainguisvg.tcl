@@ -1,5 +1,6 @@
 encoding system utf-8
 set dd [file dirname [info script]]
 source [file join $dd sampleSVGmenu.tcl]
-catch {tk busy hold .dsvg}
-
+if {[winfo exist .dsvg]} {
+    tk busy hold .dsvg
+}

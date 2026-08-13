@@ -723,7 +723,7 @@ set coordsidr [$wcan coords $idr]
 	    return
 	}
 	if  {[my config -state] != "disabled"} {
-	    if {[expr {[clock clicks -milliseconds] - $tclicks}] < 500} {
+	    if {[expr {[clock clicks -milliseconds] - $tclicks}] < 750} {
 		return
 	    }
 	    set tclicks [clock clicks -milliseconds]
@@ -2579,7 +2579,7 @@ if {0} {
 	    return
 	}
 	if  {[my config -state] != "disabled"} {
-	    if {[expr {[clock clicks -milliseconds] - $tclicks}] < 500} {
+	    if {[expr {[clock clicks -milliseconds] - $tclicks}] < 750} {
 		return
 	    }
 	    set tclicks [clock clicks -milliseconds]
@@ -3674,7 +3674,7 @@ set Options(-state) "normal"
     return $wclass
   }
   method refresh {} {
-    set man [winfo manager $wcan]
+    set man [winfo manager  $wcan]
     if {$man == ""} { return}
     set args [[set man] info $wcan]
     eval "[self] $man $args"
@@ -3702,7 +3702,6 @@ set ::methshowmenu {
 
   method showmenu {} {
 #puts "SHOWMENU self=[self] START tag=[my tag]"
-    set m3 [winfo fpixels $wcan 3m]
 #Виджет кнопки меню
     set tlb [winfo toplevel [[self] canvas]]
 #Виджет собстаенно  меню 
@@ -3714,28 +3713,35 @@ set ::methshowmenu {
     set btag [my tag]
     set twin [[my config -menu] methodplace]
     update
-    lassign [$wcan bbox $btag] x1m y1m x2m y2m
+#    lassign [$wcan bbox $btag] x1m y1m x2m y2m
+    lassign [$wcan coords "$btag rect"] x1m y1m x2m y2m
+
 #foreach {x1m y1m x2m y2m} [$wcan bbox $btag] {break}
     set ybut $y1m
 #puts "rootx=$rootx rootxtlb=$rootxtlb x1m$x1m"
-    set x [expr {$rootx - $rootxtlb + $x1m}]
-    set y [expr {$rooty - $rootytlb + $y1m}]
+    set x [expr {int($rootx - $rootxtlb + $x1m)}]
+    set y [expr {int($rooty - $rootytlb + $y1m)}]
 #puts "SHOWMENU: x=$x y=$y rootx=$rootx rootxtlb=$rootxtlb rooty=$rooty rootytlb=$rootytlb x1m=$x1m y1m=$y1m"
-    set wb [expr {$x2m - $x1m}]
-    set hb [expr {$y2m - $y1m}]
+    set wb [expr {int($x2m - $x1m)}]
+    set hb [expr {int($y2m - $y1m)}]
 #puts "SHOWMEN: btag=$btag wb=$wb hb=$hb"
     set mtag [[lindex [[my config -menu] menulist] 0] tag]
-	foreach {x1m y1m x2m y2m} [[[my config -menu] canvas] bbox $mtag] {break}
-	set wm [expr {$x2m - $x1m}]
-	set hm [expr {$y2m - $y1m}]
+    foreach {x1m y1m x2m y2m} [[[my config -menu] canvas] bbox $mtag] {break}
+    set wm [expr {$x2m - $x1m}]
+    set hm [expr {$y2m - $y1m}]
 #puts "Method showmenu: x1m=$x1m y1m=$y1m x2m=$x2m y2m=$y2m wm=$wm hm=$hm tlb=$tlb tlm=$tlm"
-	set direct [[my config -menu] config -direction]
+    set direct [[my config -menu] config -direction]
 #puts "Method showmenu: self=[self] Options(-menu)=$Options(-menu) menu=[my config -menu] tlb=$tlb tlm=$tlm direct=$direct wb=$wb hb=$hb rootx=$rootx rooty=$rooty twin=$twin"
-	if {$tlb == $tlm} {
-	    set mtype 0
-	} else {
-	    set mtype 1
-	}
+    if {$tlb == $tlm} {
+	set mtype 0
+    } else {
+	set mtype 1
+    }
+    set tmen [my config -menu]
+    foreach {p1x p2x p3x theight } [$tmen config -tongue] {break}
+    set htongue [winfo fpixels [$tmen canvas] $theight]
+    set strm [winfo fpixels [$tmen canvas] [$tmen config -strokewidth]]
+
 	switch $direct {
 	    up {
 		if {$mtype} {
@@ -3749,20 +3755,24 @@ set ::methshowmenu {
 	    down {
 		if {$mtype} {
 		    set rootx [expr {$rootx - $wm / 2 + $wb / 2}]
-		    set rooty [expr {$rooty - $hm}]
+		    set rooty [expr {$rooty - $hm + $htongue}]
 		} else {
 		    set x [expr {$x - $wm / 2 + $wb / 2}]
-		    set y [expr {$y - $hm}]
+		    if {[[my config -menu] canvastype] != "shared"} {
+			set y [expr {$y - $hm + $htongue - $strm}]
+		    } else {
+			set y [expr {$y - $hm}]
+		    }
 		}
 	    }
 	    left {
 		if {$mtype} {
 		    set rootx [expr {$rootx + $wb}]
-if {$twin == "window"} {
-		    set rooty [expr {$rooty + $ybut  + $hb / 2 - 1 * $hm / 2}]
-} else {
-		    set rooty [expr {$rooty + $hb}]
-}
+		    if {$twin == "window"} {
+			set rooty [expr {$rooty + $ybut  + $hb / 2 - 1 * $hm / 2}]
+		    } else {
+			set rooty [expr {$rooty + $hb}]
+		    }
 		} else {
 		    set x [expr {$x + $wb}]
 		    set y [expr {$y + $hb / 2 - $hm / 2}]
@@ -3770,14 +3780,18 @@ if {$twin == "window"} {
 	    }
 	    right {
 		if {$mtype} {
-		    set rootx [expr {$rootx - $wm}]
-if {$twin == "window"} {
-		    set rooty [expr {$rooty + $ybut +  $hb / 2 -  $hm / 2}]
-} else {
-		    set rooty [expr {$rooty + $hb}]
-}
+		    set rootx [expr {$rootx - $wm + $htongue}]
+		    if {$twin == "window"} {
+			set rooty [expr {$rooty + $ybut +  $hb / 2 -  $hm / 2}]
+		    } else {
+			set rooty [expr {$rooty + $hb}]
+		    }
 		} else {
-		    set x [expr {$x - $wm}]
+		    if {[[my config -menu] canvastype] != "shared"} {
+			set x [expr {$x - $wm + $htongue - $strm}]
+		    } else {
+			set x [expr {$x - $wm}]
+		    }
 		    set y [expr {$y + $hb / 2 - $hm / 2}]
 		}
 	    }
@@ -3785,21 +3799,22 @@ if {$twin == "window"} {
 			error "Method showmenu: Bad direction=$direct"
 	    }
 	}
-if {$twin == "windowXAXA"} {
-    puts "showmenu: bbox button=[$wcan bbox $btag] \n all=[[[my config -menu] canvas] bbox 0] hm=$hm hb=$hb btag=$btag mtag=$mtag y1m=$y1m y2m=$y2m"
-}
 	set sttlb 0
 	
 	if {$mtype} {
+	  set rootx [expr {int($rootx)}]
+	  set rooty [expr {int($rooty)}]
 #puts "Method showmenu  1: mtype=$mtype tlm=$tlm STATE $tlm=[wm state $tlm] SELF=[self]"
 	  if {[wm state $tlm] != "normal"} {
 	    [my config -menu] place -x $rootx -y $rooty
 	    set wmenu [winfo toplevel [[my config -menu] canvas]]
 	    set bbb [[my config -menu] menuhide 0]
-	    eval bind [set wmenu] <FocusOut> \{[$bbb config -menu] menuhide\}
-	    focus -force [winfo toplevel [[$bbb config -menu] canvas]]
-	    
-	    
+	    set tlb [winfo toplevel $wcan]
+	    set cmd "bind [set wmenu] <FocusOut> \{if \{\"\%W\" != \"[set tlb]\"\} \{ [$bbb config -menu] menuhide \}\}"
+	    eval $cmd
+
+#	    focus -force [winfo toplevel [[$bbb config -menu] canvas]]
+
 	    place forget [[my config -menu] canvas]
 	    pack [[my config -menu] canvas] -side top -anchor nw
 	    wm geometry $tlm +$rootx+$rooty
@@ -3847,9 +3862,7 @@ if {$twin == "windowXAXA"} {
 	    raise $tlm
 	  } else {
 	    wm state $tlm "withdraw"
-#	    set wmenu [winfo toplevel [[my config -menu] canvas]]
 	    bind [set tlm] <FocusOut> {}
-
 	  }
 	    return "$rootx $rooty"
 	} elseif {[[my config -menu] canvastype] == "shared"} {
@@ -3895,10 +3908,6 @@ if {$twin == "windowXAXA"} {
 		eval bind [set wbm]._Busy <ButtonRelease> \{[$bbb config -menu] menuhide\}
 	    }
 
-	    
-	    
-	    
-	    
 		tk busy hold $tlb
 #		raise [my canvas]
 		set brel ""
@@ -3919,7 +3928,7 @@ if {$twin == "windowXAXA"} {
 		set ::svgwidget::treemenu [lsort -unique $::svgwidget::treemenu]
 
 	    } else {
-puts "SHOWMNU bиз normal в hidden: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] "
+#puts "SHOWMNU bиз normal в hidden: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] "
 		set oom [my config -menu]
 		$oom config -state hidden
 	    }
@@ -5699,7 +5708,7 @@ if {[$obj class] == "cbutton"} {
 			    eval "[$obj canvas] bind [set brect] <Leave> {[$obj canvas] itemconfigure [set brect] -fill {} -stroke {}}"
 			}
 			eval "[$obj canvas] bind [set brect] <ButtonPress-1> {[set obj] press}"
-			eval "[$obj canvas] bind [set brect] <ButtonRelease-1> {[set obj] release %X %Y]}"
+			eval "[$obj canvas] bind [set brect] <ButtonRelease-1> {[set obj] release %X %Y}"
 		    }
 		}
 	    }

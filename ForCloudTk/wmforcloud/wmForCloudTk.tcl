@@ -371,6 +371,7 @@ proc wm::withdraw {window} {
 
 # Bindings
 proc wm::Select {w x y} {
+#puts "Select w=$w"
     variable State
     set top [winfo toplevel $w]
     raise $top
@@ -382,14 +383,26 @@ proc wm::Select {w x y} {
     set State(pressed) 1
     set State(cursor) [$w cget -cursor]
     set State(id) [after 100 [list $w configure -cursor fleur]]
-    focus -force $top.frame
-    update
+#    focus -force $top.frame
+#    update
 }
 
 proc wm::Drag {w x y} {
+    variable map
     variable State
     if {!$State(pressed)} {
 	return
+    }
+    set wdr [winfo toplevel $w]
+    if {[string first "toplvl-" $wdr] != -1} {
+	set idx [lsearch $map $wdr]
+	if {$idx == -1} {
+	    return
+	}
+	set idx [expr {$idx - 1}]
+	event generate [lindex $map $idx] <Configure>
+    } else {
+	event generate $wdr <Configure>
     }
 
     $w configure -cursor fleur
@@ -457,7 +470,9 @@ proc wm::pressBut {win x y} {
     }
 }
 proc wm::enterBut {win x y} {
-    variable State
+  variable State
+  after 10
+  update
   if {$State(pressed) == 0} {
     if {[string first "toplvl-" $win] != -1} {
 	set State(cursor) [$win cget -cursor]
@@ -505,12 +520,15 @@ proc wm::enterBut {win x y} {
 }
 
 proc wm::leaveBut {win x y} {
+#puts "LeaveBut win=$win win_eqv=[wm::window $win]"
     variable State
-  if {$State(pressed) == 0} {
-    if {[string first "toplvl-" $win] != -1 && [info exist State(cursor)]} {
-	$win configure -cursor $State(cursor)
+    after 10
+    update
+    if {$State(pressed) == 0} {
+	if {[string first "toplvl-" $win] != -1 && [info exist State(cursor)]} {
+	    $win configure -cursor $State(cursor)
+	}
     }
-  }
 }
 
 proc wm::relBut {win x y} {

@@ -1216,6 +1216,7 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
     $chcas config -command "$cmd;::FE::detailedview \$::FE::folder(w)"
 
     set cr0 [$::cmenubut add radio " -variable ::FE::folder(details) -text \"[mc {Names only}]\" -value 0"]
+    eval "$cr0 config -command {[namespace current]::namesview \$::FE::folder(w) $chcas;\$::FE::folder(chcas) config -state disabled;}"
     set ch1 [$::cmenubut add separator -fillnormal ""]
 
     set cr1 [$::cmenubut add radio "-variable ::FE::folder(details) -text \"[mc {Extended list}]\" -value 1"]
@@ -1994,6 +1995,12 @@ if {$frwdt >= $::FE::data(-width)} {
     } else {
 	$w column {#0} -stretch 1
     }
+  }
+  proc namesview {w but} {
+#    set w "$::FE::folder(w).files.t"
+    [set w].files.t configure -displaycolumns ""
+    [set w].files.t column {#0} -stretch 1
+    [$but config -menu] menuhide
   }
   proc gosepfolders {w typew typefb} {
     set w "$::FE::folder(w)"
