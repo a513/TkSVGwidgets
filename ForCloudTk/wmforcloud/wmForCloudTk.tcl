@@ -383,7 +383,7 @@ proc wm::Select {w x y} {
     set State(pressed) 1
     set State(cursor) [$w cget -cursor]
     set State(id) [after 100 [list $w configure -cursor fleur]]
-#    focus -force $top.frame
+    focus -force $top.frame
 #    update
 }
 
