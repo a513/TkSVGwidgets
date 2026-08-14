@@ -46,8 +46,6 @@ if {![info exist ::FE::folder]} {
   mcset ru "Data composition" "Состав данных"
   mcset ru "Current directory" "Текущий каталог"
   mcset ru "Go up" "Перейти вверх"
-#  mcset ru "Go prev" "В предыдущую папку"
-#  mcset ru "Go next" "В следующую папку"
   mcset ru "Go prev" ""
   mcset ru "Go next" ""
   mcset ru "Go adddir" "Создать каталог"
@@ -96,7 +94,6 @@ if {![info exist ::FE::folder]} {
   mcset ru "      Rename\n    \"%1\$s\"\nfailed.\n" "      Переименовать\n    \"%1\$s\"\nне удалось.\n" 
 
   ttk::style configure Treeview  -background snow  -padding 0
-#   -arrowsize 20
   ttk::style configure TCheckbutton  -background snow  -padding {1m 0 0 0}
 
 ##############Image fsdialog#################################
@@ -126,7 +123,6 @@ MC698kqK8ZumCCc3Nzd+DVfffL314S/Tu1//iVHNwMCgLcL98R8zEwMDAzGq4YCJ
 gUQwqmGoahBgYbj25isxSu98+C3IxsD45v3HbQ+/fvzHTFCDEBuDIesnAE3cJiD1
 JFxnAAAAAElFTkSuQmCC
 }
-
 
 image create photo fe_radio16_old -data {
 R0lGODlhEAAQAMIAAJyZi////83OxQAAAP///////////////yH5BAEKAAEALAAAAAAQABAA
@@ -854,7 +850,6 @@ ttk::style configure Treeview.Item -padding {-4m 0 0 0}
     [namespace current]::columnSort $w.files.t $::FE::folder(column) $::FE::folder(direction)
   }
 
-
   proc trace_columns {name index op} {
     ::FE::detailedview $::FE::folder(w)
   }
@@ -909,7 +904,6 @@ ttk::style configure Treeview.Item -padding {-4m 0 0 0}
     set prename2 "M 58.75 31.25 L 58.75 20.0 L 51.875 20.0 L 45.0 20.0 L 45.0 31.25 L 45.0 42.5 L 51.875 42.5 L 58.75 42.5 L 58.75 31.25 Z "
     set prename3 "M 1.25 31.25 L 1.25 17.5 L 20.0 17.5 C 31.625 17.5 38.75 18.0 38.75 18.75 C 38.75 19.5 32.125 20.0 21.25 20.0 L 3.75 20.0 L 3.75 31.25 
 	L 3.75 42.5 L 21.25 42.5 C 32.125 42.5 38.75 43.0 38.75 43.75 C 38.75 44.5 31.625 45.0 20.0 45.0 L 1.25 45.0 L 1.25 31.25 Z"
-
 
     set s {}
     set t {}
@@ -1167,7 +1161,6 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
 # mtype - 0 меню создается в окне кнопки; 1 - меню создается в отдельном окне 
 #set mtype 0
 
-###################################
 #puts "createConfigMenu 1 oow=$oow fm=$fm"
     set mm2px [winfo pixels [$oow canvas] 1m]
 #Создаётся отдельное окно для меню
@@ -1202,7 +1195,6 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
     set ::FE::folder(chcas) $chcas
 #puts "createConfigMenu 1_3 Состав_данных=$chcas menu=$fm.subMenu"
 
-#puts "СОСТАВ ДАННЫХ=$chcas ::cmenubut=$::cmenubut chcas=$chcas iprev=$iprev"
     set ch1 [$::cmenubut add separator]
 #Создаем SubMenu
     set sm [showSubMenu [$chcas canvas] "submenu" "new" $mtype]
@@ -1313,7 +1305,6 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
 	foreach info [lsort -dictionary -index 0 "$dir" "$listdir1"] {
     	    $tree move [lindex $info 1] {} [incr r]
 	}
-    
     }
 
     # Switch the heading so that it will sort in the opposite direction
@@ -1386,32 +1377,10 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
 	{-permissions "" "" 0}
 	{-multiple "" "" 0}
     }]
-    set specs_ORIG {
-	{-typew "" "" "window"}
-	{-widget "" "" ""}
-	{-defaultextension "" "" ""}
-	{-filetypes "" "" ""}
-	{-initialdir "" "" ""}
-	{-initialfile "" "" ""}
-	{-parent "" "" "."}
-	{-title "" "" ""}
-	{-sepfolders "" "" -1}
-	{-foldersfirst "" "" -1}
-	{-sort "" "" "#0"}
-	{-reverse "" "" 0}
-	{-details "" "" -1}
-	{-hidden "" "" -1}
-	{-width "" "" -10}
-	{-height "" "" -10}
-	{-x "" "" 5}
-	{-y "" "" 5}
-	{-relwidth "" "" 1.0}
-	{-relheight "" "" 1.0}
-    }
 
 #puts "initfe: specs=$specs"
     if {[info exist ::FE::data]} {
-	unset ::FE::data
+#	unset ::FE::data
     }
     if {![info exist ::FE::data]} {
 	tclParseConfigSpec ::FE::data $specs "" [lindex $args 0]
@@ -1461,6 +1430,7 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
     
 #    tclParseConfigSpec ::FE::data [subst "$specs"] "" [lindex $args 0]
 #parray ::FE::data
+
     if { $::FE::data(-typew) == "window" } {
 	if {$::FE::data(-width) <= 0 && $::FE::data(-relwidth) == 0} {
 		set ::FE::data(-width) $few	    
@@ -1500,10 +1470,9 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
 	    trace vdelete ::FE::displaycolumns w ::FE::trace_columns
 	}
     }
-  set ::FE::displaycolumns(size) $::FE::data(-size)
-  set ::FE::displaycolumns(date) $::FE::data(-date)
-  set ::FE::displaycolumns(permissions) $::FE::data(-permissions)
-
+    set ::FE::displaycolumns(size) $::FE::data(-size)
+    set ::FE::displaycolumns(date) $::FE::data(-date)
+    set ::FE::displaycolumns(permissions) $::FE::data(-permissions)
 
     if {$::FE::data(-widget) == ""} {
 	set rand [expr int(rand() * 10000)]
@@ -1525,7 +1494,6 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
         tk_messageBox -title "Просмотр папки" -icon info -message "Каталог не доступен (initfe):\n$initdir\nПереходим в домашний каталог" -parent .
 	set initdir $::env(HOME)
         if {[tk windowingsystem] == "win32"} {
-#    	    set initdir [encoding convertfrom cp1251 $initdir ]
     	    set initdir [string map {"\\" "/"} $initdir]
         }
     }
@@ -1586,6 +1554,10 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
 	    set cmd [subst "if {\\\[winfo exist [set zz]._Busy]} {event generate [set zz]._Busy <ButtonRelease>}"]
 	    bind $::FE::folder(w) <Enter> [set cmd]
 	}
+	set ::FE::data(-width) [winfo pixels $w $::FE::data(-width)]
+	set ::FE::data(-height) [winfo pixels $w $::FE::data(-height)]
+	set ::FE::data(-x) [winfo pixels $w $::FE::data(-x)]
+	set ::FE::data(-y) [winfo pixels $w $::FE::data(-y)]
     } else {
       if {$::FE::folder(sepfolders)} {
         set tw [expr {$::scrwidth + 100}] 
@@ -1629,6 +1601,11 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
         }
       }
       toplevel $w -bd 2  -relief groove -bg #d9d9d9
+      set ::FE::data(-width) [winfo pixels $w $::FE::data(-width)]
+      set ::FE::data(-height) [winfo pixels $w $::FE::data(-height)]
+      set ::FE::data(-x) [winfo pixels $w $::FE::data(-x)]
+      set ::FE::data(-y) [winfo pixels $w $::FE::data(-y)]
+
       wm geometry $w $geometr
       bind $w <Destroy> {if {"%W" == $::FE::folder(w)} {::FE::fecancel $::FE::folder(typew) $::FE::folder(w) $::FE::folder(typefb) $::FE::folder(otv)}}
       bind $w <Configure> {if {"%W" == $::FE::folder(w) && [winfo exist $::FE::folder(w).__fecontextMenu]} {lower $::FE::folder(w)._Busy $::FE::folder(w).__fecontextMenu}}
@@ -1636,6 +1613,7 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
     	    set geom $::FE::data(-width)
     	    append geom "x"
     	    append geom $::FE::data(-height)
+    	    append geom "+$::FE::data(-x)+$::FE::data(-y)"
     	    wm geometry $w $geom
       } elseif {[info exists ::Fegeo]} {
 	    wm geometry $w $::Fegeo
@@ -1643,7 +1621,7 @@ proc showConfigMenu { oow fm direct {mtype 0}} {
  #Конфигурирование виджета под смартфон
   #Ширина 75 mm
   #Высота 160 mm
-  wm minsize $w [expr {int([winfo fpixels $w 75m])}] [expr {int([winfo fpixels $w 80m])}]
+      wm minsize $w [expr {int([winfo fpixels $w 75m])}] [expr {int([winfo fpixels $w 80m])}]
 #  wm minsize . [expr $::scrwidth * 2] $::scrheight
 #Устанавливаем последнюю геометрию окна
 #Окно не может перекрываться (yes)
@@ -1840,11 +1818,10 @@ $f1.lang delete $objru
     ttk::combobox $fm.tekfolder.ldir -width 0 -values $dirlist -textvariable ::FE::folder(tek)
     eval "bind $fm.tekfolder.ldir <<ComboboxSelected>> {[namespace current]::selectobj $fm.files.t $typew $typefb 3 $otv}"
     eval "bind $fm.tekfolder.ldir <Key-Return> {[namespace current]::selectobj $fm.files.t $typew $typefb 3 $otv}"
-   $fm.tekfolder.ldir delete 0 end
-   $fm.tekfolder.ldir insert end [lindex $dirlist end]
+    $fm.tekfolder.ldir delete 0 end
+    $fm.tekfolder.ldir insert end [lindex $dirlist end]
     pack $fm.tekfolder.lab -side left -fill none -pady {0.5m 0}
     pack $fm.tekfolder.ldir -side left -fill x -expand 1 -pady {0.5m 0}
-    
 #Установка фильтра
     if {$typefb != "dir"} {
 	set msk1 [list]
@@ -1907,9 +1884,7 @@ $f1.lang delete $objru
     
     grid $fm.files.t -sticky news -padx {2 0} -pady {0 0}
 #При использовании panedwindow добавляемые в панель компоненты (в данном случае $fm.fr и $fm.dirs) укаковывать (pack, greid, place) отдельно не надо
-
     pack $f3 -side top -fill both -expand 1 -padx {2 2} -pady {2 2}
-
     ##################################################
 
     set ::objNewdir [page_newdir $fm $typefb]
@@ -2120,7 +2095,6 @@ if {$selit != ""} {
   }
 
   proc gohiddencb {fm typew typefb otv} {
-# -variable ::FE::folder(hiddencb)
     set ::FE::folder(hiddencb) [expr {1 - $::FE::folder(hiddencb)}]
 
     [namespace current]::selectobj $fm.files.t $typew $typefb 3 $otv
@@ -2331,7 +2305,6 @@ if {$selit != ""} {
 #	puts "firstOO = $::FE::folder(firstOO) lastOO = $::FE::folder(lastOO)"    
 	set ind0 [string range $::FE::folder(firstOO) 9 end]
 	set indN [string range $::FE::folder(lastOO) 9 end]
-#	puts "firstOO = $ind0 lastOO = $indN"
 	while {$ind0 <= $indN} {
 	    set deloo "::oo::Obj$ind0"
 	    if {[catch {info object class $deloo}] == 0} {
@@ -2339,7 +2312,6 @@ if {$selit != ""} {
 	    }
 	    incr ind0
 	}
-	
 	return
     }
 
@@ -2375,6 +2347,10 @@ if {$selit != ""} {
     if {$typew != "frame"} {
 	set ::Fegeo [wm geometry $w]
 	catch {tk busy forget [winfo parent $w]}
+	set ::FE::data(-x) [winfo rootx $w]
+	set ::FE::data(-y) [winfo rooty $w]
+	set ::FE::data(-width) [winfo width $w]
+	set ::FE::data(-height) [winfo height $w]
     } else {
 	all_busy_forget [winfo parent $w]
     }
@@ -2600,7 +2576,6 @@ if {$selit != ""} {
   }
 
   proc page_newdir {fm typefb}  {
-  
     set ::newname  [mc "Enter a name for new folder"]
 
     #Widget for new Name
@@ -2822,11 +2797,13 @@ if {$selit != ""} {
 	set sepfolders $::FE::folder(sepfolders)
 	set details $::FE::folder(details)
     }
-    set specs {
+    set specs [subst {
 	{-typew "" "" "window"}
 	{-widget "" "" ""}
 	{-defaultextension "" "" ""}
 	{-filetypes "" "" ""}
+	{-typevariable "" "" ""}
+	{-confirmoverwrite "" "" 0}
 	{-initialdir "" "" ""}
 	{-initialfile "" "" ""}
 	{-parent "" "" "."}
@@ -2837,29 +2814,39 @@ if {$selit != ""} {
 	{-reverse "" "" 0}
 	{-details "" "" -1}
 	{-hidden "" "" -1}
-	{-width "" "" -10}
-	{-height "" "" -10}
+	{-width "" "" 0}
+	{-height "" "" 0}
 	{-x "" "" 5}
 	{-y "" "" 5}
-	{-relwidth "" "" 1.0}
-	{-relheight "" "" 1.0}
+	{-relwidth "" "" 0}
+	{-relheight "" "" 0}
 	{-size "" "" 1}
 	{-date "" "" 0}
 	{-permissions "" "" 0}
 	{-multiple "" "" 0}
-    }
+    }]
+
     tclParseConfigSpec ::FE::data $specs "" $args
-	if {$::FE::data(-width) == -10} {
-	    set ::FE::data(-width) $few
+    if { $::FE::data(-typew) == "window" } {
+	if {$::FE::data(-width) <= 0 && $::FE::data(-relwidth) == 0} {
+		set ::FE::data(-width) $few	    
 	}
-	if {$::FE::data(-height) == -10} {
-	    set ::FE::data(-height) $feh
+	if {$::FE::data(-height) <= 0  && $::FE::data(-relheight) == 0} {
+		set ::FE::data(-height) $feh
 	}
-	if {$::FE::data(-multiple) == 0} {
-    	    set ::FE::data(-multiple) "browse"
-	} else {
-	    set ::FE::data(-multiple) "extended"
+    } else {
+	if {$::FE::data(-width) <= 0 && $::FE::data(-relwidth) == 0} {
+		set ::FE::data(-relwidth) 0.9
 	}
+	if {$::FE::data(-height) <= 0  && $::FE::data(-relheight) == 0} {
+		set ::FE::data(-relheight) 0.8
+	}
+    }
+    if {$::FE::data(-multiple) == 0} {
+    	set ::FE::data(-multiple) "browse"
+    } else {
+	set ::FE::data(-multiple) "extended"
+    }
     if {[info exist foldersfirst]} {
 #puts "initfe: foldersfirst=$foldersfirst"
 	set ::FE::folder(foldersfirst) $foldersfirst
@@ -2875,10 +2862,9 @@ if {$selit != ""} {
 	    trace vdelete ::FE::displaycolumns w ::FE::trace_columns
 	}
     }
-  set ::FE::displaycolumns(size) $::FE::data(-size)
-  set ::FE::displaycolumns(date) $::FE::data(-date)
-  set ::FE::displaycolumns(permissions) $::FE::data(-permissions)
-
+    set ::FE::displaycolumns(size) $::FE::data(-size)
+    set ::FE::displaycolumns(date) $::FE::data(-date)
+    set ::FE::displaycolumns(permissions) $::FE::data(-permissions)
   }
   
   proc fe_getsavefile {args} {
@@ -2956,28 +2942,14 @@ if {$selit != ""} {
     }
   }
   proc all_busy_hold {parent} {
-tk busy hold $parent
-return
-
-    set widgets [info commands $parent*]
-    foreach w $widgets {
-	if {$w == "." } { continue}
-	catch {tk busy hold $w}
-    }
-    catch {tk busy forget $parent}
+    tk busy hold $parent
+    return
   }
   proc all_busy_forget {parent} {
-if {[tk busy status $parent]} {
-    tk busy forget $parent
-}
-return
-
-    set widgets [info commands $parent*]
-    foreach w $widgets {
-#puts "proc all_busy_forget: w=$w w_Busy=$w\_Busy"
-	if {$w == "." } { continue}
-	catch {tk busy forget $w}
+    if {[tk busy status $parent]} {
+	tk busy forget $parent
     }
+    return
   }
   proc all_busy_hold_old {parent} {
     set widgets [info commands $parent*]
