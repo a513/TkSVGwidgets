@@ -2,11 +2,14 @@
 #  
 #  This file is distributed under BSD style license.
 #
-if {[catch {package require tko}]} {
-    package require tkpath
+if {[catch {package require tkpath}]} {
+    package require tko
 }
 
-package require treectrl
+if {[info command ::tkp::loupe] == ""} {
+    package require treectrl
+}
+
 package require msgcat
 namespace import ::msgcat::mc
 
@@ -3562,7 +3565,12 @@ set Options(-state) "normal"
     set screencan [image create photo -width $wb -height $hb]
 #Делаем скриншот нужного widget
 #Создаём картинку виджета $y - 2 ???
-    loupe $screencan [expr {$rx + $wb / 2}] [expr {$ry + $hb / 2}] $wb $hb
+    if {[info command ::tkp::loupe] == ""} {
+	loupe $screencan [expr {$rx + $wb / 2}] [expr {$ry + $hb / 2}] $wb $hb
+    } else {
+	::tkp::loupe $screencan [expr {$rx + $wb / 2}] [expr {$ry + $hb / 2}] $wb $hb
+    }
+
 #Сождаём фон из картинки
     $wcan delete "fon"
     set fon [$wcan create [set pimage] 0 0 -image $screencan -anchor nw  -tags {fon} ]
@@ -3619,7 +3627,11 @@ set Options(-state) "normal"
 	set hei [expr {$y2 - $y1}]
 #Скриншот под меню
 	set screenwin [image create photo -width $wid -height $hei]
-	loupe $screenwin [expr {$rx + $wid / 2}] [expr {$ry + $hei / 2}] $wid $hei
+	if {[info command ::tkp::loupe] == ""} {
+	    loupe $screenwin [expr {$rx + $wid / 2}] [expr {$ry + $hei / 2}] $wid $hei
+	} else {
+	    ::tkp::loupe $screenwin [expr {$rx + $wid / 2}] [expr {$ry + $hei / 2}] $wid $hei
+	}
 	set wc [my canvas]
 	$wc delete "fon"
 	set wfon [$wc create [set pimage] 0 0 -image $screenwin -anchor nw  -tags {fon} ]
@@ -3852,7 +3864,11 @@ set ::methshowmenu {
 	    set hei [expr {$y2 + $y1}]
 #Скриншот под меню
 	    set screenwin [image create photo -width $wid -height $hei]
-	    loupe $screenwin [expr {$rx + $wid / 2}] [expr {$ry + $hei / 2}] $wid $hei
+	    if {[info command ::tkp::loupe] == ""} {
+		loupe $screenwin [expr {$rx + $wid / 2}] [expr {$ry + $hei / 2}] $wid $hei
+	    } else {
+		::tkp::loupe $screenwin [expr {$rx + $wid / 2}] [expr {$ry + $hei / 2}] $wid $hei
+	    }
 	    set wc [[my config -menu] canvas]
 	    $wc delete "fon"
 	    set wfon [$wc create [set pimage] 0 0 -image $screenwin -anchor nw  -tags {fon} ]
