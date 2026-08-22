@@ -3543,11 +3543,13 @@ set Options(-state) "normal"
     }
 
     set rwin [winfo toplevel $wcan]
-    set most [wm attributes $rwin -topmost]
-    if {$most == 0} {
-	wm attributes $rwin -topmost 1
-    	update
-    }	
+    if {[tk windowingsystem] != "win32"} {
+	set most [wm attributes $rwin -topmost]
+	if {$most == 0} {
+	    wm attributes $rwin -topmost 1
+    	    update
+	}
+    }
     lower $wcan
     set cc [my slaves]
     if {$cc != ""} {
@@ -3579,10 +3581,12 @@ set Options(-state) "normal"
 	$wcan lower $idbg
     }
 
-    if {$most == 0} {
-	wm attributes $rwin -topmost 0
-    	update
-    }	
+    if {[tk windowingsystem] != "win32"} {
+	if {$most == 0} {
+	    wm attributes $rwin -topmost 0
+    	    update
+	}	
+    }
     update
     raise $wcan 
     update
