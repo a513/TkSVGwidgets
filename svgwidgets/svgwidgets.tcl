@@ -3432,7 +3432,8 @@ set ::methodman {
     }
     if {$wclass == "mbutton"} {
 	lassign [$wcan bbox [my tag]] xm0 ym0 xm1 ym1
-	$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
+#	$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
+	$wcan configure -width [expr {$xm1}] -height [expr {$ym1 - abs($ym0)}]
     }
     if {$wclass == "cmenu"} {
 	lassign [$wcan bbox [[lindex [my menulist] 0] tag]] xm0 ym0 xm1 ym1
@@ -4327,7 +4328,6 @@ oo::class create mbutton {
 	set matrix "::tko::matrix"
 	set pimage "image"
     }
-###############
     set mplace "canvas"
     set ind [lsearch $args "-place"]
     if {$ind > -1} {
@@ -4348,7 +4348,6 @@ oo::class create mbutton {
 	set w  "[set w][set w]"
     }
 
-###############
     set wcan $w
     set type "msg"
     set ind [lsearch $args "-type"]
@@ -4365,8 +4364,8 @@ oo::class create mbutton {
     set nexttag 0
     set Options(-place) $mplace
     set Options(-state) normal
-    set Options(-width) 4c
-    set Options(-height) 3c
+    set Options(-width) 3c
+    set Options(-height) 1c
     set Options(-strokewidth) 1
     set Options(-direction) $type
     set Options(-strokeopacity) 1.0
@@ -4406,7 +4405,8 @@ oo::class create mbutton {
     set Options(-fontfamily) $font(-family)
     set Options(-fontweight) $font(-weight)
     set Options(-fontslant) "normal"
-    set Options(-textanchor) "nw"
+#    set Options(-textanchor) "nw"
+    set Options(-textanchor) "n"
     set tremm2px [winfo fpixels $w 3m]
 #    set Options(-fontsize) "[string range [expr {$font(-size) / $onemm2px}] 0 4]m"
     set Options(-fontsize) $tremm2px
@@ -4424,31 +4424,21 @@ oo::class create mbutton {
     set Options(-stroke) #00bcd4
 
     set  Options(-rx) 2m
-    set Options(-tongue) [list 0.5 0.9 0.8 5m]
 
+    set Options(-tongue) [list 0.45 0.5 0.55 5m]
     switch $type {
 	msg -
 	yesno {
-#	    set Options(-tongue) [list 0.5 0.9 0.8 0.75]
 	    set Options(-text) "Yes\ No"
 	    set Options(-fillpress) "##"
 	    set Options(-fillenter) "##"
 	}
 	left -
-	right {
-#	    set Options(-tongue) [list 0.5 0.9 0.8 0.75]
-	    set Options(-tongue) [list 0.45 0.5 0.55 5m]
-	    set Options(-text) "Callout\ $type"
-	}
-	down {
-#	    set Options(-tongue) [list 0.5 0.9 0.8 0.75]
-	    set Options(-tongue) [list 0.5 0.9 0.8 5m]
-	    set Options(-text) "Callout\ Down"
-	}
+	right -
+	down -
 	up {
-	    set Options(-tongue) [list 0.5 0.9 0.8 5m]
-#	    set Options(-tongue) [list 0.5 0.9 0.8 0]
-	    set Options(-text) "Callout\n Up"
+	
+	    set Options(-text) "Callout\ $type"
 	}
 	none {
 	    set Options(-tongue) [list 0.45 0.5 0.55 0]
@@ -4461,7 +4451,6 @@ oo::class create mbutton {
 	    }
     	    error "mbutton: Unknown type=$type: must be msg, yesno, left, right, down, up, none"
 	}
-    
     } 
 
     set Options(-command) {}
@@ -4472,15 +4461,20 @@ oo::class create mbutton {
     set y1 [winfo fpixels $wcan $Options(-y)]
     set strw [winfo fpixels $wcan $Options(-strokewidth)]
 
-#parray Options
     if {$Options(-text) != "" } {
 #Размеры текста
 	if {$type == "msg"} { 
-	    foreach {Options(-width) Options(-height)} [my btext "$Options(-text)\nYes"] {break}
+	    foreach {bwt bht} [my btext "$Options(-text)\nYes"] {break}
 	} elseif {$type == "yesno"} {
-	    foreach {Options(-width) Options(-height)} [my btext "$Options(-text)\n Yes   _No_"] {break}
+	    foreach {bwt bht} [my btext "$Options(-text)\n Yes   _No_"] {break}
 	} else {
-	    foreach {Options(-width) Options(-height)} [my btext "$Options(-text)"] {break}
+	    foreach {bwt bht} [my btext "$Options(-text)"] {break}
+	}
+	if {$bwt > [winfo fpixels $wcan $Options(-width)]} {
+	    set Options(-width) $bwt
+	}
+	if {$bht > [winfo fpixels $wcan $Options(-height)]} {
+	    set Options(-height) $bht
 	}
     }
     set anc $Options(-textanchor)
@@ -4641,17 +4635,16 @@ $sepfe config -width [expr {$wyesno +  $strw}]
     }
 #Приводим в соответствие размеры холста с размерами mbutton 
     if {$fr} {
-#	my config -width $Options(-width) -height $Options(-height)
+	foreach {x0 y0 x1 y1} [$wcan bbox 0] {break}
 	if {$tbut == "left"} {
 	    foreach {p1x p2x p3x theight } $Options(-tongue) {break}
 	    set htongue [winfo fpixels $wcan $theight]
 	    $wcan move 0 [expr {$htongue - 2 }] 0
+	    $wcan configure -width [expr {$x1}] -height [expr {$y1}]
+	} else {
+	    $wcan configure -width [expr {$x1}] -height [expr {$y1}]
 	}
-	foreach {x0 y0 x1 y1} [$wcan bbox 0] {break}
-#	$wcan configure -width [expr {$x1 + $x0}] -height [expr {$y1 + $y0}]
-	$wcan configure -width [expr {$x1}] -height [expr {$y1}]
 	lassign [$wcan coords $idbg] x0 y0 x1 y1
-	$wcan coords $idbg $x0 $y0 [my config -width] [my config -height]
 	$wcan lower $idbg $idr
     } else {
 	$wcan delete IDOR
@@ -4992,14 +4985,16 @@ $sepfe config -width [expr {$wyesno +  $strw}]
     $can delete "boxText $btag" 
     set i 0
     foreach {txt}  "$ltext" {
-#	set tekb [$can create [set ptext] $xt $ystr -text "$txt" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
+	if {$txt == ""} {
+	    set txt " "
+	}
 	set tekb [$can create [set ptext] $xt $ystr -text "[set txt]" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
-
 	foreach {x0  y0 x1 y1} [$can bbox $tekb] {break}
 	set ystr $y1
 	incr i
     }
     foreach {x0 y0 x1 y1} [$can bbox $grt] {break}
+    set x1 [winfo fpixels $wcan $Options(-width)]
 	for {set j 0} {$j < $i} {incr j} {
 	    set id [$can find withtag boxText$j]
 	    switch $textanchor {
@@ -5017,7 +5012,6 @@ $sepfe config -width [expr {$wyesno +  $strw}]
 		$can coords $id $xt $yt
 		$can itemconfigure $id  -textanchor $textanchor
 		$can itemconfigure $id  -tag [list "boxText" "boxText $btag"]
-#		$can itemconfigure $id  -tag [list $btag boxText]
 	    }
 	}
     return "$grt"
@@ -5120,7 +5114,7 @@ $sepfe config -width [expr {$wyesno +  $strw}]
 	    }
 	    -textanchor {
     		if {[lsearch [list "nw" "n" "ne"] $value] == -1} {
-    		    error "Error for side ($value): -compound \[ top | bottom | left | right | none \]"
+    		    error "Error for textanchor ($value): -compound \[ nw | n | ne \]"
 		    continue
     		}
 		set  Options($option) $value
@@ -5128,8 +5122,8 @@ $sepfe config -width [expr {$wyesno +  $strw}]
 	    -height -
 	    -width {
 		set valold [winfo fpixels $wcan $Options($option)]
-		set  Options($option) $value
 		set val [winfo fpixels $wcan $value]
+		set Options($option) $val
 		set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
 		if {[info exists idr]} {
 		    if {$fr == 1} {

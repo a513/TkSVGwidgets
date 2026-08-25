@@ -2190,13 +2190,19 @@ if {$selit != ""} {
     if {$click == 2 && ([lindex [lindex $titem 0] 1] == "d_directory"  || [lindex [lindex $titem 0] 1] == "directory")} {
       #Выбираем имя главного фрейма/окна
       set tekdir "[lindex [lindex $titem 0] 0]"
+      if {[file tail $tekdir] == "."} {
+        return
+      }
+      if {[file tail $tekdir] == ".."} {
+        $::FE::folder(upBtn) invoke
+        return
+      }
       set ::FE::folder(tek) $tekdir
       if {$typefb != "dir"} {
         set mask [$w1.filter.entdir get]
       } else {
         set mask "*"
       }
-#puts "SELECTOBJtekdir=$tekdir"
       set dir "$tekdir"
       populateTree $typefb $mask $w [$w insert {} end -text "$dir" -values [list "$dir" directory]]
       set ::FE::folder(history) [lrange $::FE::folder(history) 0 $::FE::folder(histpos)]
@@ -2235,7 +2241,6 @@ if {$selit != ""} {
       #Это очень важно выполнение в другом потоке
       after 10 [namespace current]::fereturn $typew $fm $typefb $votv
     }
-#puts "INIT_FE:columnSort=[namespace current]::columnSort  w=$w fm.fillles.t=.fe.files.t ::FE::folder(column)=$::FE::folder(column) ::FE::folder(direction)=$::FE::folder(direction)"
     [namespace current]::columnSort $w $::FE::folder(column) $::FE::folder(direction)
   }
 
@@ -2264,6 +2269,7 @@ if {$selit != ""} {
     if {$click == 2 && ([lindex $titem 1] == "d_directory" || [lindex $titem 1] == "directory")} {
       #Выбираем имя главного фрейма/окна
       set tekdir "[lindex $titem 0]"
+#puts "selectdir: tekdir=$tekdir "
       set ::FE::folder(tek) $tekdir
       if {$typefb != "dir"} {
         set mask [$w1.filter.entdir get]
