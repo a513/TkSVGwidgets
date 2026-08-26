@@ -7,5 +7,6 @@ https://wiki.tcl-lang.org/page/SVG+widgets
 
 You can also find a demo of SVG widgets there:
 
-https://cloudtk-app.tcl-lang.org/cloudtk/VNC?session=new&Tk=SVG-widgets
+https://cloudtk-app.tcl-lang.org/cloudtk/VNC?session=new&Tk=SVG-widgets-Part-I
+
 
