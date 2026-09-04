@@ -826,21 +826,17 @@ set coordsidr [$wcan coords $idr]
 		    $objm config -state normal
 		    update
 		    foreach {xm ym } [my showmenu] {break}
-#		    $objm move 0 0
-#update
 		    set tag0 [[lindex [$objm menulist] 0] tag]
 		    lassign  [[$objm canvas] bbox $tag0] xf1 yf1  xf2 yf2
-#####
-lassign [[my canvas] bbox [my tag]] wx0 hy0 wx1 hy1
-#		    $objm move [expr {$xm - $xf1 * 0}] [expr {$ym - $yf1 * 0}]
-if {1} {
+		    lassign [[my canvas] bbox [my tag]] wx0 hy0 wx1 hy1
 		    if {$xm != $xf1 || $ym != $yf1} {
 			$objm move [expr {$xm - $xf1}] [expr {$ym - $yf1}]
 		    }
-}
+if {0} {
 puts "RELEASE shared: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] trc=$trc"
 puts "RELEASE:xm=$xm ym=$ym xf1=$xf1 yf1=$yf1  xf2=$xf2 yf2=$yf2"
 puts "RELEASE:wx0=$wx0 hy0=$hy0 wx1=$wx1 hy1=$hy1"
+}
 		}
 	}
 #	puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
@@ -2554,29 +2550,6 @@ oo::class create ibutton {
     if {[my config -state] == "disabled"} {
 	return
     }
-if {0} {
-    if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	    if {$Options(-displaymenu) != "enter" } {
-		return
-	    }
-	    if {[my canvastype] == "unique"} {
-		foreach {xm ym } [my showmenu] {break}
-		if {$xm == -1 && $ym == -1} {
-		    puts "Method ibutton enter -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
-		    catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
-		    return
-		}
-	    } else {
-		set objm [my config -menu]
-		set teks [$objm config -state]
-		if {$teks == "normal"} {
-		    $objm config -state hidden
-		} elseif {$teks == "hidden"} {
-		    $objm config -state normal
-		}
-	    }
-    }
-}
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
 	if {$Options(-displaymenu) != "enter" } {
 	    return
@@ -2688,29 +2661,6 @@ if {0} {
     if {[my config -state] == "disabled" } {
 	return
     }
-if {0} {
-    if {[info exist Options(-menu)] && $Options(-menu) != ""} {
-	if {$Options(-displaymenu) != "release" } {
-	    return
-	}
-	if {[my canvastype] == "unique"} {
-	    foreach {xm ym } [my showmenu] {break}
-	    if {$xm == -1 && $ym == -1} {
-		puts "Method ibutton release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
-		catch {$wcan itemconfigure $idr -fill $Options(-fillenter) -stroke $Options(-strokeenter)}
-		return
-	    }
-	} else {
-		set objm [my config -menu]
-		set teks [$objm config -state]
-		if {$teks == "normal"} {
-		    $objm config -state hidden
-		} elseif {$teks == "hidden"} {
-		    $objm config -state normal
-		}
-	}
-    }
-}
     if {[info exist Options(-menu)] && $Options(-menu) != ""} {
 	if {$Options(-displaymenu) != "release"} {
 	    if {$trc != "enter"} {
@@ -2742,28 +2692,22 @@ if {0} {
 		    $objm config -state normal
 		    update
 		    foreach {xm ym } [my showmenu] {break}
-#		    $objm move 0 0
-#update
 		    set tag0 [[lindex [$objm menulist] 0] tag]
 		    lassign  [[$objm canvas] bbox $tag0] xf1 yf1  xf2 yf2
-#####
-lassign [[my canvas] bbox [my tag]] wx0 hy0 wx1 hy1
-#		    $objm move [expr {$xm - $xf1 * 0}] [expr {$ym - $yf1 * 0}]
-if {1} {
+		    lassign [[my canvas] bbox [my tag]] wx0 hy0 wx1 hy1
 		    if {$xm != $xf1 || $ym != $yf1} {
 			$objm move [expr {$xm - $xf1}] [expr {$ym - $yf1}]
 		    }
-}
+if {0} {
 puts "RELEASE shared: SELF=[self] wcan=$wcan canvastype=[[my config -menu] canvastype] place=[[my config -menu] config -place] trc=$trc"
 puts "RELEASE:xm=$xm ym=$ym xf1=$xf1 yf1=$yf1  xf2=$xf2 yf2=$yf2"
 puts "RELEASE:wx0=$wx0 hy0=$hy0 wx1=$wx1 hy1=$hy1"
+}
 		}
 	}
 #	puts "Method release -> sgowmenu: Кнопка=[self] xm=$xm ym=$ym Options(-menu)=$Options(-menu)"
     }
     
-
-
 #puts "RELEASE ibutton wcan=$wcan  X=$x Y=$y"
     set tfr 1
     if {$fr && $Options(-relcom) == 0 } {
@@ -3642,6 +3586,9 @@ set Options(-state) "normal"
 	set wfon [$wc create [set pimage] 0 0 -image $screenwin -anchor nw  -tags {fon} ]
 
 	wm state $mtop normal
+	if {[tk windowingsystem] == "win32"} {
+	    wm geometry $mtop +$rx+$ry
+	}
 	raise $mtop
 	if {[my class] == "cmenu"} {
 	    $wc lower fon $mtag
@@ -4364,11 +4311,12 @@ oo::class create mbutton {
     set nexttag 0
     set Options(-place) $mplace
     set Options(-state) normal
-    set Options(-width) 3c
+    set Options(-width) 4c
     set Options(-height) 1c
     set Options(-strokewidth) 1
     set Options(-direction) $type
     set Options(-strokeopacity) 1.0
+    set Options(-fillopacity) 1.0
     set Options(-variable) ::_mbut
     set ::_mbut ""
     set fr 0
@@ -4388,8 +4336,8 @@ oo::class create mbutton {
 	set cwidth [winfo fpixels $wcan $Options(-width)]
 	set cheight [winfo fpixels $wcan $Options(-height)] 
         $wcan configure -bg [[winfo parent $wcan] cget -bg]
-        set Options(-x) $strwidth
-        set Options(-y) $strwidth
+#        set Options(-x) $strwidth
+#        set Options(-y) $strwidth
         set fr 1
         append canvasb "fr"
     }
@@ -4460,23 +4408,36 @@ oo::class create mbutton {
     set x1 [winfo fpixels $wcan $Options(-x)]
     set y1 [winfo fpixels $wcan $Options(-y)]
     set strw [winfo fpixels $wcan $Options(-strokewidth)]
+    set rx [winfo fpixels $wcan $Options(-rx)]
+    set x1 [expr {$x1 + $strw / 2.0}]
+    set y1 [expr {$y1 + $strw / 2.0}]
+    set Options(-width) [expr {[winfo fpixels $wcan $Options(-width)] - $strw}]
+    set Options(-height) [expr {[winfo fpixels $wcan $Options(-height)] - $strw}]
 
     if {$Options(-text) != "" } {
 #Размеры текста
-	if {$type == "msg"} { 
-	    foreach {bwt bht} [my btext "$Options(-text)\nYes"] {break}
-	} elseif {$type == "yesno"} {
-	    foreach {bwt bht} [my btext "$Options(-text)\n Yes   _No_"] {break}
-	} else {
-	    foreach {bwt bht} [my btext "$Options(-text)"] {break}
+	lassign [my btext "$Options(-text)"] bwt bht
+	if {$type == "msg" || $type == "yesno"} {
+	    set hyesno [winfo fpixels $wcan "8m"]
+	    if {$type == "msg"} { 
+		lassign [my btext "  Yes  "] bwtb bhtb
+	    } else {
+		lassign [my btext " Yes   _No_"] bwtb bhtb
+	    }
+	    set bwtb [expr {$bwtb + 4 * $onemm2px + 2 * $rx}]
+	    if {$bwtb > $bwt} {
+		set $bwt $bwtb
+	    } 
+	    set bht [expr {$bht + $hyesno + 3 * $strw + 0 * $onemm2px + 2 * $rx}]
 	}
-	if {$bwt > [winfo fpixels $wcan $Options(-width)]} {
+	if {$bwt > $Options(-width)} {
 	    set Options(-width) $bwt
 	}
-	if {$bht > [winfo fpixels $wcan $Options(-height)]} {
+	if {$bht > $Options(-height)} {
 	    set Options(-height) $bht
 	}
     }
+
     set anc $Options(-textanchor)
     switch $type {
 	msg -
@@ -4485,8 +4446,7 @@ oo::class create mbutton {
 		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
 #2m - это расстояние до нижней границы Подумать
 		set hyesno [winfo fpixels $wcan "8m"]
-		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] + $hyesno / 2}]
-		set rx [winfo fpixels $wcan $Options(-rx)]
+		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)]}]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
 		set xt [expr { $x1 + $rx}]
@@ -4496,7 +4456,6 @@ oo::class create mbutton {
 	right {
 		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
 		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)]}]
-		set rx [winfo fpixels $wcan $Options(-rx)]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
 		set xt [expr { $x1 + $rx }]
@@ -4506,7 +4465,6 @@ oo::class create mbutton {
 	down {
 		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
 		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)]}]
-		set rx [winfo fpixels $wcan $Options(-rx)]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
 		set xt [expr { $x1 + $rx }]
@@ -4516,7 +4474,6 @@ oo::class create mbutton {
 		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
 #		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] + 30}]
 		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] + 0}]
-		set rx [winfo fpixels $wcan $Options(-rx)]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
 		foreach {p1x p2x p3x theight } $Options(-tongue) {break}
@@ -4532,6 +4489,7 @@ oo::class create mbutton {
 	} 
     }   
 #puts "TYPE=$type x1=$x1 y1=$y1 x2=$x2 y2=$y2"
+
     set d [my coordspath "$x1 $y1" "$x2 $y2" $rx "$Options(-tongue)" $type]
     if {$fr} {
 #Эмуляция background для холста
@@ -4559,80 +4517,62 @@ oo::class create mbutton {
 
     $wcan itemconfigure $idr -fill $Options(-fillnormal) -stroke $Options(-stroke)
 #Сдвигается почему-то idr?????
-
-    if {$type == "yesno"} {
-	set wyesno [expr {$x2 - $x1}]
-#puts "hyesno=$hyesno wyesno=$wyesno y2=$y2 yt=$yt self=[self]"
-	set fontsize [winfo fpixels $wcan 3.5m]
-	foreach {xr1 yr1 xr2 yr2} [$wcan bbox $idr] {break}
-#puts "xr1=$xr1 yr1=$yr1 xr2=$xr2 yr2=$yr2 idr=$idr height=[my config -height]"
-	if {$fr == 1} {
-	    set yr2 [winfo pixels $wcan [my config -height]]
-	}
-
-	set idtyn [$w create [set ptext] $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	set boxyn [$wcan bbox $idtyn]
-	foreach {tx1 ty1 tx2 ty2} $boxyn {break}
-	$wcan delete $idtyn
-#puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn btag=$btag"
-	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 2) / 3.0}]
-	if {$fr == 0} {
-set sepfe [cbutton new "$wcan" -type rect -x $xr1 -y [expr {$yr2 -  $hyesno }] -command "" -text "" -height $strw -fillenter "##" -fillpress "##" -fillnormal $Options(-stroke) -stroke {} -strokewidth 0]
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 -  $hyesno + 6 }] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno + 6 }] -text " [mc {No}]"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	} else {
-set sepfe [cbutton new "$wcan" -type rect -x $xr1 -y [expr {$yr2 - $hyesno / 2 }] -command "" -text "" -height $strw -fillenter "##" -fillpress "##"  -fillnormal $Options(-stroke) -stroke {} -strokewidth 0]
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2 + 6}] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno / 2 + 6 }] -text " [mc No]"  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	}
-
-	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) yes"
-	$cbut1 config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4 -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) no"
-$sepfe config -width [expr {$wyesno +  $strw}]
-	my config -state disabled
-	$cbut config -state normal
-	$cbut1 config -state normal
-#puts "hyesno=$hyesno self=[self] Yes=$cbut No=$cbut1 btag=$btag"
-    } elseif {$type == "msg"} {
-	set wyesno [expr {$x2 - $x1}]
-#puts "hyesno=$hyesno wyesno=$wyesno y2=$y2 yt=$yt self=[self]"
-	set fontsize [winfo fpixels $wcan 3.5m]
-	foreach {xr1 yr1 xr2 yr2} [$wcan bbox $idr] {break}
-#puts "xr1=$xr1 yr1=$yr1 xr2=$xr2 yr2=$yr2 idr=$idr height=[my config -height]"
-	if {$fr == 1} {
-	    set yr2 [winfo pixels $wcan [my config -height]]
-	}
-
-	set idtyn [$w create [set ptext] $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	set boxyn [$wcan bbox $idtyn]
-	foreach {tx1 ty1 tx2 ty2} $boxyn {break}
-	$wcan delete $idtyn
-#	puts "hyesno=$hyesno wyesno=$wyesno boxyn=$boxyn"
-	set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 1) / 2.0}]
-	if {$fr == 0} {
-set sepfe [cbutton new "$wcan" -type rect -x $xr1 -y [expr {$yr2 -  $hyesno }] -command "" -text "" -height $strw -fillenter "##" -fillpress "##" -fillnormal $Options(-stroke) -stroke {} -strokewidth 0]
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno + 6 }] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	} else {
-set sepfe [cbutton new "$wcan" -type rect -x $xr1 -y [expr {$yr2 - $hyesno / 2 }] -command "" -text "" -height $strw -fillenter "##" -fillpress "##"  -fillnormal $Options(-stroke) -stroke {} -strokewidth 0]
-	    set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno / 2 + 6}] -text [mc "Yes"]  -fontfamily $Options(-fontfamily) -fontsize $fontsize]
-	}
-	$cbut config -width [expr {$tx2 - $tx1 + 4}] -height [expr {$ty2 - $ty1 - $onemm2px}] -rx 4
-
-#Переменная erm для ожидания ответа от пользователя (нажатия кнрпки Ок)
-#	$cbut config -command "global erm; [self] destroy; [set cbut] destroy; set erm 1"
-	$cbut config  -command "variable $Options(-variable); [set cbut] destroy;[self] destroy;set $Options(-variable) yes"
-$sepfe config -width [expr {$wyesno +  $strw}]
-	my config -state disabled
-	$cbut config -state normal
-#puts "hyesno=$hyesno self=[self] Yes=$cbut"
-    }
+    set wbd $strwidth
 #puts "hyesno=$hyesno self=[self] Yes=$cbut No=$cbut1 OK"
+    if {$type == "msg" || $type == "yesno"} {
+	set wyesno [expr {$x2 - $x1}]
+#puts "hyesno=$hyesno wyesno=$wyesno y2=$y2 yt=$yt self=[self]"
+	set fontsize [winfo fpixels $wcan 3.5m]
+	foreach {xr1 yr1 xr2 yr2} [$wcan bbox $idr] {break}
+	if {$xr1 < 0} {
+	    set xr1 0
+	}
+#puts "xr1=$xr1 yr1=$yr1 xr2=$xr2 yr2=$yr2 idr=$idr height=[my config -height]"
+	if {$fr == 1} {
+	    set yr2 [winfo pixels $wcan [my config -height]]
+	}
 
-    if {$type != "msg" && $type != "yesno"} {
-	[self] config  -command "variable $Options(-variable);[self] destroy;set $Options(-variable) yes"
+	set idtyn [$w create [set ptext] $xr1 [expr {$yr2 - ( $hyesno / 2)}] -textanchor c -text "Нет" -fontfamily $Options(-fontfamily) -fontsize $fontsize]
+	set boxyn [$wcan bbox $idtyn]
+	lassign $boxyn tx1 ty1 tx2 ty2
+	set wyes [expr {$tx2 - $tx1 + $onemm2px}]
+	set hyes [expr {$ty2 - $ty1 - $onemm2px}]
+
+	$wcan delete $idtyn
+	set xsep [expr {$xr1 + $wbd / 1.0}]
+	set ysep [expr {$yr2 - $hyesno - $wbd * 1.5 - 2 * $onemm2px}]
+	if {$wbd == 0} {
+	    set hsep 1
+	} else {
+	    set hsep $wbd
+	}
+	set sepfe [cbutton new "$wcan" -type rect -x $xsep  -y $ysep  -text "" -height $hsep -width $wyesno -stroke {} -strokewidth 0]
+	$sepfe config  -fillenter "##" -fillpress "##"  -fillnormal $Options(-stroke) -fillopacity $Options(-fillopacity) -command ""
+	if {$type == "yesno"} {
+	    set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 2) / 3.0}]
+	} else {
+	    set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 1) / 2.0}]
+	}
+#	set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno}] -text [mc "Yes"] -fontfamily $Options(-fontfamily) -fontsize $fontsize -width $wyes -height $hyes -rx $onemm2px]
+	set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$ysep + $hsep + $onemm2px + $rx}] -text [mc "Yes"] -fontfamily $Options(-fontfamily) -fontsize $fontsize -width $wyes -height $hyes -rx $onemm2px]
+	if {$type == "yesno"} {
+#	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno}] -text " [mc No]" -fontfamily $Options(-fontfamily) -fontsize $fontsize -width $wyes -height $hyes -rx $onemm2px]
+	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$ysep + $hsep + $onemm2px + $rx}] -text " [mc No]" -fontfamily $Options(-fontfamily) -fontsize $fontsize -width $wyes -height $hyes -rx $onemm2px]
+	    $cbut config -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) yes"
+	    $cbut1 config -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) no"
+	} else {
+	    $cbut config  -command "variable $Options(-variable); [set cbut] destroy;[self] destroy;set $Options(-variable) yes"
+	}
+	my config -state disabled
+	$cbut config -state normal
+	if {$type == "yesno"} {
+	    $cbut1 config -state normal
+	}
+
     } else {
-	[self] config  -strokeopacity $Options(-strokeopacity)
+	[self] config  -command "variable $Options(-variable);[self] destroy;set $Options(-variable) yes"
     }
+    my config -strokeopacity $Options(-strokeopacity) -fillopacity $Options(-fillopacity)
 #Приводим в соответствие размеры холста с размерами mbutton 
     if {$fr} {
 	foreach {x0 y0 x1 y1} [$wcan bbox 0] {break}
@@ -4873,8 +4813,10 @@ $sepfe config -width [expr {$wyesno +  $strw}]
     if {$tbut == "yesno"} {
 	$cbut move $dx $dy
 	$cbut1 move $dx $dy
+	$sepfe move $dx $dy
     } elseif {$tbut == "msg"} {
 	$cbut move $dx $dy
+	$sepfe move $dx $dy
     }
     return $btag
   }
@@ -4975,45 +4917,42 @@ $sepfe config -width [expr {$wyesno +  $strw}]
   }
 
   method placetext {can text xt yt {textanchor nw} } {
+    set strwidth [winfo fpixels $wcan $Options(-strokewidth)]
     if {$text == ""} {
 	return ""
     }
+    set rx [winfo fpixels $wcan $Options(-rx)]
+
     set sfont [winfo pixels $wcan $Options(-fontsize)]
     set ltext [split "$text" "\n"]
-    set ystr $yt
+    set ystr [expr {$yt + $strwidth / 2.0}]
     set grt [$can create group]
-    $can delete "boxText $btag" 
+    $can delete "boxText $btag"
     set i 0
+    foreach {x0 y0 x1 y1} [$can bbox [set btag]] {break}
+    set wmbut [winfo fpixels $wcan $Options(-width)]
     foreach {txt}  "$ltext" {
 	if {$txt == ""} {
 	    set txt " "
 	}
-	set tekb [$can create [set ptext] $xt $ystr -text "[set txt]" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor  -tag "boxText$i" -parent $grt -textanchor nw]
-	foreach {x0  y0 x1 y1} [$can bbox $tekb] {break}
-	set ystr $y1
-	incr i
-    }
-    foreach {x0 y0 x1 y1} [$can bbox $grt] {break}
-    set x1 [winfo fpixels $wcan $Options(-width)]
-	for {set j 0} {$j < $i} {incr j} {
-	    set id [$can find withtag boxText$j]
 	    switch $textanchor {
 		"nw" {
-		    set xt $xt
+		    set xtn [expr {$xt + $strwidth / 2.0}]
 		}
 		"n" {
-		    set xt [expr {($x0 + $x1) / 2.0}]
+		    set xtn [expr {$xt + $wmbut / 2.0 - 1.0 * $strwidth}]
 		}
 		"ne" {
-		    set xt $x1
+#puts "PLACETEXT: can=$can fr=$fr xt=$xt x1=$x1 wmbut=$wmbut"
+		    set xtn [expr {$xt + $wmbut - 0.5 * $strwidth - 2 * $rx}]
 		}
 	    }
-	    foreach {xttek yt} [$can coords $id] {
-		$can coords $id $xt $yt
-		$can itemconfigure $id  -textanchor $textanchor
-		$can itemconfigure $id  -tag [list "boxText" "boxText $btag"]
-	    }
-	}
+	set tekb [$can create [set ptext] $xtn $ystr -text "[set txt]" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor]
+	$can itemconfigure $tekb -parent $grt  -tag "boxText$i"
+	lassign [$can bbox $tekb] x0t  y0t x1t y1t
+	set ystr $y1t
+	incr i
+    }
     return "$grt"
   }
 
@@ -5031,7 +4970,8 @@ $sepfe config -width [expr {$wyesno +  $strw}]
 # с учетом загруглённости углов
 # высота (длина) язычка
 # и скругление углов
-	return [list $w $h $theight $Options(-rx)]
+#	return [list $w $h $theight $Options(-rx)]
+	return [list $w $h $theight $rx]
   }
 
   method config args {
@@ -5208,7 +5148,15 @@ $sepfe config -width [expr {$wyesno +  $strw}]
 	    -strokewidth {
     		set Options($option) $value
 		if {[info exists idr]} {
-			$wcan itemconfigure $idr -strokewidth [winfo fpixels $wcan $value]
+		    set svai [winfo fpixels $wcan $value]
+		    $wcan itemconfigure $idr -strokewidth $sval
+		    if {$tbut == "msg" || $tbut == "yesno"} {
+			if {$sval == 0} {
+			    $sepfe config -height 1			
+			} else {
+			    $sepfe config -height $sval
+			}
+    		    } 
 		}
     	    }
 	    -rx {
@@ -5219,6 +5167,7 @@ $sepfe config -width [expr {$wyesno +  $strw}]
 	    }
 	    -fillopacity -
     	    -fill {
+    		set Options($option) $value
 		if {[info exists idr]} {
 		    $wcan itemconfigure $idr $option $value
 		}
@@ -5258,6 +5207,9 @@ $sepfe config -width [expr {$wyesno +  $strw}]
 		    if { $tbut != "check" && $tbut != "radio"} {
 			$wcan itemconfigure $idr -stroke $value
     		    }
+		    if {$tbut == "msg" || $tbut == "yesno"} {
+			$sepfe config -fillnormal $value
+    		    } 
 		}
 	    }
 	    -strokeopacity {
@@ -5266,6 +5218,9 @@ $sepfe config -width [expr {$wyesno +  $strw}]
 		    if { $tbut != "check" && $tbut != "radio"} {
 			$wcan itemconfigure $idr -strokeopacity $value
     		    }
+		    if {$tbut == "msg" || $tbut == "yesno"} {
+			$sepfe config -fillopacity $value
+    		    } 
 		}
 	    }
 	    press {
