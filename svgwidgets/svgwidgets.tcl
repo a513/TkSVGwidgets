@@ -4413,6 +4413,8 @@ oo::class create mbutton {
     set y1 [expr {$y1 + $strw / 2.0}]
     set Options(-width) [expr {[winfo fpixels $wcan $Options(-width)] - $strw}]
     set Options(-height) [expr {[winfo fpixels $wcan $Options(-height)] - $strw}]
+    lassign $Options(-tongue) p1x p2x p3x theight
+    set htongue [winfo fpixels $wcan $theight]
 
     if {$Options(-text) != "" } {
 #Размеры текста
@@ -4430,8 +4432,14 @@ oo::class create mbutton {
 	    } 
 	    set bht [expr {$bht + $hyesno + 3 * $strw + 0 * $onemm2px + 2 * $rx}]
 	}
-	if {$bwt > $Options(-width)} {
-	    set Options(-width) $bwt
+	if {$type == "right"} {
+	    if {[expr {$bwt + $htongue}] > $Options(-width)} {
+		set Options(-width) [expr {$bwt + $htongue}]
+	    }
+	} else {
+	    if {$bwt > $Options(-width)} {
+		set Options(-width) $bwt
+	    }
 	}
 	if {$bht > $Options(-height)} {
 	    set Options(-height) $bht
@@ -4452,9 +4460,17 @@ oo::class create mbutton {
 		set xt [expr { $x1 + $rx}]
 		set yt [expr { $y1 + $rx }]
 	    }
-	left -
-	right {
+	left {
 		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
+		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)]}]
+#Метка кнопки
+#set testfont "sans-serif 12 normal"
+		set xt [expr { $x1 + $rx }]
+		set yt [expr { $y1 + $rx }]
+	
+	}
+	right {
+		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)] - $htongue}]
 		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)]}]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
@@ -4464,7 +4480,7 @@ oo::class create mbutton {
 	}
 	down {
 		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
-		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)]}]
+		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] - $htongue}]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
 		set xt [expr { $x1 + $rx }]
@@ -4473,11 +4489,9 @@ oo::class create mbutton {
 	up {
 		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
 #		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] + 30}]
-		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] + 0}]
+		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)] - $htongue}]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
-		foreach {p1x p2x p3x theight } $Options(-tongue) {break}
-		set htongue [winfo fpixels $wcan $theight]
 		set xt [expr { $x1 + $rx }]
 		set yt [expr { $y1 + $rx + $htongue}]
 	    }
@@ -4553,10 +4567,8 @@ oo::class create mbutton {
 	} else {
 	    set dx [expr {($xr2 - $xr1 - ($tx2 - $tx1) * 1) / 2.0}]
 	}
-#	set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$yr2 - $hyesno}] -text [mc "Yes"] -fontfamily $Options(-fontfamily) -fontsize $fontsize -width $wyes -height $hyes -rx $onemm2px]
 	set cbut [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx}] -y [expr {$ysep + $hsep + $onemm2px + $rx}] -text [mc "Yes"] -fontfamily $Options(-fontfamily) -fontsize $fontsize -width $wyes -height $hyes -rx $onemm2px]
 	if {$type == "yesno"} {
-#	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$yr2 - $hyesno}] -text " [mc No]" -fontfamily $Options(-fontfamily) -fontsize $fontsize -width $wyes -height $hyes -rx $onemm2px]
 	    set cbut1 [cbutton new "$wcan" -type round -x [expr {$xr1 + $dx * 2 + ($tx2 - $tx1)}] -y [expr {$ysep + $hsep + $onemm2px + $rx}] -text " [mc No]" -fontfamily $Options(-fontfamily) -fontsize $fontsize -width $wyes -height $hyes -rx $onemm2px]
 	    $cbut config -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) yes"
 	    $cbut1 config -command "variable $Options(-variable);[set cbut] destroy;[set cbut1] destroy;[self] destroy;set $Options(-variable) no"
@@ -4575,16 +4587,16 @@ oo::class create mbutton {
     my config -strokeopacity $Options(-strokeopacity) -fillopacity $Options(-fillopacity)
 #Приводим в соответствие размеры холста с размерами mbutton 
     if {$fr} {
-	foreach {x0 y0 x1 y1} [$wcan bbox 0] {break}
+	set x1 [expr {[my config -width] + $strw}]
+	set y1 [expr {[my config -height] + $strw}]
 	if {$tbut == "left"} {
 	    foreach {p1x p2x p3x theight } $Options(-tongue) {break}
 	    set htongue [winfo fpixels $wcan $theight]
 	    $wcan move 0 [expr {$htongue - 2 }] 0
-	    $wcan configure -width [expr {$x1}] -height [expr {$y1}]
+	    $wcan configure -width [expr {$x1 + $htongue - 2}] -height [expr {$y1}]
 	} else {
 	    $wcan configure -width [expr {$x1}] -height [expr {$y1}]
 	}
-	lassign [$wcan coords $idbg] x0 y0 x1 y1
 	$wcan lower $idbg $idr
     } else {
 	$wcan delete IDOR
@@ -4931,6 +4943,10 @@ oo::class create mbutton {
     set i 0
     foreach {x0 y0 x1 y1} [$can bbox [set btag]] {break}
     set wmbut [winfo fpixels $wcan $Options(-width)]
+    if {$tbut == "right"} {
+	lassign $Options(-tongue) p1x p2x p3x theight
+	set htongue [winfo fpixels $wcan $theight]
+    }
     foreach {txt}  "$ltext" {
 	if {$txt == ""} {
 	    set txt " "
@@ -4940,11 +4956,14 @@ oo::class create mbutton {
 		    set xtn [expr {$xt + $strwidth / 2.0}]
 		}
 		"n" {
-		    set xtn [expr {$xt + $wmbut / 2.0 - 1.0 * $strwidth}]
+		    set xtn [expr {$xt + $wmbut / 2.0 - 0 * $strwidth  - 1.0 * $rx}]
 		}
 		"ne" {
-#puts "PLACETEXT: can=$can fr=$fr xt=$xt x1=$x1 wmbut=$wmbut"
+#puts "PLACETEXT: tbut=$tbut can=$can fr=$fr xt=$xt x1=$x1 wmbut=$wmbut"
 		    set xtn [expr {$xt + $wmbut - 0.5 * $strwidth - 2 * $rx}]
+		    if {$tbut == "right"} {
+			set xtn [expr {$xtn - $htongue}]
+		    }
 		}
 	    }
 	set tekb [$can create [set ptext] $xtn $ystr -text "[set txt]" -fontfamily $Options(-fontfamily) -fontweight $Options(-fontweight) -fontsize $sfont -fontslant $Options(-fontslant) -textanchor $textanchor]
@@ -5622,13 +5641,16 @@ oo::class create cmenu {
 	    set rrxx [winfo fpixels $wcan $Options(-rx)]
 	    if {$direction == "up"} {
 		set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
-		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 + $strw + 1}] -height [expr {$hy + $by0 + $rrxx - $htongue}]]
+		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 + $strw + 1}] -height [expr {$hy + $by0 + $rrxx - 0 * $htongue}]]
 	    } elseif {$direction == "left"} {
 		set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
 		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 * 0 + $strw}] -height [expr {$hy + $by0 * 0 + $rrxx}]]
 	    } elseif {$direction == "right"} {
 		set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
-		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 + $strw + 1}] -height [expr {$hy + $by0 + $rrxx}]]
+		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 + $strw + 1 + $htongue}] -height [expr {$hy + $by0 + $rrxx}]]
+	    } elseif {$direction == "down"} {
+		set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
+		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 + $strw + 1}] -height [expr {$hy + $by0 + $rrxx + $htongue}]]
 	    } else {
 		set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
 		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 + $strw + 1}] -height [expr {$hy + $by0 + $rrxx}]]
