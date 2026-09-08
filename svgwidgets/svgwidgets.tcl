@@ -4441,8 +4441,14 @@ oo::class create mbutton {
 		set Options(-width) $bwt
 	    }
 	}
-	if {$bht > $Options(-height)} {
-	    set Options(-height) $bht
+	if {$type == "down" || $type == "up"} {
+	    if {[expr {$bht + 2 * $htongue}] > $Options(-height)} {
+		set Options(-height) [expr {$bht + 1 * $htongue}]
+	    }
+	} else {
+	    if {$bht > $Options(-height)} {
+		set Options(-height) $bht
+	    }
 	}
     }
 
@@ -4957,6 +4963,9 @@ oo::class create mbutton {
 		}
 		"n" {
 		    set xtn [expr {$xt + $wmbut / 2.0 - 0 * $strwidth  - 1.0 * $rx}]
+		    if {$tbut == "right"} {
+			set xtn [expr {$xtn - 0.5 * $htongue}]
+		    }
 		}
 		"ne" {
 #puts "PLACETEXT: tbut=$tbut can=$can fr=$fr xt=$xt x1=$x1 wmbut=$wmbut"
