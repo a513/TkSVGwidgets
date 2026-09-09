@@ -4317,8 +4317,11 @@ oo::class create mbutton {
     set Options(-direction) $type
     set Options(-strokeopacity) 1.0
     set Options(-fillopacity) 1.0
-    set Options(-variable) ::_mbut
-    set ::_mbut ""
+#    set Options(-variable) ::_mbut
+    set Options(-variable) [self]_mbut
+#    set ::_mbut ""
+    set [set Options(-variable)] ""
+
     set fr 0
     set canvasb "canvasb"
     set ind [lsearch $args "-strokewidth"]
@@ -4430,9 +4433,12 @@ oo::class create mbutton {
 	    if {$bwtb > $bwt} {
 		set $bwt $bwtb
 	    } 
-	    set bht [expr {$bht + $hyesno + 3 * $strw + 0 * $onemm2px + 2 * $rx}]
+	    set bht [expr {$bht + $hyesno + 3 * $strw + 2 * $rx}]
+	} else {
+	    set bwt [expr {$bwt + $strw}]
+	    set bht [expr {$bht + $strw}]
 	}
-	if {$type == "right"} {
+	if {$type == "right" || $type == "left"} {
 	    if {[expr {$bwt + $htongue}] > $Options(-width)} {
 		set Options(-width) [expr {$bwt + $htongue}]
 	    }
@@ -4443,7 +4449,7 @@ oo::class create mbutton {
 	}
 	if {$type == "down" || $type == "up"} {
 	    if {[expr {$bht + 2 * $htongue}] > $Options(-height)} {
-		set Options(-height) [expr {$bht + 1 * $htongue}]
+		set Options(-height) [expr {$bht + $htongue}]
 	    }
 	} else {
 	    if {$bht > $Options(-height)} {
@@ -4467,7 +4473,7 @@ oo::class create mbutton {
 		set yt [expr { $y1 + $rx }]
 	    }
 	left {
-		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)]}]
+		set x2 [expr {$x1 + [winfo fpixels $wcan $Options(-width)] - $htongue}]
 		set y2 [expr {$y1 + [winfo fpixels $wcan $Options(-height)]}]
 #Метка кнопки
 #set testfont "sans-serif 12 normal"
@@ -4599,7 +4605,7 @@ oo::class create mbutton {
 	    foreach {p1x p2x p3x theight } $Options(-tongue) {break}
 	    set htongue [winfo fpixels $wcan $theight]
 	    $wcan move 0 [expr {$htongue - 2 }] 0
-	    $wcan configure -width [expr {$x1 + $htongue - 2}] -height [expr {$y1}]
+	    $wcan configure -width [expr {$x1 - 2}] -height [expr {$y1}]
 	} else {
 	    $wcan configure -width [expr {$x1}] -height [expr {$y1}]
 	}
@@ -4949,7 +4955,7 @@ oo::class create mbutton {
     set i 0
     foreach {x0 y0 x1 y1} [$can bbox [set btag]] {break}
     set wmbut [winfo fpixels $wcan $Options(-width)]
-    if {$tbut == "right"} {
+    if {$tbut == "right" || $tbut == "left"} {
 	lassign $Options(-tongue) p1x p2x p3x theight
 	set htongue [winfo fpixels $wcan $theight]
     }
@@ -4962,15 +4968,15 @@ oo::class create mbutton {
 		    set xtn [expr {$xt + $strwidth / 2.0}]
 		}
 		"n" {
-		    set xtn [expr {$xt + $wmbut / 2.0 - 0 * $strwidth  - 1.0 * $rx}]
-		    if {$tbut == "right"} {
+		    set xtn [expr {$xt + $wmbut / 2.0 - 0 * $strwidth - $rx}]
+		    if {$tbut == "right" || $tbut == "left"} {
 			set xtn [expr {$xtn - 0.5 * $htongue}]
 		    }
 		}
 		"ne" {
 #puts "PLACETEXT: tbut=$tbut can=$can fr=$fr xt=$xt x1=$x1 wmbut=$wmbut"
 		    set xtn [expr {$xt + $wmbut - 0.5 * $strwidth - 2 * $rx}]
-		    if {$tbut == "right"} {
+		    if {$tbut == "right" || $tbut == "left"} {
 			set xtn [expr {$xtn - $htongue}]
 		    }
 		}
@@ -5267,8 +5273,8 @@ oo::class create mbutton {
     }
   }
 
-
   destructor {
+    unset [set Options(-variable)] 
     if {$mplace == "window"} {
 	set mwin [winfo toplevel $wcan]
     }
@@ -5276,7 +5282,6 @@ oo::class create mbutton {
     	    catch {$sepfe destroy}
     	    catch {$cbut destroy}
     	    catch {$cbut1 destroy}
-    	    
     } elseif {$tbut == "msg"} {
     	    catch {$sepfe destroy}
     	    catch {$cbut destroy}
