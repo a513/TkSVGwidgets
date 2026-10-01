@@ -1938,6 +1938,9 @@ if {[$wcan bbox $isvg] != ""} {
 		}
 	    }
 	    -variable {
+		if {$value == ""} {
+    		    error "Bad option $option (value=\"$value\") for cbutton type=$tbut" 
+		}
 		set ind1 [string first "(" $value]
 		set ind2 [string last ")" $value]
 		if {$ind1 == -1 || $ind2 == -1 || $ind1 > $ind2} {
@@ -3376,13 +3379,12 @@ set ::methodman {
     }
     if {$wclass == "mbutton"} {
 	lassign [$wcan bbox [my tag]] xm0 ym0 xm1 ym1
-#	$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
 	$wcan configure -width [expr {$xm1}] -height [expr {$ym1 - abs($ym0)}]
     }
     if {$wclass == "cmenu"} {
 	lassign [$wcan bbox [[lindex [my menulist] 0] tag]] xm0 ym0 xm1 ym1
-	$wcan configure -width [expr {$xm1 - abs($xm0)}] -height [expr {$ym1 - abs($ym0)}]
-set Options(-state) "normal"
+	$wcan configure -width [expr {$xm1}] -height [expr {$ym1 - abs($ym0)}]
+	    set Options(-state) "normal"
     }
     if {[winfo manager $wcan] == ""} {
 	    eval $type $wcan [lindex $args 0]
@@ -3408,6 +3410,44 @@ set Options(-state) "normal"
 	    }
 	}
 	raise $wcan 
+    }
+    update
+    if {$tbut == "clframe" || $tbut == "frame" || $tbut == "cmenu"} {
+	if {$tbut == "cmenu"} {
+	    set sloo [my menulist]
+	} else {
+	    set sloo [my slavesoo]
+	}
+	foreach zxz $sloo {
+	    if {[info command $zxz] == ""} {
+		continue
+	    }
+	    set tbut1 [$zxz type]
+	    if {$tbut1 == "radio" || $tbut1 == "check"} {
+		if {![catch {$zxz config -variable} bvar]} {
+		    set ind1 [string first "(" $bvar]
+		    set ind2 [string last ")" $bvar]
+		    if {$ind1 == -1 || $ind2 == -1 || $ind1 > $ind2} {
+			global $bvar
+		    } else {
+			global [string range $bvar 0 $ind1-1]
+		    }
+		    set [set bvar] [set [set bvar]]
+		}
+	    }
+	}
+    }
+    if {$fr == 1 && ($tbut == "radio" || $tbut == "check")} {
+	if {![catch {my config -variable} bvar]} {
+	    set ind1 [string first "(" $bvar]
+	    set ind2 [string last ")" $bvar]
+	    if {$ind1 == -1 || $ind2 == -1 || $ind1 > $ind2} {
+		global $bvar
+	    } else {
+		global [string range $bvar 0 $ind1-1]
+	    }
+	    set [set bvar] [set [set bvar]]
+	}
     }
   }
 #Какие svg-щбъекты размещены в окне текущего svg-щбъекта
@@ -5403,6 +5443,7 @@ oo::class create cmenu {
     set wclass "cmenu"
     catch {unset Options}
     set Options(-place) $tpmenu
+    set Options(-width) 7m
     set Options(-height) 5m
     set Options(-fillnormal) white
     set Options(-fontsize) 3m
@@ -5606,12 +5647,12 @@ oo::class create cmenu {
 	}
 	command {
 #puts "command=$type"	
-    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" -frommenu [self] $args"]
+    	    set cbut [eval "cbutton new $wcan -type rect -x $xc -y $yc -ipad \"$Options(-ipad)\" -stroke \"$Options(-stroke)\" -frommenu [self] $args" -width $Options(-width)]
 
 	    lappend listmenu $cbut
 	}
 	separator {
-    	    set cbut [cbutton new "$wcan" -type rect -x $xc -y [expr {$yc + $m1}] -command "" -text "" -height 0.5m -fillenter "##" -fillpress "##" -fillnormal gray80 -stroke gray80]
+    	    set cbut [cbutton new "$wcan" -type rect -x $xc -y [expr {$yc + $m1}] -command "" -text "" -height 0.5m -fillenter "##" -fillpress "##" -fillnormal gray80 -stroke gray80 -width $Options(-width)]
 	    $cbut config $args
 	    lappend listmenu $cbut
 	}
@@ -5658,7 +5699,7 @@ oo::class create cmenu {
 		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 + $strw + 1}] -height [expr {$hy + $by0 + $rrxx - 0 * $htongue}]]
 	    } elseif {$direction == "left"} {
 		set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
-		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 * 0 + $strw}] -height [expr {$hy + $by0 * 0 + $rrxx}]]
+		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 * 0 + $strw * 2 + $htongue}] -height [expr {$hy + $by0 * 0 + $rrxx}]]
 	    } elseif {$direction == "right"} {
 		set cbut [mbutton new $wcan -type $direction -x $strw2 -y $strw2 -fillnormal $Options(-fillnormal) -fillenter "##" -fillpress "##" -strokewidth $Options(-strokewidth) -stroke $Options(-stroke) \
 		    -command "$Options(-command)" -tongue "$Options(-tongue)" -rx $Options(-rx) -text "" -width [expr {$wx + $bx0 + $strw + 1 + $htongue}] -height [expr {$hy + $by0 + $rrxx}]]
@@ -6709,4 +6750,4 @@ oo::define cmenu {
     eval $::methodman
 }
 
-package provide svgwidgets 0.9.0
+package provide svgwidgets 0.9.1
