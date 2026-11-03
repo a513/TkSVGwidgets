@@ -263,18 +263,19 @@ oo::class create cbutton {
     set  Options(-state) "normal"
 #    set  Options(-width) 25m
     set Options(-displaymenu) "release"
-    set  Options(-width) 7m
-    set  Options(-height) 7m
-    set  Options(-rotate) 0
+    set Options(-width) 7m
+    set Options(-height) 7m
+    set Options(-rotate) 0
 #    set  Options(-compound) "left"
-    set  Options(-compound) "none"
+    set Options(-compound) "none"
 # Отступ слева, ширина, отступ сверху, отступ снизу
-    set  Options(-ipad) [list 1m 1m 1m 1m]
+    set Options(-ipad) [list 1m 1m 1m 1m]
     set Options(-strokewidth) 1
 #    set Options(-strokeopacity) 1.0
     set fr 0
     set Options(-x) 0
     set Options(-y) 0
+    set Options(-filloverstroke) 0
     set canvasb "canvasb"
     set ind [lsearch $args "-strokewidth"]
     if {$ind > -1} {
@@ -2046,6 +2047,7 @@ if {[$wcan bbox $isvg] != ""} {
 		    }
 		}
 	    }
+	    -filloverstroke -
     	    -fill {
 		if {[info exists idr]} {
 		    $wcan itemconfigure $idr $option $value
@@ -2320,6 +2322,7 @@ oo::class create ibutton {
     set Options(-height) 7m
     set Options(-pad) "0 0 0 0"
     set Options(-strokewidth) 1
+    set Options(-filloverstroke) 0
     set fr 0
     set canvasb "canvasb"
     set ind [lsearch $args "-strokewidth"]
@@ -2852,7 +2855,8 @@ puts "RELEASE:wx0=$wx0 hy0=$hy0 wx1=$wx1 hy1=$hy1"
 		if {[info exists idr]} {
 		    $wcan itemconfigure $idr $option [winfo fpixels $wcan $value]
 		}
-	    }        
+	    }
+	    -filloverstroke -
     	    -fill {
 		if {[info exists idr]} {
 		    $wcan itemconfigure $idr $option $value
@@ -4357,6 +4361,7 @@ oo::class create mbutton {
     set Options(-direction) $type
     set Options(-strokeopacity) 1.0
     set Options(-fillopacity) 1.0
+    set Options(-filloverstroke) 0
 #    set Options(-variable) ::_mbut
     set Options(-variable) [self]_mbut
 #    set ::_mbut ""
@@ -5239,6 +5244,7 @@ oo::class create mbutton {
 #			$wcan itemconfigure $idr $option [winfo fpixels $wcan $value]
 		    }
 	    }
+	    -filloverstroke -
 	    -fillopacity -
     	    -fill {
     		set Options($option) $value
@@ -5445,6 +5451,7 @@ oo::class create cmenu {
     set Options(-place) $tpmenu
     set Options(-width) 7m
     set Options(-height) 5m
+    set Options(-filloverstroke) 0
     set Options(-fillnormal) white
     set Options(-fontsize) 3m
     set Options(-strokewidth) 1
@@ -5907,6 +5914,7 @@ if {[$obj class] == "cbutton"} {
 		    $erlib config $option $value
 		}
     	    }
+	    -filloverstroke -
 	    -stroke -
     	    -fillnormal {
     		set Options($option) $value
@@ -6098,6 +6106,7 @@ oo::class create cframe {
     set Options(-strokewidth) 	0.5m
     set Options(-rx) 		2m
     set Options(-fillnormal) 	""
+    set Options(-filloverstroke) 0
     set Options(-stroke)	cyan
     set Options(-strokeopacity) 1.0
 #    set Options(-width)		10c
@@ -6556,10 +6565,11 @@ if {$yt0 < 0.0} {
     		    set Options($option) $value
 		}
     	    }
+	    -filloverstroke -
     	    -stroke {
     		set Options($option) $value
 		if {[info exists idr]} {
-		    $wcan itemconfigure $idr -stroke $value
+		    $wcan itemconfigure $idr $option $value
 		}
     	    }
     	    -text {
